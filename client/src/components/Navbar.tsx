@@ -11,22 +11,33 @@ import {
     MenuDivider,
     MenuGroup,
     IconButton,
-    useBreakpointValue
+    useBreakpointValue,
+    Link
 } from "@chakra-ui/react"
-import { BsDiscord } from 'react-icons/bs'
+import { BsBoxArrowRight, BsDiscord } from 'react-icons/bs'
 import { FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6'
 import { GiHamburgerMenu } from 'react-icons/gi'
-import { AiOutlineHome } from 'react-icons/ai'
+import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai'
 import { AiOutlineInfoCircle } from 'react-icons/ai'
 import { AiOutlineMail } from 'react-icons/ai'
 import { BiLogIn } from 'react-icons/bi'
 import { AiOutlineUserAdd } from 'react-icons/ai'
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 
-function Navbar () {
+type NavbarProps = {
+    username?: string;
+}
+
+function Navbar ({ username }: NavbarProps) {
 
     const isBelowMd = useBreakpointValue({ base: true, md: false })
     const navigate = useNavigate()
+    const { requestLogout } = useAuth()
+
+    const handleLogOut = () => {
+        requestLogout()
+    }
 
     return (
         <Flex bgColor="orange.400" px={5} py={2} alignItems="center">
@@ -55,27 +66,43 @@ function Navbar () {
                     {isBelowMd ? 
                     <>
                         <MenuGroup title="Navigation">
-                            <MenuItem>Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                            <MenuItem>About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                            <MenuItem>Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            <MenuItem as={Link} href="/">Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            <MenuItem as={Link} href="/about">About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            <MenuItem as={Link} href="/contact">Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         </MenuGroup>
                         <MenuDivider borderColor="gray.400" />
                     </> : <>
-                        <MenuItem>Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                        <MenuItem>About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                        <MenuItem>Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        <MenuItem as={Link} href="/">Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        <MenuItem as={Link} href="/about">About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        <MenuItem as={Link} href="/contact">Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         <MenuDivider borderColor="gray.400" />
                     </>
                     }
                     {isBelowMd ? 
                     <>
                         <MenuGroup title="Profile">
-                            <MenuItem>Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                            <MenuItem>Sign Up<AiOutlineUserAdd size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            {username ?
+                                <>
+                                    <MenuItem>{username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                    <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                </>
+                                : <>
+                                    <MenuItem as={Link} href="/login">Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                    <MenuItem as={Link} href="/signup">Sign Up<AiOutlineUserAdd size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                </>
+                            }
                         </MenuGroup>
                     </> : <>
-                        <MenuItem>Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
-                        <MenuItem>Sign Up<AiOutlineUserAdd size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        {username ? 
+                            <>
+                                <MenuItem>{username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            </>
+                            : <>
+                            <MenuItem as={Link} href="/login">Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            <MenuItem as={Link} href="/signup">Sign Up<AiOutlineUserAdd size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        </>
+                        }
                     </>
                     }
                 </MenuList>

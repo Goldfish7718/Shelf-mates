@@ -1,3 +1,4 @@
+import Navbar from "../components/Navbar"
 import { useAuth } from "../context/AuthContext"
 
 function Categories () {
@@ -6,7 +7,7 @@ function Categories () {
 
     return (
         <>
-            Hi {decode?.fName}
+            <Navbar username={decode?.username} />
         </>
     )
 }

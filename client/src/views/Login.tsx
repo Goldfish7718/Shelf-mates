@@ -2,50 +2,24 @@ import { Alert, AlertIcon, AlertTitle, Box, Button, Flex, FormControl, FormLabel
 import Navbar from "../components/Navbar"
 import { useState } from "react"
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons"
-import { API_URL } from "../App"
-import axios from "axios"
 import { useAuth } from "../context/AuthContext"
-import { useNavigate } from "react-router-dom"
 
 function Login () {
 
-    const navigate = useNavigate()
-    const toast = useToast()
-    const { setIsLoggedIn } = useAuth()
+    const { decode, requestLogin, error, isLoading  } = useAuth()
 
     const [showPassword, setShowPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const [error, setError] = useState('')
-
-    const requestLogin = async () => {
-        try {
-            const res = await axios.post(`${API_URL}/auth/login`, {
-                username, 
-                password
-            })
-            toast({
-                title: `Welcome Back! ${res?.data?.fName}`,
-                description: 'We are at your service',
-                status: 'success',
-                duration: 5000,
-                isClosable: true,
-              })
-            setIsLoggedIn(true)
-            navigate('/categories')
-        } catch (err: any) {
-            setError(err?.response?.data?.message)
-        } finally {
-            setIsLoading(false)
-        }
+    const handleLogin = () => {
+        requestLogin({ username, password })
     }
-
+   
     return (
     <>
-        <Navbar />
+        {decode ? <Navbar username={decode.username} /> : <Navbar />}
         <Flex
             h='100vh'
             align={'center'}
@@ -88,15 +62,15 @@ function Login () {
                     }
                     <Stack spacing={10} pt={2}>
                         <Button
-                        loadingText="Submitting"
+                        loadingText="Logging in..."
                         size="lg"
                         isLoading={isLoading}
                         colorScheme='orange'
-                        onClick={requestLogin}>
+                        onClick={handleLogin}>
                         Login
                         </Button>
                     </Stack>
-                    <Stack pt={6}>
+                    <Stack pt={{ sm: 3, md: 6 }}>
                         <Text align={'center'}>
                             <Link color='orange' href='/signup'>Sign Up</Link>
                         </Text>

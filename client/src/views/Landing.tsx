@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar"
 import { BsBoxArrowUpRight } from "react-icons/bs"
 import { useNavigate } from "react-router-dom"
 import Animator from "../utils/Animator"
+import { useAuth } from "../context/AuthContext"
 
 function Landing () {
 
@@ -11,10 +12,11 @@ function Landing () {
     const buttonWidth = useBreakpointValue({ sm: "50%", md: "20%" })
 
     const navigate = useNavigate()
+    const { decode } = useAuth()
 
     return (
         <>
-            <Navbar />
+            {decode ? <Navbar username={decode.username} /> : <Navbar />}
             <Animator watch={false} animation_type="vertical">
                 <Flex h="90vh" p={8} alignItems="center" justifyContent="center" direction="column">
                     <Heading fontSize={headingFontSize}>Fastest Grocery Delivery in <Text as="span" color="orange.500">Your Area</Text></Heading>

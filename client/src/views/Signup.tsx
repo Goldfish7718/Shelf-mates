@@ -16,21 +16,15 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  useToast,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import Navbar from '../components/Navbar'
-import axios from 'axios'
-import { API_URL } from '../App'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 function Signup() {
 
-  const navigate = useNavigate()
-  const toast = useToast()
-  const { setIsLoggedIn } = useAuth()
+  const { decode, error, isLoading, requestSignup } = useAuth()
   
   const [showPassword, setShowPassword] = useState(false)
 
@@ -39,37 +33,13 @@ function Signup() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const requestSignup = async () => {
-    try {
-        setIsLoading(true)
-        await axios.post(`${API_URL}/auth/signup`, {
-            username, 
-            password,
-            fName,
-            lName
-        })
-        toast({
-          title: `Welcome To Shelf-Mates! ${fName}`,
-          description: "Account Created Succesfully",
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        })
-        setIsLoggedIn(true)
-        navigate('/categories')
-    } catch (err: any) {
-      setError(err.response.data.message)
-    } finally {
-      setIsLoading(false)
-    }
-}
+  const handleSignup = () => {
+    requestSignup({ fName, lName, username, password })
+  }
 
   return (
     <>
-      <Navbar />
+      {decode ? <Navbar username={decode.username} /> : <Navbar />}
       <Flex
         h='100vh'
         align={'center'}
@@ -126,11 +96,11 @@ function Signup() {
               }
               <Stack spacing={10} pt={2}>
                 <Button
-                  loadingText="Submitting"
+                  loadingText="Signing you up..."
                   size="lg"
                   isLoading={isLoading}
                   colorScheme='orange'
-                  onClick={requestSignup}>
+                  onClick={handleSignup}>
                   Sign up
                 </Button>
               </Stack>
