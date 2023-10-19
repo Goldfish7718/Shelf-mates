@@ -22,7 +22,6 @@ import { AiOutlineInfoCircle } from 'react-icons/ai'
 import { AiOutlineMail } from 'react-icons/ai'
 import { BiLogIn } from 'react-icons/bi'
 import { AiOutlineUserAdd } from 'react-icons/ai'
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 type NavbarProps = {
@@ -32,7 +31,6 @@ type NavbarProps = {
 function Navbar ({ username }: NavbarProps) {
 
     const isBelowMd = useBreakpointValue({ base: true, md: false })
-    const navigate = useNavigate()
     const { requestLogout } = useAuth()
 
     const handleLogOut = () => {
@@ -41,7 +39,7 @@ function Navbar ({ username }: NavbarProps) {
 
     return (
         <Flex bgColor="orange.400" px={5} py={2} alignItems="center">
-            <Text fontSize={{base: 20, md: 32}} fontWeight="700" color="white" onClick={() => navigate('/')}>Shelf-mates</Text>
+            <Text fontSize={{base: 20, md: 32}} _hover={{ cursor: 'pointer' }} fontWeight="700" color="white" onClick={() => window.location.href = '/'}>Shelf-mates</Text>
             <ButtonGroup display={{base: "none", md: "block" }} isAttached mx={5} >
                 <Button><BsDiscord size={18} /></Button>
                 <Button><FaXTwitter size={18} /></Button>

@@ -7,22 +7,22 @@ import Categories from './views/Categories'
 import axios from 'axios'
 import AuthProvider from './context/AuthContext'
 import ProtectedRoute from './utils/PretectedRoute'
+import Items from './views/Items'
 
 axios.defaults.withCredentials = true
 
 function App() {
   return (
     <BrowserRouter>
-    <AuthProvider>
-      <Routes>
-        <Route path='/' element={<Landing />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/categories' element={<ProtectedRoute element={<Categories />} />}>
-
-        </Route>
-      </Routes>
-    </AuthProvider>
+      <AuthProvider>
+        <Routes>
+          <Route path='/' element={<Landing />} />
+          <Route path='/signup' element={<Signup />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/categories' element={<ProtectedRoute element={<Categories />} />} />
+          <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

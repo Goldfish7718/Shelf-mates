@@ -7,6 +7,7 @@ import cors from 'cors'
 config()
 
 import userRoutes from './routes/userRoutes'
+import productRoutes from './routes/productRoutes'
 
 const app = express()
 
@@ -19,6 +20,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use('/auth', userRoutes)
+app.use('/products', productRoutes)
 
 
 const connectDB = async (url: string) => {

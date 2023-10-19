@@ -114,7 +114,7 @@ function AuthProvider({ children }: AuthContextProps) {
     const requestLogout = async () => {
         await axios.post(`${API_URL}/auth/logout`)
         setIsLoggedIn(false)
-        window.location.reload()
+        window.location.href = '/login'
     }
     
     const value = {
