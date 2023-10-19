@@ -6,10 +6,18 @@ const productSchema = new mongoose.Schema({
     description: String,
     stock: Number,
     category: String,
+    stars: Number,
     image: {
         data: Buffer,
         contentType: String
-    }
+    },
+    reviews: [
+        {
+            username: String,
+            stars: Number,
+            review: String
+        }
+    ]
 })
 
 const Product = mongoose.model('Product', productSchema)

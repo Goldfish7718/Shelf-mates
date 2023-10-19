@@ -1,4 +1,4 @@
-import { Heading, SimpleGrid } from "@chakra-ui/react"
+import { SimpleGrid } from "@chakra-ui/react"
 import { useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import ItemCard from "../components/ItemCard"
@@ -6,6 +6,7 @@ import { API_URL } from "../App"
 import axios from "axios"
 import { useState, useEffect } from 'react'
 import Loading from "../components/Loading"
+import ErrorComponent from "../components/ErrorComponent"
 
 export type ItemData = {
     name: string;
@@ -13,6 +14,8 @@ export type ItemData = {
     price: number;
     stock: number;
     image: string;
+    _id: string;
+    category: string
 }
 
 function Items () {
@@ -51,10 +54,10 @@ function Items () {
                 <Loading />
             }
             {error && 
-                <Heading>{error}</Heading>
+                <ErrorComponent error={error} />
             }
             {!error &&
-                <SimpleGrid m={{ sm: 3, md: 7, lg: 10 }} columns={{ sm: 2, md: 3, lg: 4 }} spacing={{ sm: 4, md: 6 }}>
+                <SimpleGrid m={{ base: 3, md: 7, lg: 10 }} columns={{ base: 2, md: 3, lg: 4 }} spacing={{ base: 4, md: 6 }}>
                     {data.map(product => (
                             <ItemCard {...product} />
                         ))

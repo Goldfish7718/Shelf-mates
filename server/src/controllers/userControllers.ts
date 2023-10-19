@@ -12,23 +12,33 @@ export const signup = async (req: Request, res: Response) => {
                 .status(400)
                 .send({ message: "All Inputs are required" })
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const potentialUser = await User.findOne({ username })
 
-        const payload = {
-            username,
-            fName,
-            lName
+        if (potentialUser) {
+            return res
+                .status(400)
+                .json({ message: 'User Already Exists' })
         }
 
-        const token = generateToken(payload)
+        const hashedPassword = await bcrypt.hash(password, 10)
 
-        await User
+        const user = await User
             .create({
                 username,
                 password: hashedPassword,
                 fName,
                 lName
             })
+
+        const { isAdmin } = user
+        const payload = {
+            username,
+            fName,
+            lName,
+            isAdmin
+        }
+
+        const token = generateToken(payload)
 
         res
             .status(200)
@@ -40,7 +50,9 @@ export const signup = async (req: Request, res: Response) => {
             .json({ message: "Account Created" })
 
     } catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: 'An error occured.Please try again later.' })
     }
 } 
 
@@ -70,12 +82,13 @@ export const login = async (req: Request, res: Response) => {
                 .status(400)
                 .json({ message: "Incorrect Credentials" })
 
-        const { fName, lName } = user
+        const { fName, lName, isAdmin } = user
 
         const payload = {
             fName,
             lName,
-            username
+            username,
+            isAdmin
         }
 
         const token = generateToken(payload)
@@ -105,6 +118,7 @@ export const logout = async (req: Request, res: Response) => {
     } catch (err) {
         console.log(err);
         res
+            .status(500)
             .json({ message: "Sorry an error occured" })
     }
 }

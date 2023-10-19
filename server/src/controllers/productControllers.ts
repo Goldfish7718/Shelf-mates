@@ -68,3 +68,37 @@ export const getProducts = async (req: Request, res: Response) => {
             json({ message: 'Internal Server Error' });
     }
 };
+
+export const getProduct = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const product = await Product.findById(id)
+
+        if (!product)
+            return res
+                .status(404)
+                .json({ message: 'This page does not exist' })
+
+        const productObj = product.toObject();
+
+        if (!productObj.image || !productObj.image.data) {
+            return res
+                .status(500)
+                .json({ message: 'Internal Server Error' })
+        }
+
+        const imageBase64 = productObj.image.data.toString('base64');
+        const transformedProduct = {
+            ...productObj,
+            image: `data:${productObj.image.contentType};base64,${imageBase64}`
+        };
+
+        res
+            .status(200)
+            .json({ transformedProduct })
+    } catch (err) {
+        return res
+            .status(500)
+            .json({ message: 'Internal Server Error' })
+    }
+}

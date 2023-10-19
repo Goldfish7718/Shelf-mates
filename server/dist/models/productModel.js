@@ -10,10 +10,18 @@ const productSchema = new mongoose_1.default.Schema({
     description: String,
     stock: Number,
     category: String,
+    stars: Number,
     image: {
         data: Buffer,
         contentType: String
-    }
+    },
+    reviews: [
+        {
+            username: String,
+            stars: Number,
+            review: String
+        }
+    ]
 });
 const Product = mongoose_1.default.model('Product', productSchema);
 exports.default = Product;

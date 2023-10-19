@@ -8,6 +8,7 @@ import axios from 'axios'
 import AuthProvider from './context/AuthContext'
 import ProtectedRoute from './utils/PretectedRoute'
 import Items from './views/Items'
+import Product from './views/Product'
 
 axios.defaults.withCredentials = true
 
@@ -21,6 +22,7 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/categories' element={<ProtectedRoute element={<Categories />} />} />
           <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
+          <Route path='/categories/:category/:id' element={<ProtectedRoute element={<Product />} />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

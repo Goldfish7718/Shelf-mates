@@ -24,14 +24,10 @@ import { BiLogIn } from 'react-icons/bi'
 import { AiOutlineUserAdd } from 'react-icons/ai'
 import { useAuth } from "../context/AuthContext"
 
-type NavbarProps = {
-    username?: string;
-}
-
-function Navbar ({ username }: NavbarProps) {
+function Navbar () {
 
     const isBelowMd = useBreakpointValue({ base: true, md: false })
-    const { requestLogout } = useAuth()
+    const { requestLogout, decode } = useAuth()
 
     const handleLogOut = () => {
         requestLogout()
@@ -79,9 +75,9 @@ function Navbar ({ username }: NavbarProps) {
                     {isBelowMd ? 
                     <>
                         <MenuGroup title="Profile">
-                            {username ?
+                            {decode?.username ?
                                 <>
-                                    <MenuItem>{username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                    <MenuItem>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                     <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                 </>
                                 : <>
@@ -91,9 +87,9 @@ function Navbar ({ username }: NavbarProps) {
                             }
                         </MenuGroup>
                     </> : <>
-                        {username ? 
+                        {decode?.username ? 
                             <>
-                                <MenuItem>{username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                <MenuItem>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                 <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                             </>
                             : <>

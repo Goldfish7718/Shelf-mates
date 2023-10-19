@@ -7,8 +7,16 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const userSchema = new mongoose_1.default.Schema({
     fName: String,
     lName: String,
-    username: String,
-    password: String
+    username: {
+        type: String,
+        unique: true
+    },
+    password: String,
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 });
 const User = mongoose_1.default.model("User", userSchema);
 exports.default = User;

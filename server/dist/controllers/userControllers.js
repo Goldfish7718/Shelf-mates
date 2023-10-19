@@ -14,20 +14,28 @@ const signup = async (req, res) => {
             return res
                 .status(400)
                 .send({ message: "All Inputs are required" });
+        const potentialUser = await userModel_1.default.findOne({ username });
+        if (potentialUser) {
+            return res
+                .status(400)
+                .json({ message: 'User Already Exists' });
+        }
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
-        const payload = {
-            username,
-            fName,
-            lName
-        };
-        const token = (0, generateToken_1.default)(payload);
-        await userModel_1.default
+        const user = await userModel_1.default
             .create({
             username,
             password: hashedPassword,
             fName,
             lName
         });
+        const { isAdmin } = user;
+        const payload = {
+            username,
+            fName,
+            lName,
+            isAdmin
+        };
+        const token = (0, generateToken_1.default)(payload);
         res
             .status(200)
             .cookie('token', token, {
@@ -38,7 +46,9 @@ const signup = async (req, res) => {
             .json({ message: "Account Created" });
     }
     catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: 'An error occured.Please try again later.' });
     }
 };
 exports.signup = signup;
@@ -59,11 +69,12 @@ const login = async (req, res) => {
             return res
                 .status(400)
                 .json({ message: "Incorrect Credentials" });
-        const { fName, lName } = user;
+        const { fName, lName, isAdmin } = user;
         const payload = {
             fName,
             lName,
-            username
+            username,
+            isAdmin
         };
         const token = (0, generateToken_1.default)(payload);
         res
@@ -91,6 +102,7 @@ const logout = async (req, res) => {
     catch (err) {
         console.log(err);
         res
+            .status(500)
             .json({ message: "Sorry an error occured" });
     }
 };

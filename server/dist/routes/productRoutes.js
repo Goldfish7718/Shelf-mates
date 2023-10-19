@@ -11,4 +11,5 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage: storage });
 router.post('/upload', upload.single('image'), productControllers_1.addProduct);
 router.get('/getByCat/:category', productControllers_1.getProducts);
+router.get('/getProduct/:id', productControllers_1.getProduct);
 exports.default = router;

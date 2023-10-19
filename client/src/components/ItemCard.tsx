@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardFooter, Divider, HStack, Heading, Image, St
 import { AiFillStar } from "react-icons/ai"
 import { ItemData } from "../views/Items"
 
-function ItemCard ({ name, price, image }: ItemData) {
+function ItemCard ({ name, price, image, _id, category }: ItemData) {
     return (
         <>
         <Card borderTop='10px solid orange'>
@@ -25,7 +25,7 @@ function ItemCard ({ name, price, image }: ItemData) {
             <CardFooter>
                 <HStack spacing={5}>
                     <Text fontSize='2xl' color='blue'>${price}</Text>
-                    <Button colorScheme="orange">Buy</Button>
+                    <Button colorScheme="orange" onClick={() => window.location.href = `/categories/${category}/${_id}`}>Buy</Button>
                 </HStack>
             </CardFooter>
         </Card>
