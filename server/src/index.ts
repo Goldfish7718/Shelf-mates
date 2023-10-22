@@ -8,6 +8,7 @@ config()
 
 import userRoutes from './routes/userRoutes'
 import productRoutes from './routes/productRoutes'
+import cartRoutes from './routes/cartRoutes'
 
 const app = express()
 
@@ -21,7 +22,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/auth', userRoutes)
 app.use('/products', productRoutes)
-
+app.use('/cart', cartRoutes)
 
 const connectDB = async (url: string) => {
     await mongoose

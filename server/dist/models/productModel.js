@@ -8,7 +8,10 @@ const productSchema = new mongoose_1.default.Schema({
     name: String,
     price: Number,
     description: String,
-    stock: Number,
+    stock: {
+        type: Number,
+        default: 0
+    },
     category: String,
     stars: Number,
     image: {

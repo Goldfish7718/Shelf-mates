@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from 'bcrypt'
 import User from "../models/userModel"; 
 import generateToken from "../middleware/generateToken";
+import Cart from "../models/cartModel";
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -30,12 +31,18 @@ export const signup = async (req: Request, res: Response) => {
                 lName
             })
 
-        const { isAdmin } = user
+        const { isAdmin, _id } = user
+
+        await Cart.create({
+            userId: _id
+        })
+
         const payload = {
             username,
             fName,
             lName,
-            isAdmin
+            isAdmin,
+            _id
         }
 
         const token = generateToken(payload)
@@ -82,13 +89,14 @@ export const login = async (req: Request, res: Response) => {
                 .status(400)
                 .json({ message: "Incorrect Credentials" })
 
-        const { fName, lName, isAdmin } = user
+        const { fName, lName, isAdmin, _id } = user
 
         const payload = {
             fName,
             lName,
             username,
-            isAdmin
+            isAdmin,
+            _id
         }
 
         const token = generateToken(payload)

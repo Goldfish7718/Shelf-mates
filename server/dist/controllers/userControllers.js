@@ -7,6 +7,7 @@ exports.logout = exports.login = exports.signup = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const generateToken_1 = __importDefault(require("../middleware/generateToken"));
+const cartModel_1 = __importDefault(require("../models/cartModel"));
 const signup = async (req, res) => {
     try {
         const { username, password, fName, lName } = req.body;
@@ -28,12 +29,16 @@ const signup = async (req, res) => {
             fName,
             lName
         });
-        const { isAdmin } = user;
+        const { isAdmin, _id } = user;
+        await cartModel_1.default.create({
+            userId: _id
+        });
         const payload = {
             username,
             fName,
             lName,
-            isAdmin
+            isAdmin,
+            _id
         };
         const token = (0, generateToken_1.default)(payload);
         res
@@ -69,12 +74,13 @@ const login = async (req, res) => {
             return res
                 .status(400)
                 .json({ message: "Incorrect Credentials" });
-        const { fName, lName, isAdmin } = user;
+        const { fName, lName, isAdmin, _id } = user;
         const payload = {
             fName,
             lName,
             username,
-            isAdmin
+            isAdmin,
+            _id
         };
         const token = (0, generateToken_1.default)(payload);
         res

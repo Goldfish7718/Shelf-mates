@@ -9,9 +9,11 @@ type AuthContextProps = {
 }
 
 type DecodeType = {
-    fName: string,
-    lName: string,
-    username: string
+    fName: string;
+    lName: string;
+    username: string;
+    isAdmin: boolean;
+    _id: string;
 }
 
 type AuthContextType = {
@@ -24,6 +26,7 @@ type AuthContextType = {
     requestVerification: Function;
     requestLogout: Function;
     decode: DecodeType | null;
+    verificationDone: boolean;
     error: string;
 };
 
@@ -43,6 +46,7 @@ function AuthProvider({ children }: AuthContextProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [decode, setDecode] = useState(null)
     const [error, setError] = useState('')
+    const [verificationDone, setVerificationDone] = useState(false)
 
     const navigate = useNavigate()
     const toast = useToast()
@@ -58,7 +62,7 @@ function AuthProvider({ children }: AuthContextProps) {
                 title: `Welcome Back! ${res?.data?.fName}`,
                 description: 'We are at your service',
                 status: 'success',
-                duration: 5000,
+                duration: 3000,
                 isClosable: true,
               })
             setIsLoggedIn(true)
@@ -108,13 +112,23 @@ function AuthProvider({ children }: AuthContextProps) {
         } catch (err: any) {
             setIsLoggedIn(err.response.data.isAuthenticated)
             setIsLoading(false)
+        } finally {
+            setVerificationDone(true)
         }
     }
 
     const requestLogout = async () => {
         await axios.post(`${API_URL}/auth/logout`)
+        
+        toast({
+            title: 'Logged Out',
+            description: 'Come back soon!',
+            status: "success",
+            duration: 3000
+        })
+        
         setIsLoggedIn(false)
-        window.location.href = '/login'
+        navigate('/login')
     }
     
     const value = {
@@ -127,6 +141,7 @@ function AuthProvider({ children }: AuthContextProps) {
         requestVerification,
         requestLogout,
         decode,
+        verificationDone,
         error
     }
 

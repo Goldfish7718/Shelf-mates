@@ -1,10 +1,35 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
+import { Document } from "mongoose";
 
-const productSchema = new mongoose.Schema({
+interface Review {
+    username: String;
+    stars: Number;
+    review: String;
+}
+
+export interface ProductDocument extends Document {
+    name: string;
+    price: number;
+    description: string;
+    stock: number;
+    category: string;
+    stars: number;
+    image: {
+        data: Buffer;
+        contentType: string;
+    };
+    reviews: Review[];
+}
+
+
+const productSchema = new mongoose.Schema<ProductDocument>({
     name: String,
     price: Number,
     description: String,
-    stock: Number,
+    stock: {
+        type: Number,
+        default: 0
+    },
     category: String,
     stars: Number,
     image: {
@@ -20,5 +45,5 @@ const productSchema = new mongoose.Schema({
     ]
 })
 
-const Product = mongoose.model('Product', productSchema)
+const Product = mongoose.model<ProductDocument>('Product', productSchema)
 export default Product

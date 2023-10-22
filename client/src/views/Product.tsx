@@ -9,7 +9,8 @@ import { useEffect, useState } from "react"
 import ErrorComponent from "../components/ErrorComponent"
 import Loading from "../components/Loading"
 
-type ProductProps = {
+export type ProductProps = {
+    _id: string;
     name: string,
     price: number,
     description: string,
@@ -75,47 +76,33 @@ function Product () {
                     </Box>
                 </VStack>
                 <VStack w={panelWidth} m={3} p={boxPadding} alignItems='flex-start'>
-                    <Heading fontSize='5xl'>{product?.name}</Heading>
-                    <Text color='gray.800' my={5} fontSize='md'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto adipisci, assumenda, doloribus optio fuga numquam cum culpa molestiae molestias alias incidunt impedit, et eaque veniam perferendis voluptatibus repellat eligendi est voluptate facere reprehenderit ex excepturi sint placeat. Necessitatibus, aspernatur. Similique sunt atque voluptate laudantium officia odit error. Vitae repellat est animi? Deserunt veniam similique quisquam!</Text>
+                    <Heading fontSize='5xl'>{product.name}</Heading>
+                    <Text color='gray.800' my={5} fontSize='md'>{product.description}</Text>
                     <Stack direction={{ base: 'column', md: 'row' }}>
                         <HStack spacing='none'>
                             {Array.from({ length: product.stars }).map((_, index) => (
                                 <AiFillStar key={index} size={24} />
                             ))}
                         </HStack>
-                        <Text ml={{ base: 0, md: 2 }}>265 reviews | 80% Customer satisfaction</Text>
+                        <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | 80% Customer satisfaction</Text>
                     </Stack>
                     <Text fontSize='4xl' color='gray.900'>${product?.price}</Text>
-                    <Alert mt={2} status={product.stock >= 5 ? 'info' : 'warning'} size='3xl'>
+                    <Alert variant='left-accent' mt={2} status={product.stock >= 5 ? 'info' : 'warning'} size='3xl'>
                             <AlertIcon />
                             <AlertTitle>{product.stock >= 5 ? 'In Stock' : 'Hurry!'}</AlertTitle>
                             {product.stock < 5 && <AlertDescription>Only {product.stock} left in stock.</AlertDescription>}
                     </Alert>
                     <Text fontSize='3xl' color='gray.700' my={3}>Reviews</Text>
                     <SimpleGrid spacing={3} columns={2}>
-                        <VStack p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
-                            <HStack>
-                                <Avatar size='sm' name="John Doe" />
-                                <Text color='gray.600'>John Doe</Text>
-                            </HStack>
-                            <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
-                        </VStack>
-                        <VStack p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
-                            <Text color='gray.600'>John Doe</Text>
-                            <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
-                        </VStack>
-                        <VStack p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
-                            <Text color='gray.600'>John Doe</Text>
-                            <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
-                        </VStack>
-                        <VStack p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
-                            <Text color='gray.600'>John Doe</Text>
-                            <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
-                        </VStack>
-                        <VStack p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
-                            <Text color='gray.600'>John Doe</Text>
-                            <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
-                        </VStack>
+                        {Array.from({ length: product.stars }).map((_, index) => (
+                            <VStack key={index} p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
+                                <HStack>
+                                    <Avatar size='sm' name="John Doe" />
+                                    <Text color='gray.600'>John Doe</Text>
+                                </HStack>
+                                <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
+                            </VStack>
+                        ))}
                     </SimpleGrid>
                 </VStack>
             </Flex>

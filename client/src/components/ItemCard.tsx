@@ -1,8 +1,8 @@
 import { Button, Card, CardBody, CardFooter, Divider, HStack, Heading, Image, Stack, Text } from "@chakra-ui/react"
 import { AiFillStar } from "react-icons/ai"
-import { ItemData } from "../views/Items"
+import { ProductProps } from "../views/Product"
 
-function ItemCard ({ name, price, image, _id, category }: ItemData) {
+function ItemCard ({ name, price, image, _id, category, stars, reviews }: ProductProps) {
     return (
         <>
         <Card borderTop='10px solid orange'>
@@ -11,12 +11,10 @@ function ItemCard ({ name, price, image, _id, category }: ItemData) {
                 <Stack>
                     <Heading>{name}</Heading>
                     <HStack spacing={0}>
-                        <AiFillStar />
-                        <AiFillStar />
-                        <AiFillStar />
-                        <AiFillStar />
-                        <AiFillStar />
-                        <Text ml={2} color='gray.500'>265</Text>
+                        {Array.from({ length: stars }).map((_, index) => (
+                            <AiFillStar key={index} size={24} />
+                        ))}
+                        <Text ml={2} color='gray.500'>{reviews.length}</Text>
                     </HStack>
                     <Text color='gray.700'>$11.50 Delivery Charges</Text>
                 </Stack>

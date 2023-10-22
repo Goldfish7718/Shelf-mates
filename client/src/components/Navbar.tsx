@@ -14,7 +14,7 @@ import {
     useBreakpointValue,
     Link
 } from "@chakra-ui/react"
-import { BsBoxArrowRight, BsDiscord } from 'react-icons/bs'
+import { BsBoxArrowRight, BsCart2, BsDiscord } from 'react-icons/bs'
 import { FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai'
@@ -23,11 +23,14 @@ import { AiOutlineMail } from 'react-icons/ai'
 import { BiLogIn } from 'react-icons/bi'
 import { AiOutlineUserAdd } from 'react-icons/ai'
 import { useAuth } from "../context/AuthContext"
+import { useCart } from "../context/CartContext"
 
 function Navbar () {
 
     const isBelowMd = useBreakpointValue({ base: true, md: false })
     const { requestLogout, decode } = useAuth()
+
+    const { btnRef, onOpen  } = useCart()
 
     const handleLogOut = () => {
         requestLogout()
@@ -79,6 +82,8 @@ function Navbar () {
                                 <>
                                     <MenuItem>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                     <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                    <MenuDivider borderColor='gray.400' />
+                                    <MenuItem ref={btnRef} onClick={onOpen}>Cart <BsCart2 style={{ marginLeft: "8px" }} /></MenuItem>
                                 </>
                                 : <>
                                     <MenuItem as={Link} href="/login">Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
@@ -91,6 +96,8 @@ function Navbar () {
                             <>
                                 <MenuItem>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                 <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                <MenuDivider borderColor='gray.400' />
+                                <MenuItem ref={btnRef} onClick={onOpen}>Cart <BsCart2 style={{ marginLeft: "8px" }} /></MenuItem>
                             </>
                             : <>
                             <MenuItem as={Link} href="/login">Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>

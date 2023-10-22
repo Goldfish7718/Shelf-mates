@@ -7,22 +7,24 @@ import axios from "axios"
 import { useState, useEffect } from 'react'
 import Loading from "../components/Loading"
 import ErrorComponent from "../components/ErrorComponent"
+import { ProductProps } from "./Product"
 
 export type ItemData = {
     name: string;
     description: string;
     price: number;
     stock: number;
+    stars: number;
     image: string;
     _id: string;
-    category: string
+    category: string;
 }
 
 function Items () {
 
     const { category } = useParams()
     
-    const [data, setData] = useState<ItemData[]>([])
+    const [data, setData] = useState<ProductProps[]>([])
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(true)
 
