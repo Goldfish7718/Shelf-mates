@@ -1,4 +1,4 @@
-import { useDisclosure } from '@chakra-ui/react';
+import { useDisclosure, useToast } from '@chakra-ui/react';
 import { createContext, useContext, useRef, useState } from 'react'
 import Cart from '../components/Cart';
 import axios from 'axios';
@@ -29,6 +29,7 @@ type CartContextType = {
     addToCart: Function;
     decrement: Function;
     deleteProduct: Function;
+    productExists: Function;
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -42,6 +43,7 @@ function CartProvider({ children }: CartContextProps) {
     
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [error, setError] = useState('')
+    const toast = useToast()
 
     const getCart = async () => {
         try {
@@ -52,32 +54,80 @@ function CartProvider({ children }: CartContextProps) {
         }
     }
 
+    const productExists = (productId: string) => {
+        const item = cartItems.find(product => product.productId == productId)
+        if (item) {
+            const result = {
+                exists: true,
+                item
+            }
+
+            return result
+        }
+        else {
+            const result = {
+                exists: false,
+            }
+
+            return result
+        }
+    }
+
     const addToCart = async (productId: string) => {
         try {
-            await axios.post(`${API_URL}/cart/add/${decode?._id}/${productId}`)
+            const res = await axios.post(`${API_URL}/cart/add/${decode?._id}/${productId}`)
+            
+            if (res.data.productExists.quantity == 1) 
+            toast({
+                    status: 'success',
+                    description: res.data.message,
+                    duration: 3000
+                })
+                
+            getCart()
+        } catch (err: any) {
+            setError(err.response.data.message)
+
+            if (error)
+                toast({
+                    status: 'error',
+                    description: error,
+                    duration: 3000
+                })
+        }
+    }
+
+    const decrement = async (productId: string) => {
+        try {
+            const res = await axios.post(`${API_URL}/cart/decrement/${decode?._id}/${productId}`, {
+                operation: 'decrement'
+            })
+
+            if (res.data.productExists.quantity == 0)
+                toast({
+                    status: 'success',
+                    description: res.data.message,
+                    duration: 3000
+                })
+
             getCart()
         } catch (err: any) {
             setError(err.response.data.message)
         }
     }
 
-    const decrement = async (productId: string) => {
-        try {
-            await axios.post(`${API_URL}/cart/decrement/${decode?._id}/${productId}`, {
-                operation: 'decrement'
-            })
-            getCart()
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
     const deleteProduct = async (productId: string) => {
         try {
-            await axios.post(`${API_URL}/cart/delete/${decode?._id}/${productId}`)
+            const res = await axios.post(`${API_URL}/cart/delete/${decode?._id}/${productId}`)
             getCart()
-        } catch (err) {
-            console.log(err);
+
+            toast({
+                status: 'success',
+                description: res.data.message,
+                duration: 3000
+            })
+        } catch (err: any) {
+            setError(err.response.data.message)
         }
     }
 
@@ -91,12 +141,13 @@ function CartProvider({ children }: CartContextProps) {
         error,
         addToCart,
         decrement,
-        deleteProduct
+        deleteProduct,
+        productExists
     }
 
     useEffect(() => {
         if (verificationDone) getCart()
-    }, [verificationDone])
+    }, [verificationDone, decode])
 
     return (
         <CartContext.Provider value={value}>

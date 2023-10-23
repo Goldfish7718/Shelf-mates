@@ -35,6 +35,7 @@ const getCart = async (req, res) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
+        console.log(err);
     }
 };
 exports.getCart = getCart;
@@ -45,24 +46,43 @@ const addToCart = async (req, res) => {
                 .status(400)
                 .json({ message: "Product or Cart not found in request" });
         }
-        const { _id, price, name, image } = req.product;
+        const { _id, price, name, image, stock } = req.product;
         const productExists = req.cart.cartItems.find(product => product.productId.toString() == _id.toString());
-        if (!productExists)
-            req.cart.cartItems.push({
-                productId: _id,
-                quantity: 1,
-                price,
-                name,
-                image
+        const product = {
+            productId: _id,
+            quantity: 1,
+            price,
+            name,
+            image
+        };
+        if (!productExists) {
+            req.cart.cartItems.push(product);
+            await req.cart.save();
+            return res
+                .status(200)
+                .json({
+                message: "Added Item to Cart",
+                productExists: product
             });
+        }
         else {
-            productExists.quantity += 1;
-            productExists.price = price * productExists.quantity;
+            if (productExists.quantity + 1 > stock) {
+                return res
+                    .status(400)
+                    .json({ message: "Cannot add more than available stock" });
+            }
+            else {
+                productExists.quantity += 1;
+                productExists.price = price * productExists.quantity;
+            }
         }
         await req.cart.save();
         res
             .status(200)
-            .json({ message: "Added Item to Cart" });
+            .json({
+            message: "Added Item to Cart",
+            productExists
+        });
     }
     catch (err) {
         res
@@ -84,20 +104,32 @@ const decrementQuantity = async (req, res) => {
             return res
                 .status(400)
                 .json({ message: "This Product Does not Exist" });
-        else if (productExists.quantity == 1)
+        else if (productExists.quantity == 1) {
+            const product = productExists.toObject();
             await cartModel_1.default.updateOne({ _id: req.cart._id }, { $pull: { cartItems: { productId: _id } } });
+            return res
+                .status(200)
+                .json({
+                message: "Deleted Product from cart",
+                productExists: {
+                    ...product,
+                    quantity: 0
+                }
+            });
+        }
         else
             productExists.quantity -= 1;
         productExists.price = price * productExists.quantity;
         await req.cart.save();
         res
             .status(200)
-            .json({ message: "Product Decremented" });
+            .json({ message: "Product Decremented", productExists });
     }
     catch (err) {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
+        console.log(err);
     }
 };
 exports.decrementQuantity = decrementQuantity;
@@ -126,6 +158,7 @@ const deleteProduct = async (req, res) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
+        console.log(err);
     }
 };
 exports.deleteProduct = deleteProduct;

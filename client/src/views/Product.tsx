@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Stack, Heading, Image, Text, VStack, useBreakpointValue, HStack, SimpleGrid, Alert, AlertIcon, AlertTitle, Avatar, Divider, AlertDescription } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
-import { AiFillStar, AiOutlineShoppingCart } from "react-icons/ai"
+import { AiFillDelete, AiFillStar, AiOutlineShoppingCart } from "react-icons/ai"
 import { BsBoxArrowUpRight } from "react-icons/bs"
 import { API_URL } from "../App"
 import { useParams } from "react-router-dom"
@@ -8,6 +8,7 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import ErrorComponent from "../components/ErrorComponent"
 import Loading from "../components/Loading"
+import { useCart } from "../context/CartContext"
 
 export type ProductProps = {
     _id: string;
@@ -27,6 +28,16 @@ export type ProductProps = {
     ]
 }
 
+type CartProductType = {
+    quantity: number;
+}
+
+type StockStatusType = {
+    status: "error" | "warning" | "info" | "loading" | "success" | undefined;
+    title?: string;
+    description?: string;
+}
+
 function Product () {
 
     const panelWidth = useBreakpointValue({ base: '100%', lg: '50%' })
@@ -39,6 +50,39 @@ function Product () {
 
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [cartProduct, setCartProduct] = useState<CartProductType | null>(null)
+
+    const [stockStatus, setStockStatus] = useState<StockStatusType | null>(null)
+
+    const {
+        cartItems,
+        addToCart,
+        decrement,
+        deleteProduct,
+        productExists
+    } = useCart()
+
+    const updateStockStatus = async () => {
+        if (product?.stock != undefined) {
+            if (product?.stock <= 5 && product?.stock > 0) {
+                setStockStatus({
+                    status: 'warning',
+                    title: 'Hurry!',
+                    description: `Only ${product?.stock} left in stock!`
+                })
+            } else if (product?.stock == 0) {
+                setStockStatus({
+                    status: 'error',
+                    title: `Out of stock`
+                })
+            } else {
+                setStockStatus({
+                    status: 'info',
+                    title: `In Stock`
+                })
+            }
+        }
+    }
 
     const fetchProduct = async () => {
         try {
@@ -54,7 +98,15 @@ function Product () {
 
     useEffect(() => {
         fetchProduct();
-    }, [])
+        updateStockStatus();
+    }, [product?.stock])
+
+    useEffect(() => {
+        if (product) {
+            const res = productExists(id!)
+            setCartProduct(res.item)
+        }
+    }, [cartItems])
 
     return (
         <>
@@ -72,7 +124,18 @@ function Product () {
                     <Divider borderColor='gray.600' />
                     <Box w='100%' p={boxPadding}>
                         <Button ml={boxNegativeMargin} my={2} colorScheme="orange" w='full' borderRadius='none'>Buy Now <BsBoxArrowUpRight style={{ marginLeft: '8px' }} /></Button>
-                        <Button ml={boxNegativeMargin} my={2} colorScheme="orange" w='full' variant='outline' borderRadius='none'>Add to Cart <AiOutlineShoppingCart size={22} style={{ marginLeft: '8px' }} /></Button>
+                        {cartProduct == null ?
+                         <Button ml={boxNegativeMargin} my={2} colorScheme="orange" w='full' variant='outline' borderRadius='none' onClick={() => addToCart(product._id)}>Add to Cart <AiOutlineShoppingCart size={22} style={{ marginLeft: '8px' }} /></Button>
+                         :
+                         <> 
+                            <HStack w='100%'>
+                                <Button w='full' onClick={() => decrement(product._id)}>-</Button>
+                                <Text w='full' color='black'>{cartProduct?.quantity}</Text>
+                                <Button w='full' onClick={() => addToCart(product._id)}>+</Button>
+                            </HStack>
+                            <Button w='full' my={3} variant='solid' onClick={() => deleteProduct(product._id)} colorScheme='red'>Remove from Cart<AiFillDelete style={{ marginLeft: '8px' }} size={20} /></Button>
+                         </>
+                        }
                     </Box>
                 </VStack>
                 <VStack w={panelWidth} m={3} p={boxPadding} alignItems='flex-start'>
@@ -87,10 +150,10 @@ function Product () {
                         <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | 80% Customer satisfaction</Text>
                     </Stack>
                     <Text fontSize='4xl' color='gray.900'>${product?.price}</Text>
-                    <Alert variant='left-accent' mt={2} status={product.stock >= 5 ? 'info' : 'warning'} size='3xl'>
+                    <Alert variant='left-accent' mt={2} status={stockStatus?.status} size='3xl'>
                             <AlertIcon />
-                            <AlertTitle>{product.stock >= 5 ? 'In Stock' : 'Hurry!'}</AlertTitle>
-                            {product.stock < 5 && <AlertDescription>Only {product.stock} left in stock.</AlertDescription>}
+                            <AlertTitle>{stockStatus?.title}</AlertTitle>
+                            <AlertDescription>{stockStatus?.description}</AlertDescription>
                     </Alert>
                     <Text fontSize='3xl' color='gray.700' my={3}>Reviews</Text>
                     <SimpleGrid spacing={3} columns={2}>

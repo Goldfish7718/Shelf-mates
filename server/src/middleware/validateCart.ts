@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose, { Document } from "mongoose";
-import Product, { ProductDocument } from "../models/productModel"; // Assuming you've typed this model
-import Cart, { CartDocument } from "../models/cartModel"; // Assuming you've typed this model
+import Product, { ProductDocument } from "../models/productModel"; 
+import Cart, { CartDocument } from "../models/cartModel"; 
 
 export interface ExtendedRequest extends Request {
     product?: ProductDocument & Document;
@@ -48,7 +48,6 @@ const validateCart = async (req: ExtendedRequest, res: Response, next: Function)
         res
             .status(500)
             .json({ message: "Internal Server Error" })
-        console.error(err)
     }
 }
 

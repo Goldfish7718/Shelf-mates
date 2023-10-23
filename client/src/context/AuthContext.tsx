@@ -108,17 +108,18 @@ function AuthProvider({ children }: AuthContextProps) {
             
             setIsLoggedIn(isAuthenticated)
             setDecode(res.data.decode)
-            setIsLoading(false)
+            
         } catch (err: any) {
             setIsLoggedIn(err.response.data.isAuthenticated)
-            setIsLoading(false)
         } finally {
+            setIsLoading(false)
             setVerificationDone(true)
         }
     }
 
     const requestLogout = async () => {
         await axios.post(`${API_URL}/auth/logout`)
+        // window.location.href = '/login'
         
         toast({
             title: 'Logged Out',
@@ -128,6 +129,8 @@ function AuthProvider({ children }: AuthContextProps) {
         })
         
         setIsLoggedIn(false)
+        setError('')
+        setDecode(null)
         navigate('/login')
     }
     

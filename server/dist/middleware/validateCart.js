@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const productModel_1 = __importDefault(require("../models/productModel")); // Assuming you've typed this model
-const cartModel_1 = __importDefault(require("../models/cartModel")); // Assuming you've typed this model
+const productModel_1 = __importDefault(require("../models/productModel"));
+const cartModel_1 = __importDefault(require("../models/cartModel"));
 const validateCart = async (req, res, next) => {
     const { productId, userId } = req.params;
     const operation = req.body.operation || 'increment';
@@ -38,7 +38,6 @@ const validateCart = async (req, res, next) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
-        console.error(err);
     }
 };
 exports.default = validateCart;
