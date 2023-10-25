@@ -15,6 +15,7 @@ interface CartItem {
 export interface CartDocument extends Document {
     cartItems: CartItem[];
     userId: mongoose.Types.ObjectId;
+    subtotal: number;
 }
 
 
@@ -38,6 +39,10 @@ const cartSchema = new mongoose.Schema<CartDocument>({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    subtotal: {
+        type: Number,
+        default: 0
     }
 })
 

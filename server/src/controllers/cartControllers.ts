@@ -20,6 +20,7 @@ export const getCart = async (req: Request, res: Response) => {
                 .json({ message: 'This Cart does not exist' })
 
         const { cartItems } = potentialCart
+        const { subtotal } = potentialCart
 
         const transformedCart = cartItems.map(item => {
             const plainItem = (item as any).toObject();
@@ -32,7 +33,7 @@ export const getCart = async (req: Request, res: Response) => {
         
         res
             .status(200)
-            .json({ transformedCart })
+            .json({ transformedCart, subtotal })
     } catch (err) {
         res
             .status(500)
@@ -50,9 +51,10 @@ export const addToCart = async (req: ExtendedRequest, res: Response) => {
                 .json({ message: "Product or Cart not found in request" });
         }
 
-        const { _id, price, name, image, stock } = req.product        
+        const { _id, price, name, image, stock } = req.product    
+        const { cartItems } = req.cart    
 
-        const productExists = req.cart.cartItems.find(product => product.productId.toString() == _id.toString())        
+        const productExists = cartItems.find(product => product.productId.toString() == _id.toString())        
 
         const product = {
             productId: _id,
@@ -63,7 +65,9 @@ export const addToCart = async (req: ExtendedRequest, res: Response) => {
         }
 
         if (!productExists) {
-            req.cart.cartItems.push(product)
+            cartItems.push(product)
+            req.cart.subtotal += product.price
+
             await req.cart.save()
 
             return res
@@ -84,6 +88,17 @@ export const addToCart = async (req: ExtendedRequest, res: Response) => {
                 productExists.price = price * productExists.quantity
             }
         }
+
+        if (cartItems.length > 1)
+            req.cart.subtotal = cartItems.reduce((accumulator, currentItem) => {
+                return accumulator + currentItem.price
+            }, 0)
+
+        else if (cartItems.length == 0)
+            req.cart.subtotal = 0
+    
+        else if (cartItems.length == 1)
+            req.cart.subtotal = cartItems[0].price
 
         await req.cart.save()
 
@@ -120,10 +135,14 @@ export const decrementQuantity = async (req: ExtendedRequest, res: Response) => 
         else if (productExists.quantity == 1) {
             
             const product = (productExists as any).toObject()
+            const { price } = product
             
             await Cart.updateOne(
                 { _id: req.cart._id },
-                { $pull: { cartItems: { productId: _id } } }
+                {
+                    $pull: { cartItems: { productId: _id } },
+                    $inc: { subtotal: -price }
+                },
             );    
 
             return res
@@ -137,10 +156,14 @@ export const decrementQuantity = async (req: ExtendedRequest, res: Response) => 
                 })
         }
 
-        else
+        else {
             productExists.quantity -= 1
             productExists.price = price * productExists.quantity
+        }
                 
+        req.cart.subtotal = req.cart.cartItems.reduce((accumulator, currentItem) => {
+            return accumulator + currentItem.price
+        }, 0)
 
         await req.cart.save()
 
@@ -165,17 +188,23 @@ export const deleteProduct = async (req: ExtendedRequest, res: Response) => {
 
         const { _id } = req.product
 
+        const productExists = req.cart.cartItems.find(product => product.productId.toString() == _id.toString())
+
+        if (!productExists)
+            return res
+                .status(400)
+                .json({ message: "This Product Does not Exist" })
+
+        const { price } = productExists
+
         await Cart.findOneAndUpdate({
             _id: req.cart._id
         },
         {
-            $pull: {
-                cartItems: {
-                    productId: _id
-                }
-            }
+            $pull: { cartItems: { productId: _id } },
+            $inc: { subtotal: -price }
         })
-
+        
         res
             .status(200)
             .json({ message: "Deleted Product from cart" })

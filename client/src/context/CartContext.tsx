@@ -30,6 +30,7 @@ type CartContextType = {
     decrement: Function;
     deleteProduct: Function;
     productExists: Function;
+    subtotal: number;
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -43,12 +44,15 @@ function CartProvider({ children }: CartContextProps) {
     
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [error, setError] = useState('')
+    const [subtotal, setSubtotal] = useState(0)
+
     const toast = useToast()
 
     const getCart = async () => {
         try {
             const res = await axios.get(`${API_URL}/cart/getCart/${decode?._id}`)
             setCartItems(res.data.transformedCart)
+            setSubtotal(res.data.subtotal)
         } catch (err: any) {
             setError(err.response.data.message)
         }
@@ -119,13 +123,12 @@ function CartProvider({ children }: CartContextProps) {
     const deleteProduct = async (productId: string) => {
         try {
             const res = await axios.post(`${API_URL}/cart/delete/${decode?._id}/${productId}`)
-            getCart()
-
             toast({
                 status: 'success',
                 description: res.data.message,
                 duration: 3000
             })
+            getCart()
         } catch (err: any) {
             setError(err.response.data.message)
         }
@@ -142,7 +145,8 @@ function CartProvider({ children }: CartContextProps) {
         addToCart,
         decrement,
         deleteProduct,
-        productExists
+        productExists,
+        subtotal
     }
 
     useEffect(() => {

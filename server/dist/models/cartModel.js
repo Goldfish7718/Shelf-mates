@@ -44,6 +44,10 @@ const cartSchema = new mongoose_1.default.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    subtotal: {
+        type: Number,
+        default: 0
     }
 });
 const Cart = mongoose_1.default.model('Cart', cartSchema);
