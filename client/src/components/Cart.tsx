@@ -21,10 +21,29 @@ import {
 import { useCart } from '../context/CartContext'
 import { AiFillDelete } from 'react-icons/ai'
 import { BsCloudHaze2 } from 'react-icons/bs'
+import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../App'
+import axios from 'axios'
 
 function Cart() {
 
   const { isOpen, onClose, btnRef, cartItems, addToCart, decrement, deleteProduct, subtotal } = useCart()
+  const { decode } = useAuth()
+
+  const [loading, setLoading] = useState(false)
+
+  const requestCheckout = async () => {
+    try {
+      setLoading(true)
+      const res = await axios.post(`${API_URL}/order/checkout/${decode?._id}`)
+      window.location.href = res.data.url
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -48,7 +67,7 @@ function Cart() {
                           <Image src={item.image} w='45%' h='100%' objectFit='cover' backgroundColor='white' border='1px solid #e2e8f0' borderTopLeftRadius='lg' borderBottomLeftRadius='lg' />
                         <Box p={2}>
                           <Text fontWeight='bold'>{item.name}</Text>
-                          <Text fontWeight='bold' color='gray.600'>${item.price}</Text> 
+                          <Text fontWeight='bold' color='gray.600'>&#8377;{item.price}</Text> 
                           <ButtonGroup backgroundColor='white' mt={3} isAttached variant='outline' borderRadius='lg'>
                             <Button onClick={() => decrement(item.productId)}>-</Button>
                             <Button disabled>{item.quantity}</Button>
@@ -65,7 +84,7 @@ function Cart() {
                   <HStack key={index} px={2}>
                     <Text fontSize='md' color='gray.700'>{item.name} x{item.quantity}</Text>
                     <Spacer />
-                    <Text>${item.price}</Text>
+                    <Text>&#8377;{item.price}</Text>
                   </HStack>
                 ))
                 }
@@ -73,7 +92,7 @@ function Cart() {
                 <HStack p={2}>
                   <Text fontSize='lg' fontWeight='bold' color='gray.700'>Subtotal:</Text>
                     <Spacer />
-                  <Text fontSize='lg' fontWeight='bold' color='gray.700'>${subtotal}</Text>
+                  <Text fontSize='lg' fontWeight='bold' color='gray.700'>&#8377;{subtotal}</Text>
                 </HStack>
               </>
             :
@@ -86,11 +105,13 @@ function Cart() {
             }
           </DrawerBody>
 
+          {cartItems.length > 0 &&
           <DrawerFooter>
-            <Button w='full' colorScheme='orange' mr={3} onClick={onClose}>
+            <Button w='full' colorScheme='orange' mr={3} onClick={requestCheckout} isLoading={loading}>
               Checkout
             </Button>
           </DrawerFooter>
+          }
         </DrawerContent>
       </Drawer>
     </>

@@ -12,6 +12,7 @@ const cors_1 = __importDefault(require("cors"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
 const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
+const orderRoutes_1 = __importDefault(require("./routes/orderRoutes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     credentials: true,
@@ -23,6 +24,7 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use('/auth', userRoutes_1.default);
 app.use('/products', productRoutes_1.default);
 app.use('/cart', cartRoutes_1.default);
+app.use('/order', orderRoutes_1.default);
 const connectDB = async (url) => {
     await mongoose_1.default
         .connect(url)

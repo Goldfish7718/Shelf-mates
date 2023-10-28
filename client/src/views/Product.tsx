@@ -149,7 +149,7 @@ function Product () {
                         </HStack>
                         <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | 80% Customer satisfaction</Text>
                     </Stack>
-                    <Text fontSize='4xl' color='gray.900'>${product?.price}</Text>
+                    <Text fontSize='4xl' color='gray.900'>&#8377;{product?.price}</Text>
                     <Alert variant='left-accent' mt={2} status={stockStatus?.status} size='3xl'>
                             <AlertIcon />
                             <AlertTitle>{stockStatus?.title}</AlertTitle>

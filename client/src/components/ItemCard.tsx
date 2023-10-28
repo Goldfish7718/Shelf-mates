@@ -22,7 +22,7 @@ function ItemCard ({ name, price, image, _id, category, stars, reviews }: Produc
             <Divider borderColor='gray.400' />
             <CardFooter>
                 <HStack spacing={5}>
-                    <Text fontSize='2xl' color='blue'>${price}</Text>
+                    <Text fontSize='2xl' color='blue'>&#8377;{price}</Text>
                     <Button colorScheme="orange" onClick={() => window.location.href = `/categories/${category}/${_id}`}>Buy</Button>
                 </HStack>
             </CardFooter>
