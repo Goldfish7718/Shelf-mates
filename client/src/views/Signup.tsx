@@ -39,7 +39,7 @@ function Signup() {
 
   return (
     <>
-      {decode ? <Navbar username={decode.username} /> : <Navbar />}
+      <Navbar />
       <Flex
         h='100vh'
         align={'center'}

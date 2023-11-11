@@ -8,14 +8,18 @@ const orderSchema = new mongoose.Schema({
                 ref: 'Product'
             },
             quantity: Number,
-            price: Number
+            totalPrice: Number
         }
     ],
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    subtotal: Number
+    subtotal: Number,
+    confirmed: {
+        type: Boolean,
+        default: true
+    }
 })
 
 const Order = mongoose.model('Order', orderSchema)

@@ -32,14 +32,18 @@ const orderSchema = new mongoose_1.default.Schema({
                 ref: 'Product'
             },
             quantity: Number,
-            price: Number
+            totalPrice: Number
         }
     ],
     userId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User'
     },
-    subtotal: Number
+    subtotal: Number,
+    confirmed: {
+        type: Boolean,
+        default: true
+    }
 });
 const Order = mongoose_1.default.model('Order', orderSchema);
 exports.default = Order;

@@ -2,26 +2,40 @@ import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import Cart from '../models/cartModel';
 import Product from '../models/productModel';
+import Order from '../models/orderModel';
+
 const stripe = new Stripe(process.env.STRIPE_API_KEY as string, {
     apiVersion: '2023-10-16'
 });
 
 export const cartCheckout = async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params
+        const { userId } = req.params;
 
-        const potentialCart = await Cart.findOne({ userId })
+        const potentialCart = await Cart.findOne({ userId });
 
-        
-        if (!potentialCart)
-        return res
-            .status(403)
-            .json({ message: "This User Does Not Exist" })
-    
+        if (!potentialCart) {
+            return res.status(403).json({ message: "This User Does Not Exist" });
+        }
+
         const prices = await Promise.all(potentialCart?.cartItems.map(async item => {
-            const product = await Product.findById(item.productId)
-            return product?.price
-        }))
+            const product = await Product.findById(item.productId);
+            return product?.price;
+        }));
+
+        const order = {
+            items: potentialCart.cartItems.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                totalPrice: item.price
+            })),
+            userId,
+            subtotal: potentialCart.subtotal,
+            confirmed: false
+        };
+
+        const orderDetails = JSON.stringify(order);
+        const encodedOrderDetails = encodeURIComponent(orderDetails);
 
         const session = await stripe.checkout.sessions.create({
             line_items: potentialCart.cartItems.map((item, index) => {
@@ -34,19 +48,79 @@ export const cartCheckout = async (req: Request, res: Response) => {
                         unit_amount: prices[index]! * 100
                     },
                     quantity: item.quantity
-                }
+                };
             }),
             mode: 'payment',
-            success_url: `http://localhost:5173/success`,
+            success_url: `http://localhost:5173/confirmation?orderId=${encodedOrderDetails}`,
             cancel_url: `http://localhost:5173/failed`,
         });
 
-        const { url } = session
+        const { url } = session;
+        res.status(200).json({ url });
+    } catch (err) {
+        res.send(err);
+    }
+};
+
+export const confirmOrder = async (req: Request, res: Response) => {
+    try {
+        const { encode } = req.params
+
+        const decodedOrderDetails = decodeURIComponent(encode as string);
+        const orderObject = JSON.parse(decodedOrderDetails);
         
+        let orderToEncode;
+        let encodedOrderDetails
+
+        if (orderObject.confirmed != true) {
+            orderObject.confirmed = true
+            const order = await Order.create(orderObject)
+            orderToEncode = order
+                
+            await Cart.findOneAndUpdate({ userId: order.userId }, {
+                $set: {
+                    cartItems: [],
+                    subtotal: 0
+                }
+            });
+            
+            order.items.map(async (item: any) => {
+                await Product.findByIdAndUpdate(item.productId, {
+                    $inc: {
+                        stock: -item.quantity!
+                    }
+                })
+            })
+
+        }
+
+        const transformedProducts = await Promise.all(orderObject.items.map(async (item: any) => {
+            const product = await Product.findById(item.productId)
+            const productObj = product!.toObject();
+
+            const imageBase64 = productObj.image.data.toString('base64');
+            const { quantity } = item
+
+            return {
+                ...productObj,
+                image: `data:${productObj.image.contentType};base64,${imageBase64}`,
+                quantity
+            };
+        }))
+
+        if (orderToEncode) {
+            const orderDetails = JSON.stringify(orderToEncode);
+            encodedOrderDetails = encodeURIComponent(orderDetails);
+        } else {
+            encodedOrderDetails = null
+        }
+
         res
             .status(200)
-            .json({ url })
+            .json({ transformedProducts, encodedOrderDetails })
+
     } catch (err) {
-        res.send(err)
+        console.log(err);
     }
 }
+

@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import './App.css'
 import Landing from './views/Landing'
 import Signup from './views/Signup'
 import Login from './views/Login'
@@ -10,6 +9,10 @@ import ProtectedRoute from './utils/ProtectedRoute'
 import Items from './views/Items'
 import Product from './views/Product'
 import CartProvider from './context/CartContext'
+import Confirmation from './views/Confirmation'
+import Failure from './views/Failure'
+import './App.css'
+import Success from './views/Success'
 
 axios.defaults.withCredentials = true
 
@@ -25,6 +28,9 @@ function App() {
             <Route path='/categories' element={<ProtectedRoute element={<Categories />} />} />
             <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
             <Route path='/categories/:category/:id' element={<ProtectedRoute element={<Product />} />} />
+            <Route path='/confirmation' element={<ProtectedRoute element={<Confirmation />} />} />
+            <Route path='/failure' element={<ProtectedRoute element={<Failure />} />} />
+            <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
           </Routes>
         </CartProvider>
       </AuthProvider>

@@ -92,6 +92,7 @@ const getProduct = async (req, res) => {
         return res
             .status(500)
             .json({ message: 'Internal Server Error' });
+        console.log(err);
     }
 };
 exports.getProduct = getProduct;
