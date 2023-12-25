@@ -81,7 +81,6 @@ function Navbar () {
                             {decode?.username ?
                                 <>
                                     <MenuItem ref={btnRef} onClick={onOpen}>My Cart <BsCart2 style={{ marginLeft: "8px" }} /></MenuItem>
-                                    <MenuDivider borderColor='gray.400' />
                                     <MenuItem>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                     <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                 </>

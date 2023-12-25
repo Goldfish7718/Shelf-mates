@@ -10,7 +10,7 @@ type CartContextProps = {
     children: React.ReactNode;
 }
 
-type CartItem = {
+export type CartItem = {
     productId: string;
     name: string;
     price: number;
@@ -31,6 +31,7 @@ type CartContextType = {
     deleteProduct: Function;
     productExists: Function;
     subtotal: number;
+    getCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -146,7 +147,8 @@ function CartProvider({ children }: CartContextProps) {
         decrement,
         deleteProduct,
         productExists,
-        subtotal
+        subtotal,
+        getCart
     }
 
     useEffect(() => {

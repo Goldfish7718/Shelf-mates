@@ -1,48 +1,33 @@
 import {
-    Drawer,
-    DrawerBody,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerOverlay,
-    DrawerContent,
-    DrawerCloseButton,
-    Button,
-    VStack,
-    Card,
-    Image,
-    Text,
-    Box,
-    ButtonGroup,
-    HStack,
-    Spacer,
-    Heading,
-    Divider,
-  } from '@chakra-ui/react'
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Button,
+  VStack,
+  Card,
+  Image,
+  Text,
+  Box,
+  ButtonGroup,
+  HStack,
+  Spacer,
+  Heading,
+  Divider,
+} from '@chakra-ui/react'
 import { useCart } from '../context/CartContext'
 import { AiFillDelete } from 'react-icons/ai'
 import { BsCloudHaze2 } from 'react-icons/bs'
-import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { API_URL } from '../App'
-import axios from 'axios'
 
 function Cart() {
 
   const { isOpen, onClose, btnRef, cartItems, addToCart, decrement, deleteProduct, subtotal } = useCart()
-  const { decode } = useAuth()
 
-  const [loading, setLoading] = useState(false)
-
-  const requestCheckout = async () => {
-    try {
-      setLoading(true)
-      const res = await axios.post(`${API_URL}/order/checkout/${decode?._id}`)
-      window.location.href = res.data.url
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false)
-    }
+  const navigateToCheckout = () => {
+    window.location.href = '/checkout';
   }
 
   return (
@@ -107,7 +92,7 @@ function Cart() {
 
           {cartItems.length > 0 &&
           <DrawerFooter>
-            <Button w='full' colorScheme='orange' mr={3} onClick={requestCheckout} isLoading={loading}>
+            <Button w='full' colorScheme='orange' mr={3} onClick={navigateToCheckout}>
               Checkout
             </Button>
           </DrawerFooter>

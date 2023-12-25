@@ -16,7 +16,7 @@ function ItemCard ({ name, price, image, _id, category, stars, reviews }: Produc
                         ))}
                         <Text ml={2} color='gray.500'>{reviews.length}</Text>
                     </HStack>
-                    <Text color='gray.700'>$11.50 Delivery Charges</Text>
+                    <Text color='gray.700'>Shipping charges calculated at checkout</Text>
                 </Stack>
             </CardBody>
             <Divider borderColor='gray.400' />

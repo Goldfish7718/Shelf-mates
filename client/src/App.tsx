@@ -13,6 +13,8 @@ import Confirmation from './views/Confirmation'
 import Failure from './views/Failure'
 import './App.css'
 import Success from './views/Success'
+import Checkout from './views/Checkout'
+import OrderProvider from './context/OrderContext'
 
 axios.defaults.withCredentials = true
 
@@ -21,17 +23,20 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <Routes>
-            <Route path='/' element={<Landing />} />
-            <Route path='/signup' element={<Signup />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/categories' element={<ProtectedRoute element={<Categories />} />} />
-            <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
-            <Route path='/categories/:category/:id' element={<ProtectedRoute element={<Product />} />} />
-            <Route path='/confirmation' element={<ProtectedRoute element={<Confirmation />} />} />
-            <Route path='/failure' element={<ProtectedRoute element={<Failure />} />} />
-            <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
-          </Routes>
+          <OrderProvider>
+            <Routes>
+              <Route path='/' element={<Landing />} />
+              <Route path='/signup' element={<Signup />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/categories' element={<ProtectedRoute element={<Categories />} />} />
+              <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
+              <Route path='/categories/:category/:id' element={<ProtectedRoute element={<Product />} />} />
+              <Route path='/confirmation' element={<ProtectedRoute element={<Confirmation />} />} />
+              <Route path='/failure' element={<ProtectedRoute element={<Failure />} />} />
+              <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
+              <Route path='/checkout' element={<ProtectedRoute element={<Checkout />} />} />
+            </Routes>
+          </OrderProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

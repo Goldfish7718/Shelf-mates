@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes'
 import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
 import orderRoutes from './routes/orderRoutes'
+import addressRoutes from './routes/addressRoutes'
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/auth', userRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes)
 app.use('/order', orderRoutes)
+app.use('/address', addressRoutes)
 
 const connectDB = async (url: string) => {
     await mongoose

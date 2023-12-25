@@ -11,6 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_API_KEY as string, {
 export const cartCheckout = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
+        const { paymentMethod, address } = req.body
 
         const potentialCart = await Cart.findOne({ userId });
 
@@ -30,6 +31,8 @@ export const cartCheckout = async (req: Request, res: Response) => {
                 totalPrice: item.price
             })),
             userId,
+            addressId: address,
+            paymentMethod,
             subtotal: potentialCart.subtotal,
             confirmed: false
         };
@@ -69,7 +72,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
         const decodedOrderDetails = decodeURIComponent(encode as string);
         const orderObject = JSON.parse(decodedOrderDetails);
         
-        let orderToEncode;
+        let orderToEncode
         let encodedOrderDetails
 
         if (orderObject.confirmed != true) {

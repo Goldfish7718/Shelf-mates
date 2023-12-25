@@ -14,6 +14,7 @@ const stripe = new stripe_1.default(process.env.STRIPE_API_KEY, {
 const cartCheckout = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { paymentMethod, address } = req.body;
         const potentialCart = await cartModel_1.default.findOne({ userId });
         if (!potentialCart) {
             return res.status(403).json({ message: "This User Does Not Exist" });
@@ -29,6 +30,8 @@ const cartCheckout = async (req, res) => {
                 totalPrice: item.price
             })),
             userId,
+            addressId: address,
+            paymentMethod,
             subtotal: potentialCart.subtotal,
             confirmed: false
         };

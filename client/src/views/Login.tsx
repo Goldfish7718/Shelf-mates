@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext"
 
 function Login () {
 
-    const { decode, requestLogin, error, isLoading  } = useAuth()
+    const {  requestLogin, error, isLoading  } = useAuth()
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -19,7 +19,7 @@ function Login () {
    
     return (
     <>
-        {decode ? <Navbar username={decode.username} /> : <Navbar />}
+        <Navbar />
         <Flex
             h='100vh'
             align={'center'}
