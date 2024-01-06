@@ -8,6 +8,8 @@ const stripe_1 = __importDefault(require("stripe"));
 const cartModel_1 = __importDefault(require("../models/cartModel"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const orderModel_1 = __importDefault(require("../models/orderModel"));
+const addressModel_1 = __importDefault(require("../models/addressModel"));
+const userModel_1 = __importDefault(require("../models/userModel"));
 const stripe = new stripe_1.default(process.env.STRIPE_API_KEY, {
     apiVersion: '2023-10-16'
 });
@@ -86,8 +88,17 @@ const confirmOrder = async (req, res) => {
                     }
                 });
             });
+            const potentialUser = await userModel_1.default.findById(orderObject.userId);
+            await Promise.all(order.items.map(async (item) => {
+                if (!(potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased.includes(item.productId))) {
+                    potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased.push(item.productId);
+                }
+                await (potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.save());
+            }));
         }
-        const transformedProducts = await Promise.all(orderObject.items.map(async (item) => {
+        const potentialUser = await userModel_1.default.findById(orderObject.userId);
+        const productsPurchasedNew = potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased;
+        orderObject.items = await Promise.all(orderObject.items.map(async (item) => {
             const product = await productModel_1.default.findById(item.productId);
             const productObj = product.toObject();
             const imageBase64 = productObj.image.data.toString('base64');
@@ -98,6 +109,8 @@ const confirmOrder = async (req, res) => {
                 quantity
             };
         }));
+        const address = await addressModel_1.default.findById(orderObject.addressId);
+        orderObject.address = address;
         if (orderToEncode) {
             const orderDetails = JSON.stringify(orderToEncode);
             encodedOrderDetails = encodeURIComponent(orderDetails);
@@ -107,7 +120,7 @@ const confirmOrder = async (req, res) => {
         }
         res
             .status(200)
-            .json({ transformedProducts, encodedOrderDetails });
+            .json({ orderObject, encodedOrderDetails, productsPurchasedNew });
     }
     catch (err) {
         console.log(err);

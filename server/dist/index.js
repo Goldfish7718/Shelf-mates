@@ -14,11 +14,13 @@ const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
 const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
 const orderRoutes_1 = __importDefault(require("./routes/orderRoutes"));
 const addressRoutes_1 = __importDefault(require("./routes/addressRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     credentials: true,
     origin: 'http://localhost:5173'
 }));
+// app.use(cors())
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -27,6 +29,7 @@ app.use('/products', productRoutes_1.default);
 app.use('/cart', cartRoutes_1.default);
 app.use('/order', orderRoutes_1.default);
 app.use('/address', addressRoutes_1.default);
+app.use('/review', reviewRoutes_1.default);
 const connectDB = async (url) => {
     await mongoose_1.default
         .connect(url)

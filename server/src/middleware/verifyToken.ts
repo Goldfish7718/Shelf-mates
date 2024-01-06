@@ -2,7 +2,14 @@ import { Request, Response } from "express";
 import jwt from 'jsonwebtoken'
 
 export interface ExtendedRequest extends Request {
-    decode?: object | string; 
+    decode?: {
+        fName: string,
+        lName: string,
+        username: string,
+        isAdmin: boolean,
+        _id: string,
+        productsPurchased: [string]
+    }; 
 }
 
 const verifyToken = async (req: ExtendedRequest, res: Response, next: any) => {
@@ -19,7 +26,7 @@ const verifyToken = async (req: ExtendedRequest, res: Response, next: any) => {
 
         const decode = jwt.verify(token, `${process.env.JWT_SECRET}`)
         
-        req.decode = decode
+        req.decode = decode as ExtendedRequest['decode']
         next()
 
     } catch (err) {

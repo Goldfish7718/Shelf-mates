@@ -14,6 +14,7 @@ type DecodeType = {
     username: string;
     isAdmin: boolean;
     _id: string;
+    productsPurchased: [String]
 }
 
 type AuthContextType = {
@@ -73,7 +74,7 @@ function AuthProvider({ children }: AuthContextProps) {
             setIsLoading(false)
         }
     }
-
+    
     const requestSignup = async ({ fName, lName, username, password }: UserCredentialsType) => {
         try {
             setIsLoading(true)
@@ -119,7 +120,6 @@ function AuthProvider({ children }: AuthContextProps) {
 
     const requestLogout = async () => {
         await axios.post(`${API_URL}/auth/logout`)
-        // window.location.href = '/login'
         
         toast({
             title: 'Logged Out',
@@ -145,7 +145,7 @@ function AuthProvider({ children }: AuthContextProps) {
         requestLogout,
         decode,
         verificationDone,
-        error
+        error,
     }
 
     useEffect(() => {

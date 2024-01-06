@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Product from "../models/productModel";
+import { ExtendedRequest } from "../middleware/verifyToken";
+import User from "../models/userModel";
 
 export const addProduct = async (req: Request, res: Response) => {
     try {
@@ -40,9 +42,9 @@ export const getProducts = async (req: Request, res: Response) => {
     try {
         const { category } = req.params;
 
-        const products = await Product.find({ category: String(category) });
+        const products = await Product.find({ category });
 
-        const transformedProducts = products.map(product => {
+        let transformedProducts = products.map(product => {
             const productObj = product.toObject();
 
             if (!productObj.image || !productObj.image.data) {
@@ -69,10 +71,13 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 };
 
-export const getProduct = async (req: Request, res: Response) => {
+export const getProduct = async (req: ExtendedRequest, res: Response) => {
     try {
         const { id } = req.params
+        const { decode } = req
+
         const product = await Product.findById(id)
+        const user = await User.findById(decode?._id)
 
         if (!product)
             return res
@@ -93,13 +98,14 @@ export const getProduct = async (req: Request, res: Response) => {
             image: `data:${productObj.image.contentType};base64,${imageBase64}`
         };
 
+        const isPurchased = user?.productsPurchased.includes(productObj._id)
+
         res
             .status(200)
-            .json({ transformedProduct })
+            .json({ transformedProduct, isPurchased })
     } catch (err) {
         return res
             .status(500)
             .json({ message: 'Internal Server Error' })
-        console.log(err);
     }
 }

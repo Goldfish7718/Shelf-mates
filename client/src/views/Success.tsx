@@ -1,9 +1,13 @@
-import { Alert, AlertIcon, AlertTitle, Box, Card, Container, Image, Link, Text } from "@chakra-ui/react"
+import { Box, Button, Divider, Flex, HStack, Heading, Spacer, Text, VStack } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../App";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import AddressBox, { AddressBoxProps } from "../components/AddressBox";
+import OrderCard from "../components/OrderCard";
+import { IoIosCheckmarkCircle } from "react-icons/io";
+import { paymentMethods } from "./Checkout";
 
 interface ItemType {
   quantity: number;
@@ -23,13 +27,18 @@ const Success = () => {
   
   const [items, setItems] = useState<ItemType[]>([])
   const [subtotal, setSubtotal] = useState<number>(0)
+  const [address, setAddress] = useState<AddressBoxProps | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState('')
 
   const requestOrderConfirmation = async () => {
     try {
       const res = await axios.post(`${API_URL}/order/confirmorder/${orderId}`)
-      setItems(res.data.transformedProducts)
 
-      const subtotal = res.data.transformedProducts.reduce((acc: number, item: ItemType) => {
+      setItems(res.data.orderObject.items)
+      setAddress(res.data.orderObject.address)
+      setPaymentMethod(res.data.orderObject.paymentMethod)
+
+      const subtotal = res.data.orderObject.items.reduce((acc: number, item: ItemType) => {
         return acc + item.price * item.quantity
       }, 0)
 
@@ -46,26 +55,48 @@ const Success = () => {
   return (
     <>
       <Navbar />
-      <Container pb={10}>
-          <Alert status="success" mt={10} mb={5}>
-            <AlertIcon />
-            <AlertTitle>Order Placed Successfully</AlertTitle>
-          </Alert>
-          {items.map((item, index) => (
-              <>
-                <Card key={index} variant='filled' direction='row' w='100%' h='120px' borderRadius='lg' my={3}>
-                  <Image src={item.image} w='45%' h='100%' objectFit='cover' backgroundColor='white' border='1px solid #e2e8f0' borderTopLeftRadius='lg' borderBottomLeftRadius='lg' />
-                  <Box p={2}>
-                    <Text fontWeight='bold' as={Link} href={`/categories/${item.category}/${item._id}`}>{item.name}</Text>
-                    <Text fontWeight='bold' color='gray.600'>&#8377;{item.price * item.quantity}</Text> 
-                    <Text color='gray.600'>Quantity: {item.quantity}</Text> 
-                  </Box>
-                </Card>
-              </>
-            ))
-          }
-          <Text fontSize='3xl' fontWeight='semibold'>Subtotal: &#8377;{subtotal}</Text>
-      </Container>
+      <Box p={10}>
+        <Heading mb={6} color='gray.700'>
+          <Flex>
+            <IoIosCheckmarkCircle style={{ marginRight: '12px', color: '#ed8936' }} size='52px' /> 
+            Order placed Succesfully
+          </Flex>
+        </Heading>
+        <Flex direction={{ sm: 'column', md: 'row' }}>
+          <Box overflowY='scroll' w='100%' height='400px' mx={5} my={{ sm: 5, md: 0 }}>
+            {items.map(item => (
+              <OrderCard name={item.name} quantity={item.quantity} price={item.price} image={item.image} key={item._id} />
+              ))
+            }
+          </Box>
+          <VStack w='100%' alignItems='flex-start'>
+            <AddressBox type={address?.type!} addressLine1={address?.addressLine1!} landmark={address?.landmark!} city={address?.city!} state={address?.state!} toSelect={false} _id={address?._id!} />
+            <Box p={4} w='100%' my={2} boxShadow='base'>
+              <Heading my={2} fontSize='2xl'>Payment Method:</Heading>
+              <Divider borderColor='gray.200' />
+
+              <Text>
+                {paymentMethods
+                  .filter(item => item.method === paymentMethod)
+                  .map(item => (
+                    <Flex mt={2} key={item.method}>
+                      <span key={item.method} style={{ fontSize: '30px' }}>
+                        {item.icon}
+                      </span>
+                      <Text mt={2} fontSize='18px'>{item.method}</Text>
+                      <Spacer />
+                      <Text fontSize='xl'>&#8377;{subtotal}</Text>
+                    </Flex>
+                  ))}
+              </Text>
+            </Box>
+            <HStack w='100%' my={2}>
+              <Button m={1} w='100%' variant='outline' colorScheme="orange" onClick={() => window.location.href = '/'}>Home</Button>
+              <Button m={1} w='100%' variant='solid' colorScheme="orange" onClick={() => window.location.href = '/orders'}>Orders</Button>
+            </HStack>
+          </VStack>
+        </Flex>
+      </Box>
     </>
   )
 }

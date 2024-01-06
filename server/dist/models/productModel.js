@@ -13,16 +13,22 @@ const productSchema = new mongoose_1.default.Schema({
         default: 0
     },
     category: String,
-    stars: Number,
+    stars: {
+        required: true,
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
     image: {
         data: Buffer,
         contentType: String
     },
     reviews: [
         {
-            username: String,
-            stars: Number,
-            review: String
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Review'
         }
     ]
 });

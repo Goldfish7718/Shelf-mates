@@ -19,7 +19,7 @@ const AddressBox = ({ addressLine1, landmark, city, state, _id, type, toSelect }
 
   return (
     <>
-        <Box p={5} boxShadow='base' borderRadius={4} h='100%'>
+        <Box p={5} boxShadow='base' borderRadius={4} h='100%' w='100%'>
             <HStack w='100%' my={2}>
                 {type === 'Home' ? <IoHomeSharp /> : <HiOfficeBuilding />}
                 <Heading fontSize='md'>{type}</Heading>

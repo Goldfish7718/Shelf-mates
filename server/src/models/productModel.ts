@@ -1,10 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { Document } from "mongoose";
 
 interface Review {
-    username: String;
-    stars: Number;
-    review: String;
+    type: ObjectId;
 }
 
 export interface ProductDocument extends Document {
@@ -31,16 +29,22 @@ const productSchema = new mongoose.Schema<ProductDocument>({
         default: 0
     },
     category: String,
-    stars: Number,
+    stars: {
+        required: true,
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
     image: {
         data: Buffer,
         contentType: String
     },
     reviews: [
-        {
-            username: String,
-            stars: Number,
-            review: String
+        { 
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Review'
         }
     ]
 })

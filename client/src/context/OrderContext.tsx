@@ -52,7 +52,7 @@ function OrderProvider({ children }: OrderContextProps) {
         if (!address) {
             setActiveStep(0)
             toast({
-                title: "Please Select an Address",
+                description: "Please Select an Address",
                 status: "error",
                 duration: 3000
             })
@@ -63,7 +63,7 @@ function OrderProvider({ children }: OrderContextProps) {
         if (!paymentMethod) {
             setActiveStep(1)
             toast({
-                title: "Please Select a Payment Method",
+                description: "Please Select a Payment Method",
                 status: "error",
                 duration: 3000
             })

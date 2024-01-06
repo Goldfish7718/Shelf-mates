@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProduct = exports.getProducts = exports.addProduct = void 0;
 const productModel_1 = __importDefault(require("../models/productModel"));
+const userModel_1 = __importDefault(require("../models/userModel"));
 const addProduct = async (req, res) => {
     try {
         if (!req.file)
@@ -39,8 +40,8 @@ exports.addProduct = addProduct;
 const getProducts = async (req, res) => {
     try {
         const { category } = req.params;
-        const products = await productModel_1.default.find({ category: String(category) });
-        const transformedProducts = products.map(product => {
+        const products = await productModel_1.default.find({ category });
+        let transformedProducts = products.map(product => {
             const productObj = product.toObject();
             if (!productObj.image || !productObj.image.data) {
                 return res
@@ -68,7 +69,9 @@ exports.getProducts = getProducts;
 const getProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        const { decode } = req;
         const product = await productModel_1.default.findById(id);
+        const user = await userModel_1.default.findById(decode === null || decode === void 0 ? void 0 : decode._id);
         if (!product)
             return res
                 .status(404)
@@ -84,15 +87,15 @@ const getProduct = async (req, res) => {
             ...productObj,
             image: `data:${productObj.image.contentType};base64,${imageBase64}`
         };
+        const isPurchased = user === null || user === void 0 ? void 0 : user.productsPurchased.includes(productObj._id);
         res
             .status(200)
-            .json({ transformedProduct });
+            .json({ transformedProduct, isPurchased });
     }
     catch (err) {
         return res
             .status(500)
             .json({ message: 'Internal Server Error' });
-        console.log(err);
     }
 };
 exports.getProduct = getProduct;

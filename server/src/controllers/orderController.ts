@@ -3,6 +3,10 @@ import Stripe from 'stripe';
 import Cart from '../models/cartModel';
 import Product from '../models/productModel';
 import Order from '../models/orderModel';
+import Address from '../models/addressModel';
+import User from '../models/userModel';
+import generateToken from '../middleware/generateToken';
+import { ExtendedRequest } from '../middleware/verifyToken';
 
 const stripe = new Stripe(process.env.STRIPE_API_KEY as string, {
     apiVersion: '2023-10-16'
@@ -65,7 +69,7 @@ export const cartCheckout = async (req: Request, res: Response) => {
     }
 };
 
-export const confirmOrder = async (req: Request, res: Response) => {
+export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
     try {
         const { encode } = req.params
 
@@ -95,9 +99,22 @@ export const confirmOrder = async (req: Request, res: Response) => {
                 })
             })
 
+            const potentialUser = await User.findById(orderObject.userId)
+
+            await Promise.all(order.items.map(async (item: any) => {
+                if (!potentialUser?.productsPurchased.includes(item.productId)) {
+                    potentialUser?.productsPurchased.push(item.productId)
+                }
+
+                await potentialUser?.save()
+            }))
         }
 
-        const transformedProducts = await Promise.all(orderObject.items.map(async (item: any) => {
+        const potentialUser = await User.findById(orderObject.userId)
+
+        const productsPurchasedNew = potentialUser?.productsPurchased
+
+        orderObject.items = await Promise.all(orderObject.items.map(async (item: any) => {
             const product = await Product.findById(item.productId)
             const productObj = product!.toObject();
 
@@ -111,6 +128,9 @@ export const confirmOrder = async (req: Request, res: Response) => {
             };
         }))
 
+        const address = await Address.findById(orderObject.addressId)
+        orderObject.address = address
+
         if (orderToEncode) {
             const orderDetails = JSON.stringify(orderToEncode);
             encodedOrderDetails = encodeURIComponent(orderDetails);
@@ -120,7 +140,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
 
         res
             .status(200)
-            .json({ transformedProducts, encodedOrderDetails })
+            .json({ orderObject, encodedOrderDetails, productsPurchasedNew })
 
     } catch (err) {
         console.log(err);

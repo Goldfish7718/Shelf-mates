@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, Card, Image, VStack, useBreakpointValue, RadioGroup, Radio, Stack } from "@chakra-ui/react";
+import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, VStack, useBreakpointValue, RadioGroup, Radio, Stack, Tooltip } from "@chakra-ui/react";
 import { IoHomeSharp } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
 import { FaTruckFast } from "react-icons/fa6";
@@ -16,13 +16,14 @@ import { IoMdCash } from "react-icons/io";
 import { BsQrCode } from "react-icons/bs";
 import { BsBank } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import OrderCard from "../components/OrderCard";
 
-interface OrderCardProps {
-    quantity: number;
-    price: number;
-    image: string;
-    name: string;
-}
+export const paymentMethods = [
+    { method: 'Card', disabled: false, icon: <MdPayment style={{ marginRight: '8px', marginTop: '6px' }} /> },
+    { method: 'COD', disabled: true, icon: <IoMdCash style={{ marginRight: '8px', marginTop: '6px' }} /> },
+    { method: 'UPI', disabled: true, icon: <BsQrCode style={{ marginRight: '8px', marginTop: '6px' }} /> },
+    { method: 'Net Banking', disabled: true, icon: <BsBank style={{ marginRight: '8px', marginTop: '6px' }} /> },
+]
 
 const Checkout = () => {
 
@@ -30,13 +31,6 @@ const Checkout = () => {
     const { cartItems,subtotal } = useCart()
     const { decode } = useAuth()
     const navigate = useNavigate()
-
-    const paymentMethods = [
-        { method: 'Card', disabled: false, icon: <MdPayment style={{ marginRight: '8px', marginTop: '6px' }} /> },
-        { method: 'COD', disabled: true, icon: <IoMdCash style={{ marginRight: '8px', marginTop: '6px' }} /> },
-        { method: 'UPI', disabled: true, icon: <BsQrCode style={{ marginRight: '8px', marginTop: '6px' }} /> },
-        { method: 'Net Banking', disabled: true, icon: <BsBank style={{ marginRight: '8px', marginTop: '6px' }} /> },
-    ]
 
     const icons = [<IoHomeSharp />, <MdPayment />, <FaTruckFast />]
 
@@ -102,7 +96,9 @@ const Checkout = () => {
                             {addresses.map((item, index) => (
                                 <AddressBox addressLine1={item.addressLine1} landmark={item.landmark} city={item.city} state={item.state} _id={item._id} type={item.type} key={index} toSelect={true} />
                             ))}
-                            <Button width='full'><FaPlus style={{ marginRight: '8px' }} /> Add new address</Button>
+                            <Tooltip label="You can have upto 5 addresses" hasArrow>
+                                <Button width='full'><FaPlus style={{ marginRight: '8px' }} /> Add new address</Button>
+                            </Tooltip>
                             <Button onClick={() => setActiveStep(activeStep + 1)} isDisabled={address ? false : true} width='full' colorScheme="orange">Next <FaArrowRight style={{ marginLeft: '8px' }} /></Button>
                         </SimpleGrid>
                     }
@@ -147,21 +143,6 @@ const Checkout = () => {
                     </VStack>
                 </Flex>
             </Box>
-        </>
-    )
-}
-
-const OrderCard = ({ image, quantity, name, price }: OrderCardProps) => {
-    return (
-        <>
-            <Card variant='filled' direction='row' w='100%' h='120px' borderRadius='lg' my={1}>
-                <Image src={image} w='45%' h='100%' objectFit='cover' backgroundColor='white' border='1px solid #e2e8f0' borderTopLeftRadius='lg' borderBottomLeftRadius='lg' />
-                <Box p={2}>
-                    <Text fontWeight='bold'>{name}</Text>
-                    <Text fontWeight='bold' color='gray.600'>&#8377;{price}</Text> 
-                    <Text color='gray.600'>Quantity: {quantity}</Text> 
-                </Box>
-            </Card>
         </>
     )
 }
