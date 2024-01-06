@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProduct = exports.getProducts = exports.addProduct = void 0;
 const productModel_1 = __importDefault(require("../models/productModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
+const reviewModel_1 = __importDefault(require("../models/reviewModel"));
 const addProduct = async (req, res) => {
     try {
         if (!req.file)
@@ -82,10 +83,25 @@ const getProduct = async (req, res) => {
                 .status(500)
                 .json({ message: 'Internal Server Error' });
         }
+        const reviews = await reviewModel_1.default.find({ productId: productObj._id });
+        const transformedReviews = await Promise.all(reviews.map(async (review) => {
+            const user = await userModel_1.default.findById(review.userId);
+            const { fName, lName } = user;
+            return {
+                ...review.toObject(),
+                fName,
+                lName
+            };
+        }));
+        const averageStars = Math.floor(reviews.reduce((acc, currentValue) => {
+            return acc + currentValue.stars;
+        }, 0) / reviews.length);
         const imageBase64 = productObj.image.data.toString('base64');
         const transformedProduct = {
             ...productObj,
-            image: `data:${productObj.image.contentType};base64,${imageBase64}`
+            image: `data:${productObj.image.contentType};base64,${imageBase64}`,
+            reviews: transformedReviews,
+            averageStars
         };
         const isPurchased = user === null || user === void 0 ? void 0 : user.productsPurchased.includes(productObj._id);
         res

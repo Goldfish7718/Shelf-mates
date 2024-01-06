@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Stack, Heading, Image, Text, VStack, useBreakpointValue, HStack, SimpleGrid, Alert, AlertIcon, AlertTitle, Avatar, Divider, AlertDescription, Textarea } from "@chakra-ui/react"
+import { Box, Button, Flex, Stack, Heading, Image, Text, VStack, useBreakpointValue, HStack, SimpleGrid, Alert, AlertIcon, AlertTitle, Avatar, Divider, AlertDescription, Textarea, useToast } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { AiFillDelete, AiFillStar, AiOutlineShoppingCart } from "react-icons/ai"
 import { BsBoxArrowUpRight } from "react-icons/bs"
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import ErrorComponent from "../components/ErrorComponent"
 import Loading from "../components/Loading"
 import { useCart } from "../context/CartContext"
+import { useAuth } from "../context/AuthContext"
 
 export type ProductProps = {
     _id: string;
@@ -19,9 +20,11 @@ export type ProductProps = {
     category: string,
     stars: number,
     image: string,
+    averageStars: number,
     reviews: [
         {
-            username?: string,
+            fName?: string,
+            lName?: string,
             stars?: number,
             review?: string
         }
@@ -47,14 +50,18 @@ function Product () {
     const leftPanelMargin = useBreakpointValue({ base: 3, md: 8 })
 
     const { id } = useParams()
+    const { decode } = useAuth()
+    const toast = useToast()
 
     const [product, setProduct] = useState<ProductProps | null>(null)
     const [isPurchased, setIsPurchased] = useState(false)
-    // const [rating, setRating] = useState(0)
+    const [rating, setRating] = useState(1)
+    const [review, setReview] = useState('')
 
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [cartProduct, setCartProduct] = useState<CartProductType | null>(null)
+    const [reviewLoading, setReviewLoading] = useState(false)
 
     const [stockStatus, setStockStatus] = useState<StockStatusType | null>(null)
 
@@ -94,11 +101,45 @@ function Product () {
             const res = await axios.get(`${API_URL}/products/getProduct/${id}`)
             setProduct(res.data.transformedProduct)
             setIsPurchased(res.data.isPurchased)
+
+            console.log(res.data.transformedProduct);
         } catch (err: any) {
             setError(err.response.data.message);
         } finally {
             setLoading(false)
         }
+    }
+
+    const requestAddReview = async () => {
+        try {
+            setReviewLoading(true)
+            await axios.post(`${API_URL}/review/post/${decode?._id}/${product?._id}`, {
+                review,
+                stars: rating
+            })
+
+            toast({
+                title: "Review posted",
+                description: "Your review was succesfully posted",
+                status: 'success',
+                duration: 3000
+            })
+
+            clearReview()
+
+            setTimeout(() => {
+                window.location.reload()
+            }, 3000);
+        } catch (err: any) {
+            setError(err.response.data.message);
+        } finally {
+            setReviewLoading(false)
+        }
+    }
+
+    const clearReview = () => {
+        setReview('')
+        setRating(1)
     }
 
     useEffect(() => {
@@ -125,7 +166,7 @@ function Product () {
             {product && !error &&
                 <Flex direction={{ base: 'column', md: 'row' }} w="100%" minH="100vh" p={3}>
                     <VStack w={panelWidth} m={3} my={leftPanelMargin}  alignItems='center' textAlign='center'>
-                        <Image src={product?.image} w='full' h='50%' objectFit='cover' />
+                        <Image src={product?.image} w='full' h='auto' objectFit='cover' />
                         <Divider borderColor='gray.600' />
                         <Box w='100%' p={boxPadding}>
                             <Button ml={boxNegativeMargin} my={2} colorScheme="orange" w='full' borderRadius='none'>Buy Now <BsBoxArrowUpRight style={{ marginLeft: '8px' }} /></Button>
@@ -148,11 +189,11 @@ function Product () {
                         <Text color='gray.800' my={5} fontSize='md'>{product.description}</Text>
                         <Stack direction={{ base: 'column', md: 'row' }}>
                             <HStack spacing='none'>
-                                {Array.from({ length: product.stars }).map((_, index) => (
+                                {Array.from({ length: product.averageStars }).map((_, index) => (
                                     <AiFillStar key={index} size={24} />
                                 ))}
                             </HStack>
-                            <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | 80% Customer satisfaction</Text>
+                            <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | {product.averageStars} star average rating</Text>
                         </Stack>
                         <Text fontSize='4xl' color='gray.900'>&#8377;{product?.price}</Text>
                         <Alert variant='left-accent' mt={2} status={stockStatus?.status} size='3xl'>
@@ -162,23 +203,38 @@ function Product () {
                         </Alert>
                         <Text fontSize='3xl' color='gray.700' my={3}>Reviews</Text>
                         <SimpleGrid spacing={3} columns={2}>
-                            {Array.from({ length: product.stars }).map((_, index) => (
+                            {product.reviews.length > 0 ? product.reviews.map((review, index) => (
                                 <VStack key={index} p={3} boxShadow='md' borderRadius='md' alignItems='flex-start'>
                                     <HStack>
-                                        <Avatar size='sm' name="John Doe" />
-                                        <Text color='gray.600'>John Doe</Text>
+                                        <Avatar size='sm' name={`${review.fName} ${review.lName}`} />
+                                        <Text color='gray.600'>{review.fName} {review.lName}</Text>
                                     </HStack>
-                                    <Text fontSize='small'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum hic sit quo doloremque quia maiores.</Text>
+                                    <HStack spacing='none'>
+                                        {Array.from({ length: review.stars || 1 }).map((_, index) => (
+                                                <AiFillStar key={index} size={15} />
+                                            ))
+                                        }
+                                        <Text fontSize='xs'>  | {review.stars} stars</Text>
+                                    </HStack>
+                                    <Text fontSize='medium'>{review.review}</Text>
                                 </VStack>
-                            ))}
+                            )) : <Text>No Reviews posted for this product</Text>}
                         </SimpleGrid>
                         {isPurchased ?
                             <Box py={3} w='full'>
-                                <Text fontSize="3xl" fontWeight='medium' my={2}>Leave a Review!</Text>
-                                <Textarea placeholder="What do you think of this product?" resize='none' />
+                                <Text fontSize="3xl" fontWeight='medium' my={2} color='gray.800'>Leave a Review!</Text>
+                                <Text color='gray.600' fontSize="xl" fontWeight='medium' my={2}>Rating:</Text>
+                                {Array.from({ length: 5 }).map((_, index) => {
+                                    const buttonValue = index + 1
+                                    return (
+                                        <Button onClick={_ => setRating(buttonValue)} value={buttonValue} colorScheme={rating == index + 1 ? 'orange' : 'gray'} mx={1} mb={3}>{buttonValue}</Button>
+                                    )
+                                })
+                                }
+                                <Textarea onChange={e => setReview(e.target.value)} value={review} placeholder="What do you think of this product?" resize='none' />
                                 <HStack mt={4}>
-                                    <Button size='md' colorScheme="orange" w={buttonWidth}>Submit Review</Button>
-                                    <Button size='md' w={buttonWidth}>Clear Review</Button>
+                                    <Button size='md' colorScheme="orange" w={buttonWidth} onClick={requestAddReview} isLoading={reviewLoading}>Submit Review</Button>
+                                    <Button size='md' w={buttonWidth} onClick={clearReview}>Clear Review</Button>
                                 </HStack>
                             </Box> : null
                         }

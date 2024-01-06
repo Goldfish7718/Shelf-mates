@@ -93,8 +93,8 @@ const confirmOrder = async (req, res) => {
                 if (!(potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased.includes(item.productId))) {
                     potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased.push(item.productId);
                 }
-                await (potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.save());
             }));
+            await (potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.save());
         }
         const potentialUser = await userModel_1.default.findById(orderObject.userId);
         const productsPurchasedNew = potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.productsPurchased;

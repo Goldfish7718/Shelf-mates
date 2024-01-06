@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Product from "../models/productModel";
 import { ExtendedRequest } from "../middleware/verifyToken";
 import User from "../models/userModel";
+import Review from "../models/reviewModel";
 
 export const addProduct = async (req: Request, res: Response) => {
     try {
@@ -92,10 +93,29 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
                 .json({ message: 'Internal Server Error' })
         }
 
+        const reviews = await Review.find({ productId: productObj._id })
+
+        const transformedReviews = await Promise.all(reviews.map(async review => {
+            const user = await User.findById(review.userId)
+            const { fName, lName } = user!
+
+            return {
+                ...review.toObject(),
+                fName,
+                lName
+            }
+        }))
+
+        const averageStars = Math.floor(reviews.reduce((acc, currentValue) => {
+            return acc + currentValue.stars
+        }, 0) / reviews.length)
+
         const imageBase64 = productObj.image.data.toString('base64');
         const transformedProduct = {
             ...productObj,
-            image: `data:${productObj.image.contentType};base64,${imageBase64}`
+            image: `data:${productObj.image.contentType};base64,${imageBase64}`,
+            reviews: transformedReviews,
+            averageStars
         };
 
         const isPurchased = user?.productsPurchased.includes(productObj._id)

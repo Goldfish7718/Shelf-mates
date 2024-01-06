@@ -105,9 +105,8 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
                 if (!potentialUser?.productsPurchased.includes(item.productId)) {
                     potentialUser?.productsPurchased.push(item.productId)
                 }
-
-                await potentialUser?.save()
             }))
+            await potentialUser?.save()
         }
 
         const potentialUser = await User.findById(orderObject.userId)
