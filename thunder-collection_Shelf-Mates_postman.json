@@ -1,0 +1,315 @@
+{
+    "info": {
+        "_postman_id": "683c8b6f-e477-463d-ba09-00348d7b5abc",
+        "name": "Shelf-Mates",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": ""
+    },
+    "item": [
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "Add Product",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/products/upload",
+                            "path": [
+                                "products",
+                                "upload"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        },
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "name",
+                                    "value": "Tomatoes",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "price",
+                                    "value": "20",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Experience the vibrant taste of our sun-ripened tomatoes. Bursting with juicy flavors, they're a perfect blend of sweetness and acidity. Grown organically, these tomatoes are nature's essence captured in a bright red hue, ideal for salads, sauces, or enjoyed on their own. Elevate your meals with their fresh goodness.",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "stock",
+                                    "value": "8",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "vegetables",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "stars",
+                                    "value": "4",
+                                    "type": "default"
+                                },
+                                {
+                                    "key": "image",
+                                    "src": "c:\\Users\\user\\Pictures\\Screenshots\\tomatoes.jpg",
+                                    "type": "file"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Products",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/products/getByCat/vegetables",
+                            "path": [
+                                "products",
+                                "getByCat",
+                                "vegetables"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Product",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/products/getProduct/fruits/653006125fbf5376e47d3563",
+                            "path": [
+                                "products",
+                                "getProduct",
+                                "fruits",
+                                "653006125fbf5376e47d3563"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cart",
+            "item": [
+                {
+                    "name": "Add To Cart",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/cart/add/65339f93aeb82b36be0bf6bb/653006125fbf5376e47d3563",
+                            "path": [
+                                "cart",
+                                "add",
+                                "65339f93aeb82b36be0bf6bb",
+                                "653006125fbf5376e47d3563"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                },
+                {
+                    "name": "Decrement Product",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/cart/decrement/65339f93aeb82b36be0bf6bb/653006125fbf5376e47d3563",
+                            "path": [
+                                "cart",
+                                "decrement",
+                                "65339f93aeb82b36be0bf6bb",
+                                "653006125fbf5376e47d3563"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"operation\": \"decrement\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Product",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/cart/delete/65339f93aeb82b36be0bf6bb/653006125fbf5376e47d3563",
+                            "path": [
+                                "cart",
+                                "delete",
+                                "65339f93aeb82b36be0bf6bb",
+                                "653006125fbf5376e47d3563"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Cart",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/cart/getCart/65339f93aeb82b36be0bf6bb",
+                            "path": [
+                                "cart",
+                                "getCart",
+                                "65339f93aeb82b36be0bf6bb"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Order",
+            "item": [
+                {
+                    "name": "Cart Order",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/order/checkout/65339f93aeb82b36be0bf6bb",
+                            "path": [
+                                "order",
+                                "checkout",
+                                "65339f93aeb82b36be0bf6bb"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Addresses",
+            "item": [
+                {
+                    "name": "Add Address",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/address/addaddress/65339fb8aeb82b36be0bf6c0",
+                            "path": [
+                                "address",
+                                "addaddress",
+                                "65339fb8aeb82b36be0bf6c0"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"addressLine1\" : \"Complex suite 18, Leh market\",\n  \"landmark\": \"Besides wazwan\",\n  \"city\": \"leh\",\n  \"state\": \"ladakh\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get addresses",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/address/getaddresses/65339fb8aeb82b36be0bf6c0",
+                            "path": [
+                                "address",
+                                "getaddresses",
+                                "65339fb8aeb82b36be0bf6c0"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "Add Review",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "http://localhost:3000/review/post/65339fb8aeb82b36be0bf6c0/65300858022e0de3fd4a4814",
+                            "path": [
+                                "review",
+                                "post",
+                                "65339fb8aeb82b36be0bf6c0",
+                                "65300858022e0de3fd4a4814"
+                            ],
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000"
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"review\": \"Very Noice Pineapple, tastes just like a banana, unbelievably good.\",\n  \"stars\": 5\n}"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

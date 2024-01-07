@@ -73,3 +73,21 @@ export const getAddresses = async (req: Request, res: Response) => {
             .json({ message: "Internal Server Error" })
     }
 }
+
+export const updateAddress = async (req: Request, res: Response) => {
+    try {
+        const address = req.body.address
+        
+        const updatedDocument = await Address.findByIdAndUpdate(
+            address._id,
+            { $set: address },
+            { new: true }
+        )
+
+        res
+            .status(200)
+            .json({ message: "Address Updated Successfully" })
+    } catch (err) {
+        console.log(err);
+    }
+}

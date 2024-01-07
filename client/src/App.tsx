@@ -15,6 +15,7 @@ import './App.css'
 import Success from './views/Success'
 import Checkout from './views/Checkout'
 import OrderProvider from './context/OrderContext'
+import Profile from './views/Profile'
 
 axios.defaults.withCredentials = true
 
@@ -35,6 +36,7 @@ function App() {
               <Route path='/failure' element={<ProtectedRoute element={<Failure />} />} />
               <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
               <Route path='/checkout' element={<ProtectedRoute element={<Checkout />} />} />
+              <Route path='/profile' element={<ProtectedRoute element={<Profile />} />} />
             </Routes>
           </OrderProvider>
         </CartProvider>

@@ -14,7 +14,6 @@ type DecodeType = {
     username: string;
     isAdmin: boolean;
     _id: string;
-    productsPurchased: [String]
 }
 
 type AuthContextType = {

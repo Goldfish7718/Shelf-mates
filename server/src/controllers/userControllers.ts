@@ -89,7 +89,7 @@ export const login = async (req: Request, res: Response) => {
                 .status(400)
                 .json({ message: "Incorrect Credentials" })
 
-        const { fName, lName, isAdmin, _id, productsPurchased } = user
+        const { fName, lName, isAdmin, _id } = user
 
         const payload = {
             fName,
@@ -97,7 +97,6 @@ export const login = async (req: Request, res: Response) => {
             username,
             isAdmin,
             _id,
-            productsPurchased
         }
 
         const token = generateToken(payload)

@@ -74,14 +74,13 @@ const login = async (req, res) => {
             return res
                 .status(400)
                 .json({ message: "Incorrect Credentials" });
-        const { fName, lName, isAdmin, _id, productsPurchased } = user;
+        const { fName, lName, isAdmin, _id } = user;
         const payload = {
             fName,
             lName,
             username,
             isAdmin,
             _id,
-            productsPurchased
         };
         const token = (0, generateToken_1.default)(payload);
         res
