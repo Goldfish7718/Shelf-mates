@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 interface AddressInput {
     isOpen: boolean;
     onClose: () => void;
+    onAddressChange: () => void;
     edit: boolean;
     addressLine1: string;
     type: string | "";
@@ -16,7 +17,7 @@ interface AddressInput {
     _id: string;
 }
 
-const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, city, state, _id }: AddressInput) => {
+const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, city, state, _id, onAddressChange }: AddressInput) => {
 
     const { decode } = useAuth()
     const toast = useToast()
@@ -50,6 +51,8 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
                 status: "success",
                 duration: 3000
             })
+
+            onAddressChange()
         } catch (err) {
             toast({
                 title: "Sorry an error occured",
@@ -64,7 +67,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
 
     const requestUpdateAddress = async () => {
         try {
-            const res = await axios.put(`${API_URL}/address/updateaddress`, {
+            await axios.put(`${API_URL}/address/updateaddress`, {
                 address: {
                     addressLine1: addressLine1New,
                     type: typeNew,
@@ -74,10 +77,21 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
                     _id
                 }
             })
-            
-            console.log(res);
+
+            toast({
+                title: "Address Updated Succesfully",
+                status: "success",
+                duration: 3000
+            })            
+
+            onAddressChange();
         } catch (err) {
-            console.log(err);
+            toast({
+                title: "Sorry an error occured",
+                description: "Please try again later",
+                status: "error",
+                duration: 3000
+            })
         } finally {
             clearAndClose()
         }

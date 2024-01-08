@@ -6,4 +6,5 @@ const router = (0, express_1.Router)();
 router.post('/addaddress/:userId', addressControllers_1.addAddress);
 router.get('/getaddresses/:userId', addressControllers_1.getAddresses);
 router.put('/updateaddress', addressControllers_1.updateAddress);
+router.delete('/deleteaddress/:addressId', addressControllers_1.deleteAddress);
 exports.default = router;

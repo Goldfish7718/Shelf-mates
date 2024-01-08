@@ -10,17 +10,24 @@ import { IoHomeSharp } from "react-icons/io5";
 import { HiOfficeBuilding } from "react-icons/hi";
 import { MdDelete, MdEdit } from "react-icons/md";
 import AddressInput from "../components/AddressInput";
+import DeleteAddressAlert from "../components/DeleteAddressAlert";
 
 const Profile = () => {
 
     const { decode } = useAuth()
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const {
+        isOpen: isOpenDeleteAlert,
+        onOpen: onOpenDeleteAlert,
+        onClose: onCloseDeleteAlert
+    } = useDisclosure()
 
     const [fName, setFName] = useState(decode?.fName)
     const [lName, setLName] = useState(decode?.lName)
     const [username, setUsername] = useState(decode?.username)
     const [addresses, setAddresses] = useState<AddressBoxProps[]>([])
     const [addressEditable, setAddressEditable] = useState({} as any)
+    const [idToBeDeleted, setIdToBeDeleted] = useState('')
     const [edit, setEdit] = useState(false)
 
     const error = !fName || !lName
@@ -63,6 +70,15 @@ const Profile = () => {
         onOpen()
     }
 
+    const deleteClick = (_id: string) => {
+        setIdToBeDeleted(_id)
+        onOpenDeleteAlert()
+    }
+
+    const onAddressChange = () => {
+        fetchAddresses();
+    }
+
     useEffect(() => {
         fetchAddresses()
     }, [])
@@ -102,14 +118,15 @@ const Profile = () => {
                         <Text>{address.city}, {address.state}</Text>
                         <HStack mt={4}>
                             <Button onClick={() => handleClick(true, address._id)}><MdEdit /></Button>
-                            <Button colorScheme="orange"><MdDelete /></Button>
+                            <Button colorScheme="orange" onClick={() => deleteClick(address._id)}><MdDelete /></Button>
                         </HStack>
                     </Box>
                 </Box>
             ))}
             <Button my={2} onClick={() => handleClick(false)}><FaPlus style={{ marginRight: '8px' }} />Add Address</Button>
             <Button my={2} colorScheme="orange">Save Changes</Button>
-            <AddressInput isOpen={isOpen} onClose={onClose} edit={edit} {...addressEditable} />
+            <AddressInput isOpen={isOpen} onClose={onClose} edit={edit} {...addressEditable} onAddressChange={onAddressChange} />
+            <DeleteAddressAlert isOpen={isOpenDeleteAlert} onClose={onCloseDeleteAlert} _id={idToBeDeleted} onAddressChange={onAddressChange} />
         </Flex>
     </>
   )
