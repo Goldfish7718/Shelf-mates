@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, VStack, useBreakpointValue, RadioGroup, Radio, Stack, Tooltip } from "@chakra-ui/react";
+import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, VStack, useBreakpointValue, RadioGroup, Radio, Stack, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { IoHomeSharp } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
 import { FaTruckFast } from "react-icons/fa6";
@@ -17,6 +17,7 @@ import { BsQrCode } from "react-icons/bs";
 import { BsBank } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import OrderCard from "../components/OrderCard";
+import AddressInput from "../components/AddressInput";
 
 export const paymentMethods = [
     { method: 'Card', disabled: false, icon: <MdPayment style={{ marginRight: '8px', marginTop: '6px' }} /> },
@@ -30,7 +31,17 @@ const Checkout = () => {
     const { address, setPaymentMethod, paymentMethod, requestCheckout, loading, activeStep, setActiveStep, steps } = useOrder()
     const { cartItems,subtotal } = useCart()
     const { decode } = useAuth()
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const navigate = useNavigate()
+
+    const addressEditable = {
+        addressLine1: "",
+        landmark: "",
+        city: "",
+        state: "",
+        type: "",
+        _id: ""
+    }
 
     const icons = [<IoHomeSharp />, <MdPayment />, <FaTruckFast />]
 
@@ -47,6 +58,10 @@ const Checkout = () => {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    const onAddressChange = () => {
+        fetchAddresses();
     }
 
     useEffect(() => {
@@ -96,8 +111,8 @@ const Checkout = () => {
                             {addresses.map((item, index) => (
                                 <AddressBox addressLine1={item.addressLine1} landmark={item.landmark} city={item.city} state={item.state} _id={item._id} type={item.type} key={index} toSelect={true} />
                             ))}
-                            <Tooltip label="You can have upto 5 addresses" hasArrow>
-                                <Button width='full'><FaPlus style={{ marginRight: '8px' }} /> Add new address</Button>
+                            <Tooltip label="You can add upto 5 addresses" hasArrow>
+                                <Button width='full' onClick={onOpen}><FaPlus style={{ marginRight: '8px' }} /> Add new address</Button>
                             </Tooltip>
                             <Button onClick={() => setActiveStep(activeStep + 1)} isDisabled={address ? false : true} width='full' colorScheme="orange">Next <FaArrowRight style={{ marginLeft: '8px' }} /></Button>
                         </SimpleGrid>
@@ -143,6 +158,7 @@ const Checkout = () => {
                     </VStack>
                 </Flex>
             </Box>
+            <AddressInput isOpen={isOpen} onClose={onClose} {...addressEditable} edit={false} onAddressChange={onAddressChange}  />
         </>
     )
 }

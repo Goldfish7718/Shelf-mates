@@ -1,4 +1,4 @@
-import { Avatar, Flex, Box, Button, FormControl, Input, FormErrorMessage, FormLabel, Text, Divider, Heading, HStack, useDisclosure } from "@chakra-ui/react"
+import { Avatar, Flex, Box, Button, FormControl, Input, FormErrorMessage, FormLabel, Text, Divider, Heading, HStack, useDisclosure, useToast, Tooltip } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { useEffect, useState } from "react";
 import { AddressBoxProps } from "../components/AddressBox";
@@ -11,15 +11,31 @@ import { HiOfficeBuilding } from "react-icons/hi";
 import { MdDelete, MdEdit } from "react-icons/md";
 import AddressInput from "../components/AddressInput";
 import DeleteAddressAlert from "../components/DeleteAddressAlert";
+import PasswordChangeInput from "../components/PasswordChangeInput";
+import DeleteUserModal from "../components/DeleteUserModal";
 
 const Profile = () => {
 
-    const { decode } = useAuth()
+    const { decode, requestVerification } = useAuth()
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const toast = useToast()
+
     const {
         isOpen: isOpenDeleteAlert,
         onOpen: onOpenDeleteAlert,
         onClose: onCloseDeleteAlert
+    } = useDisclosure()
+
+    const {
+        isOpen: isOpenPasswordChange,
+        onOpen: onOpenPasswordChange,
+        onClose: onClosePasswordChange
+    } = useDisclosure()
+
+    const {
+        isOpen: isOpenAccountDelete,
+        onOpen: onOpenAccountDelete,
+        onClose: onCloseAccountDelete
     } = useDisclosure()
 
     const [fName, setFName] = useState(decode?.fName)
@@ -29,6 +45,7 @@ const Profile = () => {
     const [addressEditable, setAddressEditable] = useState({} as any)
     const [idToBeDeleted, setIdToBeDeleted] = useState('')
     const [edit, setEdit] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const error = !fName || !lName
 
@@ -70,6 +87,38 @@ const Profile = () => {
         onOpen()
     }
 
+    const requestUserUpdate = async () => {
+        try {
+            setLoading(true)
+            const res = await axios.put(`${API_URL}/auth/update/${decode?._id}`, {
+                newUser: {
+                    fName,
+                    lName,
+                    username
+                }
+            })
+            
+            toast({
+                title: res.data.message,
+                status: 'success',
+                duration: 3000
+            })
+
+            requestVerification()
+        } catch (err: any) {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                description: "Please Select another username",
+                duration: 3000
+            })
+
+            setUsername(decode?.username)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const deleteClick = (_id: string) => {
         setIdToBeDeleted(_id)
         onOpenDeleteAlert()
@@ -105,7 +154,7 @@ const Profile = () => {
             <Text fontSize='2xl' fontWeight='bold' my={2}>
                 Addresses:
             </Text>
-            {addresses.map(address => (
+            {addresses.length > 0 && addresses.map(address => (
                 <Box my={2} key={address._id}>
                     <Box p={5} boxShadow='base' borderRadius={4} h='100%' w='100%'>
                         <HStack w='100%' my={2}>
@@ -123,10 +172,22 @@ const Profile = () => {
                     </Box>
                 </Box>
             ))}
-            <Button my={2} onClick={() => handleClick(false)}><FaPlus style={{ marginRight: '8px' }} />Add Address</Button>
-            <Button my={2} colorScheme="orange">Save Changes</Button>
+            {addresses.length === 0 && <Text fontSize='lg' fontWeight='md' color='gray.700'>No Address added</Text>}
+            <Text mt={3} fontSize='2xl' fontWeight='medium' color='red'>Danger Zone:</Text>
+            <Flex m={3} border='1px solid red' borderRadius='25px' p={5} direction='column' alignItems={{ base: 'center', md: 'flex-start' }}>
+                <Button colorScheme='red' m={2} w={{ base: '100%', md: 'auto' }} onClick={onOpenPasswordChange}>Change Password</Button>
+                <Button colorScheme='red' m={2} w={{ base: '100%', md: 'auto' }} onClick={onOpenAccountDelete}>Delete Account</Button>
+            </Flex>
+
+            <Tooltip label="You can add up to 5 addresses" hasArrow>
+                <Button my={2} onClick={() => handleClick(false)}><FaPlus style={{ marginRight: '8px' }} />Add Address</Button>
+            </Tooltip>
+            <Button my={2} colorScheme="orange" onClick={() => requestUserUpdate()} isLoading={loading}>Save Changes</Button>
+
             <AddressInput isOpen={isOpen} onClose={onClose} edit={edit} {...addressEditable} onAddressChange={onAddressChange} />
             <DeleteAddressAlert isOpen={isOpenDeleteAlert} onClose={onCloseDeleteAlert} _id={idToBeDeleted} onAddressChange={onAddressChange} />
+            <PasswordChangeInput isOpen={isOpenPasswordChange} onClose={onClosePasswordChange} />
+            <DeleteUserModal isOpen={isOpenAccountDelete} onClose={onCloseAccountDelete} />
         </Flex>
     </>
   )

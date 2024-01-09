@@ -27,6 +27,9 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
     const [landmarkNew, setLandmarkNew] = useState("")
     const [cityNew, setCityNew] = useState("")
     const [stateNew, setStateNew] = useState("")
+    const [loading, setLoading] = useState(false)
+
+    const buttonDisabled = !addressLine1New || !typeNew || !landmarkNew || !cityNew || !stateNew
 
     const setInputs = () => {
         setAddressLine1New(addressLine1)
@@ -38,6 +41,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
 
     const requestAddAddress = async () => {
         try {
+            setLoading(true)
             await axios.post(`${API_URL}/address/addaddress/${decode?._id}`, {
                 addressLine1: addressLine1New,
                 type: typeNew,
@@ -62,6 +66,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
             })
         } finally {
             onClose()
+            setLoading(false)
         }
     }
 
@@ -132,10 +137,6 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
                         </RadioGroup>
 
                         <FormLabel mt={3}>Address:</FormLabel>
-                        {/* <Input m={2} placeholder="Address Line 1" value={addressLine1} onChange={e => setAddressLine1New(e.target.value)} />
-                        <Input m={2} placeholder="Landmark" value={landmark} onChange={e => setLandmarkNew(e.target.value)} />
-                        <Input m={2} placeholder="City" value={city} onChange={e => setCityNew(e.target.value)} />
-                        <Input m={2} placeholder="State" value={state} onChange={e => setStateNew(e.target.value)} /> */}
 
                         <Input m={2} placeholder="Address Line 1" value={addressLine1New} onChange={e => setAddressLine1New(e.target.value)} />
                         <Input m={2} placeholder="Landmark" value={landmarkNew} onChange={e => setLandmarkNew(e.target.value)} />
@@ -145,7 +146,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button m={2} colorScheme="orange" onClick={callFunction}>Save</Button>
+                    <Button m={2} colorScheme="orange" onClick={callFunction} isLoading={loading} isDisabled={buttonDisabled}>Save</Button>
                 </ModalFooter>
             </ModalContent>
         </ModalOverlay>

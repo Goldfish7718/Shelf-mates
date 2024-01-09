@@ -3,6 +3,10 @@ import bcrypt from 'bcrypt'
 import User from "../models/userModel"; 
 import generateToken from "../middleware/generateToken";
 import Cart from "../models/cartModel";
+import Address from "../models/addressModel";
+import Order from "../models/orderModel";
+import Review from "../models/reviewModel";
+import Product from "../models/productModel";
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -115,6 +119,142 @@ export const login = async (req: Request, res: Response) => {
             .status(500)
             .json({ message: "A Problem Occured" })
 
+    }
+}
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const { newUser } = req.body;
+
+        const currentUser = await User.findById(userId);
+
+        const usernameEquals = currentUser?.username === newUser.username;
+        const fNameEquals = currentUser?.fName === newUser.fName;
+        const lNameEquals = currentUser?.lName === newUser.lName;
+
+        if (usernameEquals && fNameEquals && lNameEquals) {
+            return res
+                .status(200)
+                .json({ message: "Changes Saved" });
+        }
+
+        if (!usernameEquals) {
+            const potentialUser = await User.findOne({ username: newUser.username });
+
+            if (potentialUser && potentialUser._id.toString() !== currentUser?._id.toString()) {
+                return res
+                    .status(400)
+                    .json({ message: "This username is already taken" });
+            }
+        }
+
+        const updatedFields: any = {};
+
+        if (!usernameEquals) {
+            updatedFields.username = newUser.username;
+        }
+        if (!fNameEquals) {
+            updatedFields.fName = newUser.fName;
+        }
+        if (!lNameEquals) {
+            updatedFields.lName = newUser.lName;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updatedFields },
+            { new: true }
+        );
+
+        const payload = updatedUser!.toObject();
+        const token = generateToken(payload);
+
+        res
+            .status(200)
+            .clearCookie('token')
+            .cookie('token', token, {
+                sameSite: 'none',
+                secure: true,
+                httpOnly: true
+            })
+            .json({ message: "Saved Changes", updatedUser });
+    } catch (err) {
+        res
+            .status(500)    
+            .json({ message: "A Problem Occurred" });
+    }
+};
+
+
+export const changePassword = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params
+        const { securityPassword, newPassword } = req.body
+
+        if (!userId || !securityPassword || !newPassword) {
+            return res
+                .status(400)
+                .json({ message: "Please fill all the fields" })
+        }
+
+        const potentialUser = await User.findById(userId)
+        
+        const match = await bcrypt.compare(securityPassword, potentialUser?.password as string)
+
+        if (!match)
+            return res
+                .status(400)
+                .json({ message: "The Entered password does not match with your current password" })
+
+        const updatedPassword = await bcrypt.hash(newPassword, 10)        
+
+        potentialUser!.password = updatedPassword
+        await potentialUser?.save()
+
+        res
+            .status(200)
+            .json({ message: "Password changed successfully" })
+
+    } catch (err) {
+        res
+            .status(500)
+            .json({ message: "A Problem Occured" })
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params
+        const { securityPassword } = req.body
+
+        const potentialUser = await User.findById(userId)
+        
+        const match = await bcrypt.compare(securityPassword, potentialUser?.password as string)
+
+        if (!match)
+            return res
+                .status(400)
+                .json({ message: "The Entered password does not match with your current password" })
+
+        const deletedReviews = await Review.find({ userId })
+
+        await User.findByIdAndDelete(userId)
+        await Address.deleteMany({ userId })
+        await Cart.findOneAndDelete({ userId })
+        await Order.deleteMany({ userId })
+        await Review.deleteMany({ userId })
+
+        await Product.updateMany(
+            { reviews: { $in: deletedReviews.map(review => review._id) } },
+            { $pull: { reviews: { $in: deletedReviews.map(review => review._id) } } }
+        );
+
+        res
+            .status(200)
+            .json({ message: "User Deleted Successfully" })
+    } catch (err) {
+        console.log(err);
     }
 }
 

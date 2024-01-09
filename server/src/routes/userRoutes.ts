@@ -1,5 +1,5 @@
 import { Response, Router } from "express";
-import { login, logout, signup } from "../controllers/userControllers";
+import { changePassword, deleteUser, login, logout, signup, updateUser } from "../controllers/userControllers";
 import verifyToken, { ExtendedRequest } from "../middleware/verifyToken";
 
 const router = Router()
@@ -14,5 +14,9 @@ router.get('/verify', verifyToken, (req: ExtendedRequest, res: Response) => {
         .status(200)
         .json({ isAuthenticated: true, decode, message: "Is Authenticated" })
 })
+
+router.put('/update/:userId', updateUser)
+router.patch('/updatepassword/:userId', changePassword)
+router.delete('/delete/:userId', deleteUser)
 
 export default router

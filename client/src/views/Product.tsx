@@ -127,9 +127,10 @@ function Product () {
 
             clearReview()
 
-            setTimeout(() => {
-                window.location.reload()
-            }, 3000);
+            // setTimeout(() => {
+            //     window.location.reload()
+            // }, 3000);
+            fetchProduct()
         } catch (err: any) {
             setError(err.response.data.message);
         } finally {
@@ -193,7 +194,7 @@ function Product () {
                                     <AiFillStar key={index} size={24} />
                                 ))}
                             </HStack>
-                            <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | {product.averageStars} star average rating</Text>
+                            <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | {product.averageStars > 0 ? product.averageStars : 0} star average rating</Text>
                         </Stack>
                         <Text fontSize='4xl' color='gray.900'>&#8377;{product?.price}</Text>
                         <Alert variant='left-accent' mt={2} status={stockStatus?.status} size='3xl'>
