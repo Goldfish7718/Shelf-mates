@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Stack, Heading, Image, Text, VStack, useBreakpointValue, HStack, SimpleGrid, Alert, AlertIcon, AlertTitle, Avatar, Divider, AlertDescription, Textarea, useToast } from "@chakra-ui/react"
+import { Box, Button, Flex, Stack, Heading, Image, Text, VStack, useBreakpointValue, HStack, SimpleGrid, Alert, AlertIcon, AlertTitle, Avatar, Divider, AlertDescription, Textarea, useToast, Spacer, useDisclosure } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { AiFillDelete, AiFillStar, AiOutlineShoppingCart } from "react-icons/ai"
 import { BsBoxArrowUpRight } from "react-icons/bs"
@@ -10,6 +10,8 @@ import ErrorComponent from "../components/ErrorComponent"
 import Loading from "../components/Loading"
 import { useCart } from "../context/CartContext"
 import { useAuth } from "../context/AuthContext"
+import { DeleteIcon } from "@chakra-ui/icons"
+import DeleteReviewAlert from "../components/DeleteReviewAlert"
 
 export type ProductProps = {
     _id: string;
@@ -26,7 +28,9 @@ export type ProductProps = {
             fName?: string,
             lName?: string,
             stars?: number,
-            review?: string
+            review?: string,
+            userId?: string,
+            _id: string
         }
     ]
 }
@@ -51,6 +55,7 @@ function Product () {
 
     const { id } = useParams()
     const { decode } = useAuth()
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
 
     const [product, setProduct] = useState<ProductProps | null>(null)
@@ -62,6 +67,7 @@ function Product () {
     const [loading, setLoading] = useState(false)
     const [cartProduct, setCartProduct] = useState<CartProductType | null>(null)
     const [reviewLoading, setReviewLoading] = useState(false)
+    const [deletableReviewId, setDeletableReviewId] = useState('')
 
     const [stockStatus, setStockStatus] = useState<StockStatusType | null>(null)
 
@@ -126,16 +132,21 @@ function Product () {
             })
 
             clearReview()
-
-            // setTimeout(() => {
-            //     window.location.reload()
-            // }, 3000);
             fetchProduct()
         } catch (err: any) {
             setError(err.response.data.message);
         } finally {
             setReviewLoading(false)
         }
+    }
+
+    const handleReviewDelete = (_id: string) => {
+        setDeletableReviewId(_id)
+        onOpen()
+    }
+
+    const onReviewChange = () => {
+        fetchProduct()
     }
 
     const clearReview = () => {
@@ -209,6 +220,8 @@ function Product () {
                                     <HStack>
                                         <Avatar size='sm' name={`${review.fName} ${review.lName}`} />
                                         <Text color='gray.600'>{review.fName} {review.lName}</Text>
+                                        <Spacer />
+                                        {review.userId === decode?._id && <DeleteIcon onClick={() => handleReviewDelete(review._id)} color='gray.500' _hover={{ color: 'gray.700', cursor: 'pointer' }} /> }
                                     </HStack>
                                     <HStack spacing='none'>
                                         {Array.from({ length: review.stars || 1 }).map((_, index) => (
@@ -240,6 +253,7 @@ function Product () {
                             </Box> : null
                         }
                     </VStack>                
+                    <DeleteReviewAlert isOpen={isOpen} onClose={onClose} _id={deletableReviewId} onReviewChange={onReviewChange} />
                 </Flex>
             }
         </>

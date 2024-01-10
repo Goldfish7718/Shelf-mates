@@ -41,3 +41,23 @@ export const addReview = async (req: Request, res: Response) => {
             .json({ message: "Internal server Error" })
     }
 }
+
+export const deleteReview = async (req: Request, res: Response) => {
+    try {
+        const { reviewId } = req.params;
+        
+        const review = await Review.findByIdAndDelete(reviewId)
+        const { _id }: any = review
+
+        await Product.findByIdAndUpdate(
+            review?.productId,
+            { $pull: { reviews: _id } },
+        )
+
+        res
+            .status(200)
+            .json({ message: "Review Deleted Successfully" })
+    } catch (err) {
+        console.log(err);
+    }
+}

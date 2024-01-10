@@ -106,9 +106,11 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
             }
         }))
 
-        const averageStars = Math.floor(reviews.reduce((acc, currentValue) => {
-            return acc + currentValue.stars
-        }, 0) / reviews.length)
+        const sumStars = reviews.reduce((acc, currentValue) => {
+            return acc + currentValue.stars;
+        }, 0);
+        
+        const averageStars = Math.min(5, Math.floor((sumStars / reviews.length) * 100) / 100);
 
         const imageBase64 = productObj.image.data.toString('base64');
         const transformedProduct = {
