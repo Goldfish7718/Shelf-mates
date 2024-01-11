@@ -12,7 +12,8 @@ import {
     MenuGroup,
     IconButton,
     useBreakpointValue,
-    Link
+    Link,
+    Icon
 } from "@chakra-ui/react"
 import { BsBoxArrowRight, BsCart2, BsDiscord } from 'react-icons/bs'
 import { FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6'
@@ -24,6 +25,7 @@ import { BiLogIn } from 'react-icons/bi'
 import { AiOutlineUserAdd } from 'react-icons/ai'
 import { useAuth } from "../context/AuthContext"
 import { useCart } from "../context/CartContext"
+import { SettingsIcon } from "@chakra-ui/icons"
 
 function Navbar () {
 
@@ -95,8 +97,9 @@ function Navbar () {
                             <>
                                 <MenuItem ref={btnRef} onClick={onOpen}>My Cart <BsCart2 style={{ marginLeft: "8px" }} /></MenuItem>
                                 <MenuDivider borderColor='gray.400' />
-                                <MenuItem onClick={() => window.location.href = '/profile'}>{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                <MenuItem as={Link} href="/profile">{decode.username} <AiOutlineUser size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                                 <MenuItem onClick={handleLogOut}>Log Out <BsBoxArrowRight size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                                {/* <MenuDivider borderColor='gray.400' /> */}
                             </>
                             : <>
                             <MenuItem as={Link} href="/login">Login <BiLogIn size={18} style={{ marginLeft: "8px" }} /></MenuItem>
@@ -104,6 +107,21 @@ function Navbar () {
                         </>
                         }
                     </>
+                    }
+                    {decode?.isAdmin ?
+                        <>
+                            {isBelowMd ?
+                                <>
+                                <MenuDivider borderColor='gray.400' />
+                                <MenuGroup title="Admin">
+                                    <MenuItem>Admin Panel <Icon as={SettingsIcon} ml={2} /></MenuItem>
+                                </MenuGroup>
+                                </> : <>
+                                <MenuDivider borderColor='gray.400' />
+                                <MenuItem as={Link} href="/admin/dashboard">Admin Panel <Icon as={SettingsIcon} ml={2} /></MenuItem>
+                                </>
+                            }
+                        </> : null
                     }
                 </MenuList>
             </Menu>

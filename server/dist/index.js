@@ -15,6 +15,7 @@ const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
 const orderRoutes_1 = __importDefault(require("./routes/orderRoutes"));
 const addressRoutes_1 = __importDefault(require("./routes/addressRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     credentials: true,
@@ -30,6 +31,7 @@ app.use('/cart', cartRoutes_1.default);
 app.use('/order', orderRoutes_1.default);
 app.use('/address', addressRoutes_1.default);
 app.use('/review', reviewRoutes_1.default);
+app.use('/admin', adminRoutes_1.default);
 const connectDB = async (url) => {
     await mongoose_1.default
         .connect(url)

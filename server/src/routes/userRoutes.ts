@@ -1,6 +1,7 @@
 import { Response, Router } from "express";
 import { changePassword, deleteUser, login, logout, signup, updateUser } from "../controllers/userControllers";
 import verifyToken, { ExtendedRequest } from "../middleware/verifyToken";
+import verifyAdmin from "../middleware/verifyAdmin";
 
 const router = Router()
 
@@ -13,6 +14,13 @@ router.get('/verify', verifyToken, (req: ExtendedRequest, res: Response) => {
     return res
         .status(200)
         .json({ isAuthenticated: true, decode, message: "Is Authenticated" })
+})
+
+router.get('/verifyadmin', verifyAdmin, (req: ExtendedRequest, res: Response) => {
+    const { decode } = req
+    return res
+        .status(200)
+        .json({ isAuthenticated: true, decode, message: "Is Authenticated", isAdmin: true })
 })
 
 router.put('/update/:userId', updateUser)

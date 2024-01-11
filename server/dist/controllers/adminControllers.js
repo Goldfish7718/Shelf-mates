@@ -1,0 +1,128 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getReviewCount = exports.getMostSoldData = void 0;
+const orderModel_1 = __importDefault(require("../models/orderModel"));
+const productModel_1 = __importDefault(require("../models/productModel"));
+const reviewModel_1 = __importDefault(require("../models/reviewModel"));
+const getMostSoldData = async (req, res) => {
+    var _a, _b;
+    try {
+        const todayStart = new Date().setHours(0, 0, 0, 0);
+        const todayEnd = new Date().setHours(23, 59, 59, 999);
+        const orders = await orderModel_1.default.find({
+            createdAt: {
+                $gte: todayStart,
+                $lt: todayEnd,
+            }
+        });
+        const soldProducts = [];
+        orders.map((order) => {
+            order.items.map((item) => {
+                soldProducts.push({
+                    productId: item.productId,
+                    quantity: item.quantity
+                });
+            });
+        });
+        const mostSold = {};
+        soldProducts.forEach((product) => {
+            const productId = product.productId;
+            if (!mostSold[productId]) {
+                mostSold[productId] = {
+                    productId: productId,
+                    quantity: product.quantity
+                };
+            }
+            else {
+                mostSold[productId].quantity += product.quantity;
+            }
+        });
+        const mostSoldArray = Object.values(mostSold);
+        let transformedData = await Promise.all(mostSoldArray.map(async (product) => {
+            const originalProduct = await productModel_1.default.findById(product.productId);
+            return {
+                ...product,
+                name: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.name,
+                stock: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.stock
+            };
+        }));
+        for (let i = 0; i < transformedData.length; i++) {
+            for (let j = 0; j < transformedData.length; j++) {
+                if (((_a = transformedData[j]) === null || _a === void 0 ? void 0 : _a.quantity) < ((_b = transformedData[i]) === null || _b === void 0 ? void 0 : _b.quantity)) {
+                    const temp = transformedData[j];
+                    transformedData[j] = transformedData[i];
+                    transformedData[i] = temp;
+                }
+            }
+        }
+        transformedData = transformedData.splice(0, 4);
+        const products = await productModel_1.default.find({});
+        const transformedProducts = products.map(product => {
+            return {
+                name: product.name,
+                productId: product._id
+            };
+        });
+        res.status(200).json({ transformedData, transformedProducts });
+    }
+    catch (err) {
+        res
+            .status(500)
+            .json({ message: 'Internal Server Error' });
+    }
+};
+exports.getMostSoldData = getMostSoldData;
+const getReviewCount = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const product = await productModel_1.default.findById(productId);
+        if ((product === null || product === void 0 ? void 0 : product.reviews.length) === 0) {
+            res
+                .status(200)
+                .json({ message: 'No Reviews For this product' });
+        }
+        // @ts-ignore
+        const reviews = await Promise.all(product === null || product === void 0 ? void 0 : product.reviews.map(async (reviewId) => {
+            const review = await reviewModel_1.default.findById(reviewId);
+            return review;
+        }));
+        const frequencyMap = [
+            {
+                stars: 5,
+                count: 0
+            },
+            {
+                stars: 4,
+                count: 0
+            },
+            {
+                stars: 3,
+                count: 0
+            },
+            {
+                stars: 2,
+                count: 0
+            },
+            {
+                stars: 1,
+                count: 0
+            },
+        ];
+        reviews.map((review) => {
+            const item = frequencyMap.find((item) => item.stars === review.stars);
+            if (item)
+                item.count++;
+        });
+        const { name } = product;
+        res
+            .status(200)
+            .json({ frequencyMap, name });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+exports.getReviewCount = getReviewCount;
