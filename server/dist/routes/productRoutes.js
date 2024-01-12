@@ -13,4 +13,5 @@ const upload = (0, multer_1.default)({ storage: storage });
 router.post('/upload', upload.single('image'), productControllers_1.addProduct);
 router.get('/getByCat/:category', productControllers_1.getProducts);
 router.get('/getProduct/:id', verifyToken_1.default, productControllers_1.getProduct);
+router.delete('/deleteProduct/:productId', productControllers_1.deleteProduct);
 exports.default = router;

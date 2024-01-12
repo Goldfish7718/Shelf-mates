@@ -23,7 +23,8 @@ const getMostSoldData = async (req, res) => {
             order.items.map((item) => {
                 soldProducts.push({
                     productId: item.productId,
-                    quantity: item.quantity
+                    quantity: item.quantity,
+                    price: item.totalPrice / item.quantity
                 });
             });
         });
@@ -33,7 +34,8 @@ const getMostSoldData = async (req, res) => {
             if (!mostSold[productId]) {
                 mostSold[productId] = {
                     productId: productId,
-                    quantity: product.quantity
+                    quantity: product.quantity,
+                    price: product.price
                 };
             }
             else {
@@ -59,14 +61,30 @@ const getMostSoldData = async (req, res) => {
             }
         }
         transformedData = transformedData.splice(0, 4);
+        const priceComparison = {
+            product1: {
+                name: transformedData[0].name,
+                totalSale: transformedData[0].price * transformedData[0].quantity
+            },
+            product2: {
+                name: transformedData[1].name,
+                totalSale: transformedData[1].price * transformedData[1].quantity
+            }
+        };
+        if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
+            const temp = priceComparison.product1;
+            priceComparison.product1 = priceComparison.product2;
+            priceComparison.product2 = temp;
+        }
         const products = await productModel_1.default.find({});
         const transformedProducts = products.map(product => {
             return {
                 name: product.name,
-                productId: product._id
+                productId: product._id,
+                category: product.category
             };
         });
-        res.status(200).json({ transformedData, transformedProducts });
+        res.status(200).json({ transformedData, transformedProducts, priceComparison });
     }
     catch (err) {
         res
@@ -122,7 +140,9 @@ const getReviewCount = async (req, res) => {
             .json({ frequencyMap, name });
     }
     catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: 'Internal Server Error' });
     }
 };
 exports.getReviewCount = getReviewCount;
