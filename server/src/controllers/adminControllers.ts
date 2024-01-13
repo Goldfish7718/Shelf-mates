@@ -161,3 +161,39 @@ export const getReviewCount = async (req: Request, res: Response) => {
             .json({ message: 'Internal Server Error' })
     }
 }
+
+export const getSalesData = async (req: Request, res: Response) => {
+    try {
+        const { productId } = req.params
+        
+        const orders = await Order.find(
+            { 'items.productId': productId }
+        )
+
+        const salesData = orders.flatMap(order => {
+            return order.items
+                .filter(item => item.productId?.toString() === productId)
+                .map(item => ({
+                    // @ts-ignore
+                    ...item.toObject(),
+                    // @ts-ignore
+                    date: order.createdAt.toLocaleDateString()
+                }));
+        });
+
+        const totalSales = salesData.reduce((acc, current) => {
+            return acc + current.totalPrice
+        }, 0)
+
+        const totalQuantity = salesData.reduce((acc, current) => {
+            return acc + current.quantity
+        }, 0)
+
+        res
+            .status(200)
+            .json({ salesData, totalSales, totalQuantity })
+        
+    } catch (err) {
+        console.log(err);
+    }
+}

@@ -8,7 +8,7 @@ import { AddIcon, DeleteIcon, RepeatIcon, TriangleUpIcon } from "@chakra-ui/icon
 import { GoGraph } from "react-icons/go";
 import CountUp from 'react-countup'
 import ProductInputModal from "../components/ProductInputModal"
-import DeleteProductModal from "../components/DeleteProductModal"
+import ProductTableModal from "../components/ProductTableModal"
 
 interface MostSoldProduct {
     name: string;
@@ -44,6 +44,7 @@ const Dashboard = () => {
     const [transformedProducts, settransformedProducts] = useState<TransformedProduct[]>([])
     const [selectedItem, setSelectedItem] = useState('')
     const [priceComparison, setpriceComparison] = useState<PriceComparison | null>(null)
+    const [operation, setOperation] = useState('')
 
     const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
     
@@ -57,9 +58,9 @@ const Dashboard = () => {
     } = useDisclosure()
 
     const {
-        isOpen: isOpenDeleteProduct,
-        onOpen: onOpenDeleteProduct,
-        onClose: onCloseDeleteProduct
+        isOpen: isOpenProductTableModal,
+        onOpen: onOpenProductTableModal,
+        onClose: onCloseProductTableModal
     } = useDisclosure()
 
     const requestMostSoldData = async () => {
@@ -97,6 +98,11 @@ const Dashboard = () => {
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedItem(e.target.value)
         requestReviewCounts(e.target.value)
+    }
+
+    const handleClick = (operation: string) => {
+        setOperation(operation)
+        onOpenProductTableModal()
     }
 
     const onDelete = () => requestMostSoldData()
@@ -201,13 +207,13 @@ const Dashboard = () => {
 
                 <Box justifyContent='center'>
                     <Button m={2} w='full' onClick={onOpenProductModal}>Add Product <AddIcon ml={2} /></Button>
-                    <Button m={2} w='full'>Product Stats <TriangleUpIcon ml={2} /></Button>
-                    <Button m={2} w='full' onClick={onOpenDeleteProduct}>Delete Product <DeleteIcon ml={2} /></Button>
+                    <Button m={2} w='full' onClick={() => handleClick('stats')}>Product Stats <TriangleUpIcon ml={2} /></Button>
+                    <Button m={2} w='full' onClick={() => handleClick('delete')}>Delete Product <DeleteIcon ml={2} /></Button>
                 </Box>
             </Box>
         </Flex>
         <ProductInputModal isOpen={isOpenProductModal} onClose={onCloseProductModal} onAdd={onDelete} />
-        <DeleteProductModal isOpen={isOpenDeleteProduct} onClose={onCloseDeleteProduct} products={transformedProducts} onDelete={onDelete} />
+        <ProductTableModal isOpen={isOpenProductTableModal} onClose={onCloseProductTableModal} products={transformedProducts} onDelete={onDelete} operation={operation} />
     </>
   )
 }

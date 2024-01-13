@@ -39,7 +39,7 @@ type CartProductType = {
     quantity: number;
 }
 
-type StockStatusType = {
+export type StockStatusType = {
     status: "error" | "warning" | "info" | "loading" | "success" | undefined;
     title?: string;
     description?: string;

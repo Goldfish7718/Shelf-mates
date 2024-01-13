@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReviewCount = exports.getMostSoldData = void 0;
+exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
@@ -146,3 +146,32 @@ const getReviewCount = async (req, res) => {
     }
 };
 exports.getReviewCount = getReviewCount;
+const getSalesData = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const orders = await orderModel_1.default.find({ 'items.productId': productId });
+        const salesData = orders.flatMap(order => {
+            return order.items
+                .filter(item => { var _a; return ((_a = item.productId) === null || _a === void 0 ? void 0 : _a.toString()) === productId; })
+                .map(item => ({
+                // @ts-ignore
+                ...item.toObject(),
+                // @ts-ignore
+                date: order.createdAt.toLocaleDateString()
+            }));
+        });
+        const totalSales = salesData.reduce((acc, current) => {
+            return acc + current.totalPrice;
+        }, 0);
+        const totalQuantity = salesData.reduce((acc, current) => {
+            return acc + current.quantity;
+        }, 0);
+        res
+            .status(200)
+            .json({ salesData, totalSales, totalQuantity });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+exports.getSalesData = getSalesData;

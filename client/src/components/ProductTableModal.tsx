@@ -1,18 +1,19 @@
-import { DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Table, TableCaption, TableContainer, Tbody, Th, Thead, Tr, Td, IconButton, Badge, useToast } from "@chakra-ui/react";
 import { TransformedProduct } from "../views/Dashboard";
 import axios from "axios";
 import { API_URL } from "../App";
 import { useState } from "react";
 
-interface DeleteProductModalProps {
+interface ProductTableModalProps {
     isOpen: boolean;
     onClose: () => void;
     products: TransformedProduct[];
     onDelete: () => void;
+    operation: string;
 }
 
-const DeleteProductModal = ({ isOpen, onClose, products, onDelete }: DeleteProductModalProps) => {
+const ProductTableModal = ({ isOpen, onClose, products, onDelete, operation }: ProductTableModalProps) => {
 
     const toast = useToast()
 
@@ -63,19 +64,21 @@ const DeleteProductModal = ({ isOpen, onClose, products, onDelete }: DeleteProdu
 
                 <ModalBody>
                     <TableContainer overflowY='scroll' h='70%'>
-                        <Table variant='simple'>
+                        <Table variant='simple' size='sm'>
                             <TableCaption>Please select a product to delete</TableCaption>
                             <Thead>
                                 <Tr>
                                     <Th>Product Name</Th>
-                                    <Th>Delete:</Th>
+                                    {operation === 'delete' && <Th>Delete:</Th>}
+                                    {operation === 'stats' && <Th>Statistics:</Th>}
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {products.map(product => (
                                     <Tr key={product.productId}>
                                         <Td>{product.name} <Badge colorScheme={renderBadge(product.category)}>{product.category}</Badge></Td>
-                                        <Td><IconButton isLoading={loading} onClick={() => requestDelete(product.productId)} size='sm' icon={<DeleteIcon />} aria-label="Delete Product" /></Td>
+                                        {operation === 'delete' ? <Td><IconButton isLoading={loading} onClick={() => requestDelete(product.productId)} size='sm' icon={<DeleteIcon />} aria-label="Delete Product" /></Td> : null}
+                                        {operation === 'stats' ? <Td><IconButton icon={<ExternalLinkIcon />} aria-label="Statistic" onClick={() => window.location.href = `/statistics/${product.productId}`} /></Td>: null}
                                     </Tr>
                                 ))}
                             </Tbody>
@@ -88,4 +91,4 @@ const DeleteProductModal = ({ isOpen, onClose, products, onDelete }: DeleteProdu
   )
 }
 
-export default DeleteProductModal
+export default ProductTableModal
