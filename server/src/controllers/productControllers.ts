@@ -95,7 +95,7 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
                 .json({ message: 'Internal Server Error' })
         }
 
-        const reviews = await Review.find({ productId: productObj._id })
+        const reviews = await Review.find({ productId: productObj._id }).limit(6)
 
         const transformedReviews = await Promise.all(reviews.map(async review => {
             const user = await User.findById(review.userId)
@@ -119,6 +119,7 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
             ...productObj,
             image: `data:${productObj.image.contentType};base64,${imageBase64}`,
             reviews: transformedReviews,
+            reviewsLength: productObj.reviews.length,
             averageStars
         };
 

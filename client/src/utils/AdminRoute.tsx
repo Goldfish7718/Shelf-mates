@@ -16,9 +16,6 @@ function AdminRoute ({ element }: AdminRouteProps) {
         decode
     } = useAuth()
 
-    console.log(decode?.isAdmin);
-    
-
     useEffect(() => {
         requestVerification()
     }, [isLoading, isLoggedIn])

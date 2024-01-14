@@ -4,10 +4,11 @@ import Navbar from "../components/Navbar"
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription, HStack, Spacer, Tooltip as ChakraToolTip } from "@chakra-ui/react";
+import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription, HStack, Spacer, Tooltip as ChakraToolTip, Button, useDisclosure } from "@chakra-ui/react";
 import { ProductProps, StockStatusType } from "./Product";
 import CountUp from "react-countup";
-import { RepeatIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { ArrowRightIcon, RepeatIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import ReviewDrawer from "../components/ReviewDrawer";
 
 const ProductStatistics = () => {
 
@@ -21,6 +22,8 @@ const ProductStatistics = () => {
     const [sales, setSales] = useState(0)
     const [totalStars, setTotalStars] = useState(0)
     const [stockStatus, setStockStatus] = useState<StockStatusType | null>(null)
+
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     // @ts-ignore
     const flexDirection = useBreakpointValue<FlexDirection>({ base: 'column', md: 'row' })
@@ -113,7 +116,7 @@ const ProductStatistics = () => {
   return (
     <>
         <Navbar />
-        <Flex direction={flexDirection}>
+        <Flex direction={flexDirection} overflowX='hidden'>
             <Box w={boxWidth}>
                 <Image src={product?.image} w='full' h='auto' objectFit='cover' mt={10} />
                 <Divider borderColor='gray.600' my={4} />
@@ -205,8 +208,10 @@ const ProductStatistics = () => {
                         </Text>
                     </Box>
                 </Flex>
+                <Button onClick={onOpen} colorScheme="orange" w='full' size='lg'>See all reviews <ArrowRightIcon fontSize='medium' ml={2} /></Button>
             </VStack>
         </Flex>
+        <ReviewDrawer isOpen={isOpen} onClose={onClose} _id={product?._id!} />
     </>
   )
 }

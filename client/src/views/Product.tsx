@@ -10,8 +10,9 @@ import ErrorComponent from "../components/ErrorComponent"
 import Loading from "../components/Loading"
 import { useCart } from "../context/CartContext"
 import { useAuth } from "../context/AuthContext"
-import { DeleteIcon } from "@chakra-ui/icons"
+import { ArrowRightIcon, DeleteIcon } from "@chakra-ui/icons"
 import DeleteReviewAlert from "../components/DeleteReviewAlert"
+import ReviewDrawer from "../components/ReviewDrawer"
 
 export type ProductProps = {
     _id: string;
@@ -23,6 +24,7 @@ export type ProductProps = {
     stars: number,
     image: string,
     averageStars: number,
+    reviewsLength: number,
     reviews: [
         {
             fName?: string,
@@ -79,6 +81,12 @@ function Product () {
         productExists
     } = useCart()
 
+    const {
+        isOpen: isOpenReviewDrawer,
+        onOpen: onOpenReviewDrawer,
+        onClose: onCloseReviewDrawer
+    } = useDisclosure()
+
     const updateStockStatus = async () => {
         if (product?.stock != undefined) {
             if (product?.stock <= 5 && product?.stock > 0) {
@@ -107,8 +115,6 @@ function Product () {
             const res = await axios.get(`${API_URL}/products/getProduct/${id}`)
             setProduct(res.data.transformedProduct)
             setIsPurchased(res.data.isPurchased)
-
-            console.log(res.data.transformedProduct);
         } catch (err: any) {
             setError(err.response.data.message);
         } finally {
@@ -205,7 +211,7 @@ function Product () {
                                     <AiFillStar key={index} size={24} />
                                 ))}
                             </HStack>
-                            <Text ml={{ base: 0, md: 2 }}>{product.reviews.length} reviews | {product.averageStars > 0 ? product.averageStars : 0} star average rating</Text>
+                            <Text ml={{ base: 0, md: 2 }}>{product.reviewsLength} reviews | {product.averageStars > 0 ? product.averageStars : 0} star average rating</Text>
                         </Stack>
                         <Text fontSize='4xl' color='gray.900'>&#8377;{product?.price}</Text>
                         <Alert variant='left-accent' mt={2} status={stockStatus?.status} size='3xl'>
@@ -234,6 +240,7 @@ function Product () {
                                 </VStack>
                             )) : <Text>No Reviews posted for this product</Text>}
                         </SimpleGrid>
+                        {product.reviews.length > 0 && <Button colorScheme="orange" w='full' size='lg' onClick={onOpenReviewDrawer}>See all reviews <ArrowRightIcon fontSize='medium' ml={2} /></Button>}
                         {isPurchased ?
                             <Box py={3} w='full'>
                                 <Text fontSize="3xl" fontWeight='medium' my={2} color='gray.800'>Leave a Review!</Text>
@@ -254,6 +261,7 @@ function Product () {
                         }
                     </VStack>                
                     <DeleteReviewAlert isOpen={isOpen} onClose={onClose} _id={deletableReviewId} onReviewChange={onReviewChange} />
+                    <ReviewDrawer isOpen={isOpenReviewDrawer} onClose={onCloseReviewDrawer} _id={product._id} />
                 </Flex>
             }
         </>

@@ -85,7 +85,7 @@ const getProduct = async (req, res) => {
                 .status(500)
                 .json({ message: 'Internal Server Error' });
         }
-        const reviews = await reviewModel_1.default.find({ productId: productObj._id });
+        const reviews = await reviewModel_1.default.find({ productId: productObj._id }).limit(6);
         const transformedReviews = await Promise.all(reviews.map(async (review) => {
             const user = await userModel_1.default.findById(review.userId);
             const { fName, lName } = user;
@@ -104,6 +104,7 @@ const getProduct = async (req, res) => {
             ...productObj,
             image: `data:${productObj.image.contentType};base64,${imageBase64}`,
             reviews: transformedReviews,
+            reviewsLength: productObj.reviews.length,
             averageStars
         };
         const isPurchased = user === null || user === void 0 ? void 0 : user.productsPurchased.includes(productObj._id);

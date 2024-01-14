@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReview = exports.addReview = void 0;
+exports.getReviews = exports.deleteReview = exports.addReview = void 0;
 const productModel_1 = __importDefault(require("../models/productModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
@@ -55,3 +55,34 @@ const deleteReview = async (req, res) => {
     }
 };
 exports.deleteReview = deleteReview;
+const getReviews = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = parseInt(req.query.skip) || 0;
+        const reviewSize = await reviewModel_1.default.find({ productId }).countDocuments();
+        const end = skip * limit > reviewSize ? true : false;
+        const reviews = await reviewModel_1.default.find({ productId })
+            .sort({ stars: -1 })
+            .skip(skip)
+            .limit(limit);
+        const transformedReviews = await Promise.all(reviews.map(async (review) => {
+            const user = await userModel_1.default.findById(review.userId);
+            return {
+                ...review.toObject(),
+                fName: user === null || user === void 0 ? void 0 : user.fName,
+                lName: user === null || user === void 0 ? void 0 : user.lName,
+                userId: review.userId
+            };
+        }));
+        res
+            .status(200)
+            .json({ transformedReviews, end });
+    }
+    catch (err) {
+        return res
+            .status(200)
+            .json({ message: "Internal Server Error" });
+    }
+};
+exports.getReviews = getReviews;
