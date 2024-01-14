@@ -18,63 +18,67 @@ const getMostSoldData = async (req, res) => {
                 $lt: todayEnd,
             }
         });
-        const soldProducts = [];
-        orders.map((order) => {
-            order.items.map((item) => {
-                soldProducts.push({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    price: item.totalPrice / item.quantity
+        let transformedData = [];
+        let priceComparison;
+        if (orders.length > 0) {
+            const soldProducts = [];
+            orders.map((order) => {
+                order.items.map((item) => {
+                    soldProducts.push({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.totalPrice / item.quantity
+                    });
                 });
             });
-        });
-        const mostSold = {};
-        soldProducts.forEach((product) => {
-            const productId = product.productId;
-            if (!mostSold[productId]) {
-                mostSold[productId] = {
-                    productId: productId,
-                    quantity: product.quantity,
-                    price: product.price
+            const mostSold = {};
+            soldProducts.forEach((product) => {
+                const productId = product.productId;
+                if (!mostSold[productId]) {
+                    mostSold[productId] = {
+                        productId: productId,
+                        quantity: product.quantity,
+                        price: product.price
+                    };
+                }
+                else {
+                    mostSold[productId].quantity += product.quantity;
+                }
+            });
+            const mostSoldArray = Object.values(mostSold);
+            transformedData = await Promise.all(mostSoldArray.map(async (product) => {
+                const originalProduct = await productModel_1.default.findById(product.productId);
+                return {
+                    ...product,
+                    name: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.name,
+                    stock: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.stock
                 };
-            }
-            else {
-                mostSold[productId].quantity += product.quantity;
-            }
-        });
-        const mostSoldArray = Object.values(mostSold);
-        let transformedData = await Promise.all(mostSoldArray.map(async (product) => {
-            const originalProduct = await productModel_1.default.findById(product.productId);
-            return {
-                ...product,
-                name: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.name,
-                stock: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.stock
-            };
-        }));
-        for (let i = 0; i < transformedData.length; i++) {
-            for (let j = 0; j < transformedData.length; j++) {
-                if (((_a = transformedData[j]) === null || _a === void 0 ? void 0 : _a.quantity) < ((_b = transformedData[i]) === null || _b === void 0 ? void 0 : _b.quantity)) {
-                    const temp = transformedData[j];
-                    transformedData[j] = transformedData[i];
-                    transformedData[i] = temp;
+            }));
+            for (let i = 0; i < transformedData.length; i++) {
+                for (let j = 0; j < transformedData.length; j++) {
+                    if (((_a = transformedData[j]) === null || _a === void 0 ? void 0 : _a.quantity) < ((_b = transformedData[i]) === null || _b === void 0 ? void 0 : _b.quantity)) {
+                        const temp = transformedData[j];
+                        transformedData[j] = transformedData[i];
+                        transformedData[i] = temp;
+                    }
                 }
             }
-        }
-        transformedData = transformedData.splice(0, 4);
-        const priceComparison = {
-            product1: {
-                name: transformedData[0].name,
-                totalSale: transformedData[0].price * transformedData[0].quantity
-            },
-            product2: {
-                name: transformedData[1].name,
-                totalSale: transformedData[1].price * transformedData[1].quantity
+            transformedData = transformedData.splice(0, 4);
+            priceComparison = {
+                product1: {
+                    name: transformedData[0].name,
+                    totalSale: transformedData[0].price * transformedData[0].quantity
+                },
+                product2: {
+                    name: transformedData[1].name,
+                    totalSale: transformedData[1].price * transformedData[1].quantity
+                }
+            };
+            if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
+                const temp = priceComparison.product1;
+                priceComparison.product1 = priceComparison.product2;
+                priceComparison.product2 = temp;
             }
-        };
-        if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
-            const temp = priceComparison.product1;
-            priceComparison.product1 = priceComparison.product2;
-            priceComparison.product2 = temp;
         }
         const products = await productModel_1.default.find({});
         const transformedProducts = products.map(product => {
@@ -150,7 +154,7 @@ const getSalesData = async (req, res) => {
     try {
         const { productId } = req.params;
         const orders = await orderModel_1.default.find({ 'items.productId': productId });
-        const salesData = orders.flatMap(order => {
+        let salesData = orders.flatMap(order => {
             return order.items
                 .filter(item => { var _a; return ((_a = item.productId) === null || _a === void 0 ? void 0 : _a.toString()) === productId; })
                 .map(item => ({
@@ -160,6 +164,16 @@ const getSalesData = async (req, res) => {
                 date: order.createdAt.toLocaleDateString()
             }));
         });
+        salesData = salesData.reduce((result, item) => {
+            const existingItem = result.find((i) => i.date === item.date);
+            if (existingItem) {
+                existingItem.totalPrice += item.totalPrice;
+            }
+            else {
+                result.push(item);
+            }
+            return result;
+        }, []);
         const totalSales = salesData.reduce((acc, current) => {
             return acc + current.totalPrice;
         }, 0);

@@ -4,10 +4,10 @@ import Navbar from "../components/Navbar"
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
+import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription, HStack, Spacer, Tooltip as ChakraToolTip } from "@chakra-ui/react";
 import { ProductProps, StockStatusType } from "./Product";
 import CountUp from "react-countup";
-import { TriangleUpIcon } from "@chakra-ui/icons";
+import { RepeatIcon, TriangleUpIcon } from "@chakra-ui/icons";
 
 const ProductStatistics = () => {
 
@@ -131,7 +131,13 @@ const ProductStatistics = () => {
             <VStack w={boxWidth} m={3} p={2} pr={{ base: 8, md: 2 }}>
                 <Heading fontSize='3xl' m={1} color='gray.700'>{product?.name}: Statistics</Heading>
                 <Box w='100%' m={2} p={3} borderRadius='15px' boxShadow='lg'>
-                    <Text fontSize='lg' mb={2} color='gray.500'>Product Sales:</Text>
+                    <HStack>
+                        <Text fontSize='lg' mb={2} color='gray.500'>Product Sales:</Text>
+                        <Spacer />
+                        <ChakraToolTip label="Refresh" hasArrow>
+                            <RepeatIcon mx={2} _hover={{ transform: 'rotateZ(180deg)', cursor: 'pointer' }} transitionDuration='.4s' fontSize='large' onClick={getSalesData} />
+                        </ChakraToolTip>
+                    </HStack>
                     {salesData.length > 0 && 
                         <ResponsiveContainer width='100%' height={200}>
                             <AreaChart data={salesData}>
@@ -153,7 +159,13 @@ const ProductStatistics = () => {
                 </Box>
                 <Flex w='100%' direction={flexDirection}>
                     <Box w={boxWidth} m={2} p={3} borderRadius='15px' boxShadow='lg'>
-                        <Text fontSize='lg' mb={2} color='gray.500'>Customer Feedback:</Text>
+                        <HStack>
+                            <Text fontSize='lg' mb={2} color='gray.500'>Customer Feedback:</Text>
+                            <Spacer />
+                            <ChakraToolTip label="Refresh" hasArrow>
+                                <RepeatIcon mx={2} _hover={{ transform: 'rotateZ(180deg)', cursor: 'pointer' }} transitionDuration='.4s' onClick={requestReviewCounts} />
+                            </ChakraToolTip>
+                        </HStack>
                         <ResponsiveContainer width='100%' height={200}>
                             <PieChart>
                             <Legend />
@@ -166,31 +178,31 @@ const ProductStatistics = () => {
                     </Box>
                     <Box w={boxWidth} m={2} p={2} borderRadius='15px' boxShadow='lg'>
                         <Text fontSize='lg' mb={4} color='gray.500'>General Statistics:</Text>
-                            <Text color='gray.600' fontSize='xl' m={3}>
-                                Total Units Sold: 
-                                <TriangleUpIcon color='green' mx={3} mb={1} />
-                                <CountUp end={unitsSold} duration={4} />
-                            </Text>
-                            <Text color='gray.600' fontSize='xl' m={3}>
-                                Total Sales: 
-                                <TriangleUpIcon color='green' mx={3} mb={1} />
-                                &#8377;<CountUp end={sales} duration={4} />
-                            </Text>
-                            <Text color='gray.600' fontSize='xl' m={3}>
-                                Total Stars: 
-                                <TriangleUpIcon color='green' mx={3} mb={1} />
-                                <CountUp end={totalStars} duration={4} />
-                            </Text>
-                            <Text color='gray.600' fontSize='xl' m={3}>
-                                Total Reviews: 
-                                <TriangleUpIcon color='green' mx={3} mb={1} />
-                                <CountUp end={product?.reviews.length || 0} duration={4} />
-                            </Text>
-                            <Text color='gray.600' fontSize='xl' m={3}>
-                                Stock: 
-                                <TriangleUpIcon color='green' mx={3} mb={1} />
-                                <CountUp end={product?.stock || 0} duration={4} />
-                            </Text>
+                        <Text color='gray.600' fontSize='xl' m={3}>
+                            Total Units Sold: 
+                            <TriangleUpIcon color='green' mx={3} mb={1} />
+                            <CountUp end={unitsSold} duration={4} />
+                        </Text>
+                        <Text color='gray.600' fontSize='xl' m={3}>
+                            Total Sales: 
+                            <TriangleUpIcon color='green' mx={3} mb={1} />
+                            &#8377;<CountUp end={sales} duration={4} />
+                        </Text>
+                        <Text color='gray.600' fontSize='xl' m={3}>
+                            Total Stars: 
+                            <TriangleUpIcon color='green' mx={3} mb={1} />
+                            <CountUp end={totalStars} duration={4} />
+                        </Text>
+                        <Text color='gray.600' fontSize='xl' m={3}>
+                            Total Reviews: 
+                            <TriangleUpIcon color='green' mx={3} mb={1} />
+                            <CountUp end={product?.reviews.length || 0} duration={4} />
+                        </Text>
+                        <Text color='gray.600' fontSize='xl' m={3}>
+                            Stock: 
+                            <TriangleUpIcon color='green' mx={3} mb={1} />
+                            <CountUp end={product?.stock || 0} duration={4} />
+                        </Text>
                     </Box>
                 </Flex>
             </VStack>

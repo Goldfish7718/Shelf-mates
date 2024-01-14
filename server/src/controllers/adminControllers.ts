@@ -13,74 +13,81 @@ export const getMostSoldData = async (req: Request, res: Response) => {
                 $gte: todayStart,
                 $lt: todayEnd,
             }
-        })  
-
-        const soldProducts: any = []
-        orders.map((order: any) => {
-            order.items.map((item: any) => {
-                soldProducts.push({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    price: item.totalPrice / item.quantity 
-                })
-            })
         })
 
-        const mostSold: any = {};
+        let transformedData = []
+        let priceComparison
+        
+        if (orders.length > 0) {
 
-        soldProducts.forEach((product: any) => {
-            const productId = product.productId;
+            const soldProducts: any = []
+            orders.map((order: any) => {
+                order.items.map((item: any) => {
+                    soldProducts.push({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.totalPrice / item.quantity 
+                    })
+                })
+            })
 
-            if (!mostSold[productId]) {
-                mostSold[productId] = {
-                    productId: productId,
-                    quantity: product.quantity,
-                    price: product.price
-                };
-            } else {
-                mostSold[productId].quantity += product.quantity;
-            }
-        });
+            const mostSold: any = {};
 
-        const mostSoldArray = Object.values(mostSold);
+            soldProducts.forEach((product: any) => {
+                const productId = product.productId;
 
-        let transformedData = await Promise.all(mostSoldArray.map(async (product: any) => {
-            const originalProduct = await Product.findById(product.productId)
-
-            return {
-                ...product,
-                name: originalProduct?.name,
-                stock: originalProduct?.stock
-            }
-        }))
-
-        for (let i = 0; i < transformedData.length; i++) {
-            for (let j = 0; j < transformedData.length; j++) {
-                if (transformedData[j]?.quantity < transformedData[i]?.quantity) {
-                    const temp = transformedData[j]
-                    transformedData[j] = transformedData[i]
-                    transformedData[i] = temp
+                if (!mostSold[productId]) {
+                    mostSold[productId] = {
+                        productId: productId,
+                        quantity: product.quantity,
+                        price: product.price
+                    };
+                } else {
+                    mostSold[productId].quantity += product.quantity;
                 }
-            } 
-        }
+            });
 
-        transformedData = transformedData.splice(0, 4)
+            const mostSoldArray = Object.values(mostSold);
 
-        const priceComparison = {
-            product1: {
-                name: transformedData[0].name,
-                totalSale: transformedData[0].price * transformedData[0].quantity
-            },
-            product2: {
-                name: transformedData[1].name,
-                totalSale: transformedData[1].price * transformedData[1].quantity
+            transformedData = await Promise.all(mostSoldArray.map(async (product: any) => {
+                const originalProduct = await Product.findById(product.productId)
+
+                return {
+                    ...product,
+                    name: originalProduct?.name,
+                    stock: originalProduct?.stock
+                }
+            }))
+
+            for (let i = 0; i < transformedData.length; i++) {
+                for (let j = 0; j < transformedData.length; j++) {
+                    if (transformedData[j]?.quantity < transformedData[i]?.quantity) {
+                        const temp = transformedData[j]
+                        transformedData[j] = transformedData[i]
+                        transformedData[i] = temp
+                    }
+                } 
             }
-        }
 
-        if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
-            const temp = priceComparison.product1
-            priceComparison.product1 = priceComparison.product2
-            priceComparison.product2 = temp
+            transformedData = transformedData.splice(0, 4)
+
+            priceComparison = {
+                product1: {
+                    name: transformedData[0].name,
+                    totalSale: transformedData[0].price * transformedData[0].quantity
+                },
+                product2: {
+                    name: transformedData[1].name,
+                    totalSale: transformedData[1].price * transformedData[1].quantity
+                }
+            }
+
+            if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
+                const temp = priceComparison.product1
+                priceComparison.product1 = priceComparison.product2
+                priceComparison.product2 = temp
+            }
+
         }
 
         const products = await Product.find({})
@@ -170,7 +177,7 @@ export const getSalesData = async (req: Request, res: Response) => {
             { 'items.productId': productId }
         )
 
-        const salesData = orders.flatMap(order => {
+        let salesData = orders.flatMap(order => {
             return order.items
                 .filter(item => item.productId?.toString() === productId)
                 .map(item => ({
@@ -180,6 +187,18 @@ export const getSalesData = async (req: Request, res: Response) => {
                     date: order.createdAt.toLocaleDateString()
                 }));
         });
+
+        salesData = salesData.reduce((result, item) => {
+            const existingItem = result.find((i: any) => i.date === item.date);
+        
+            if (existingItem) {
+                existingItem.totalPrice += item.totalPrice;
+            } else {
+                result.push(item);
+            }
+        
+            return result;
+        }, []);
 
         const totalSales = salesData.reduce((acc, current) => {
             return acc + current.totalPrice
