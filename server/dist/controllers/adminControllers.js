@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
+exports.getOrders = exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
+const userModel_1 = __importDefault(require("../models/userModel"));
 const getMostSoldData = async (req, res) => {
     var _a, _b;
     try {
@@ -189,3 +190,26 @@ const getSalesData = async (req, res) => {
     }
 };
 exports.getSalesData = getSalesData;
+const getOrders = async (req, res) => {
+    try {
+        const orders = await orderModel_1.default.find({});
+        const transformedOrders = await Promise.all(orders.map(async (order) => {
+            const user = await userModel_1.default.findById(order.userId);
+            return {
+                ...order.toObject(),
+                fName: user === null || user === void 0 ? void 0 : user.fName,
+                lName: user === null || user === void 0 ? void 0 : user.lName,
+                username: user === null || user === void 0 ? void 0 : user.username,
+                // @ts-ignore
+                date: order.createdAt.toLocaleDateString()
+            };
+        }));
+        res
+            .status(200)
+            .json({ transformedOrders });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+exports.getOrders = getOrders;

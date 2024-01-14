@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Order from "../models/orderModel";
 import Product from "../models/productModel";
 import Review from "../models/reviewModel";
+import User from "../models/userModel";
 
 export const getMostSoldData = async (req: Request, res: Response) => {
     try {
@@ -212,6 +213,31 @@ export const getSalesData = async (req: Request, res: Response) => {
             .status(200)
             .json({ salesData, totalSales, totalQuantity })
         
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+export const getOrders = async (req: Request, res: Response) => {
+    try {
+        const orders = await Order.find({})
+
+        const transformedOrders = await Promise.all(orders.map(async order => {
+            const user = await User.findById(order.userId)
+
+            return {
+                ...order.toObject(),
+                fName: user?.fName,
+                lName: user?.lName,
+                username: user?.username,
+                // @ts-ignore
+                date: order.createdAt.toLocaleDateString()
+            }
+        }))
+
+        res
+            .status(200)
+            .json({ transformedOrders })
     } catch (err) {
         console.log(err);
     }
