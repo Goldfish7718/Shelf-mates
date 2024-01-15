@@ -48,7 +48,14 @@ const ProductTableModal = ({ isOpen, onClose, products, onDelete, operation }: P
 
             onDelete()
         } catch (err) {
-            console.log(err);
+            
+            toast({
+                title: 'An Error Occured',
+                description: 'Please try again later',
+                status: 'error',
+                duration: 3000
+            })
+
         } finally {
             setLoading(false)
             onClose()

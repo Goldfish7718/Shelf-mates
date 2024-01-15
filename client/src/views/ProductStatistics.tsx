@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar"
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription, HStack, Spacer, Tooltip as ChakraToolTip, Button, useDisclosure } from "@chakra-ui/react";
+import { Flex, useBreakpointValue, Box, Image, Divider, Heading, Text, VStack, Alert, AlertIcon, AlertTitle, AlertDescription, HStack, Spacer, Tooltip as ChakraToolTip, Button, useDisclosure, useToast } from "@chakra-ui/react";
 import { ProductProps, StockStatusType } from "./Product";
 import CountUp from "react-countup";
 import { ArrowRightIcon, RepeatIcon, TriangleUpIcon } from "@chakra-ui/icons";
@@ -16,7 +16,6 @@ const ProductStatistics = () => {
 
     const [frequencyMap, setfrequencyMap] = useState([])
     const [salesData, setSalesData] = useState([])
-    const [error, setError] = useState(false)
     const [product, setProduct] = useState<ProductProps | null>(null)
     const [unitsSold, setUnitsSold] = useState(0)
     const [sales, setSales] = useState(0)
@@ -24,6 +23,7 @@ const ProductStatistics = () => {
     const [stockStatus, setStockStatus] = useState<StockStatusType | null>(null)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const toast = useToast()
 
     // @ts-ignore
     const flexDirection = useBreakpointValue<FlexDirection>({ base: 'column', md: 'row' })
@@ -48,8 +48,12 @@ const ProductStatistics = () => {
 
             setTotalStars(totalStars)
             setfrequencyMap(newMap)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -62,8 +66,12 @@ const ProductStatistics = () => {
             setSalesData(salesData)
             setSales(res.data.totalSales)
             setUnitsSold(res.data.totalQuantity)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -72,7 +80,11 @@ const ProductStatistics = () => {
             const res = await axios.get(`${API_URL}/products/getProduct/${productId}`)
             setProduct(res.data.transformedProduct)
         } catch (err: any) {
-            setError(err.response.data.message);
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 

@@ -53,8 +53,12 @@ const Profile = () => {
         try {
             const res = await axios.get(`${API_URL}/address/getaddresses/${decode?._id}`) 
             setAddresses(res.data.addresses)   
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 

@@ -205,7 +205,9 @@ const deleteUser = async (req, res) => {
             .json({ message: "User Deleted Successfully" });
     }
     catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: "Sorry an error occured" });
     }
 };
 exports.deleteUser = deleteUser;
@@ -216,7 +218,6 @@ const logout = async (req, res) => {
             .json({ message: 'Logged out' });
     }
     catch (err) {
-        console.log(err);
         res
             .status(500)
             .json({ message: "Sorry an error occured" });

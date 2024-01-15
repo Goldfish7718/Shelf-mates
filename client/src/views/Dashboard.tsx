@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text, useBreakpointValue, Tooltip as ChakraToolTip, Spacer, Select, StatGroup, VStack, Divider, StatLabel, Stat, StatNumber, StatHelpText, StatArrow, Button, useDisclosure, Tabs, TabList, Tab, TabPanels, TabPanel, TableContainer, Table, Thead, Th, Tr, Tbody, Td, Badge } from "@chakra-ui/react"
+import { Box, Flex, Heading, Text, useBreakpointValue, Tooltip as ChakraToolTip, Spacer, Select, StatGroup, VStack, Divider, StatLabel, Stat, StatNumber, StatHelpText, StatArrow, Button, useDisclosure, Tabs, TabList, Tab, TabPanels, TabPanel, TableContainer, Table, Thead, Th, Tr, Tbody, Td, Badge, useToast } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell } from "recharts"
 import { useEffect, useState } from "react"
@@ -83,6 +83,8 @@ const Dashboard = () => {
     const barChartWidth = useBreakpointValue({ base: '100%', md: '50%' })
     const barWidth = useBreakpointValue({ base: 40, md: 80 })
 
+    const toast = useToast()
+
     const {
         isOpen: isOpenProductModal,
         onOpen: onOpenProductModal,
@@ -109,8 +111,12 @@ const Dashboard = () => {
             setmostSoldData(transformedData)            
             settransformedProducts(transformedProducts)
             setpriceComparison(priceComparison)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -127,8 +133,12 @@ const Dashboard = () => {
 
             setfrequencyMap(newMap)
             setCustomerFeedbackProductName(res.data.name)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -136,8 +146,12 @@ const Dashboard = () => {
         try {
             const res = await axios.get(`${API_URL}/admin/data/orders`)
             setOrders(res.data.transformedOrders)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -145,8 +159,12 @@ const Dashboard = () => {
         try {
             const res = await axios.get(`${API_URL}/admin/data/users`)
             setUsers(res.data.users)
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -333,7 +351,7 @@ const Dashboard = () => {
                                             #{user._id}
                                             {user.isAdmin &&
                                                 <Badge mx={2} colorScheme="green">
-                                                    Is Admin
+                                                    Admin
                                                 </Badge>
                                             }
                                         </Td>

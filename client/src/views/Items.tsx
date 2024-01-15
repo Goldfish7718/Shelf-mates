@@ -39,7 +39,6 @@ function Items () {
             setData(res.data.transformedProducts)
         } catch (err) {
             setError('An error occured while loading. Please try again later.')
-            console.log(error);
         } finally {
             setLoading(false)
         }

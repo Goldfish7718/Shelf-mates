@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Flex, HStack, Heading, Spacer, Text, VStack } from "@chakra-ui/react"
+import { Box, Button, Divider, Flex, HStack, Heading, Spacer, Text, VStack, useToast } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../App";
@@ -24,6 +24,7 @@ const Success = () => {
   const searchParams = new URLSearchParams(location.search);
 
   const orderId = searchParams.get('orderId');
+  const toast = useToast()
   
   const [items, setItems] = useState<ItemType[]>([])
   const [subtotal, setSubtotal] = useState<number>(0)
@@ -43,8 +44,12 @@ const Success = () => {
       }, 0)
 
       setSubtotal(subtotal)
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      toast({
+        title: err.rsponse.data.message,
+        status: 'error',
+        duration: 3000
+      })
     }
   }
 

@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, VStack, useBreakpointValue, RadioGroup, Radio, Stack, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Box, Heading, Step, StepIcon, StepIndicator, StepStatus, Stepper, StepTitle, StepDescription, StepSeparator, Flex, SimpleGrid, Text, Button, VStack, useBreakpointValue, RadioGroup, Radio, Stack, Tooltip, useDisclosure, useToast } from "@chakra-ui/react";
 import { IoHomeSharp } from "react-icons/io5";
 import { MdPayment } from "react-icons/md";
 import { FaTruckFast } from "react-icons/fa6";
@@ -33,6 +33,7 @@ const Checkout = () => {
     const { decode } = useAuth()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const navigate = useNavigate()
+    const toast = useToast()
 
     const addressEditable = {
         addressLine1: "",
@@ -55,8 +56,12 @@ const Checkout = () => {
         try {
             const res = await axios.get(`${API_URL}/address/getaddresses/${decode?._id}`) 
             setAddresses(res.data.addresses)   
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 
@@ -70,7 +75,6 @@ const Checkout = () => {
 
     useEffect(() => {
         if (initialRender) {
-            // Skip the else block on the initial render
             setInitialRender(false);
             return;
         }

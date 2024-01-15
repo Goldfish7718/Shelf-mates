@@ -29,8 +29,12 @@ const DeleteReviewAlert = ({ isOpen, onClose, _id, onReviewChange }: DeleteRevie
             })
             
             onReviewChange()
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                duration: 5000
+            })
         } finally {
             setLoading(false)
             onClose()

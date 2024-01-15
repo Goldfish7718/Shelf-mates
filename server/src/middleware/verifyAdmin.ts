@@ -14,9 +14,7 @@ const verifyAdmin = async (req: ExtendedRequest, res: Response, next: any) => {
                     isAuthenticated: false
                 })
 
-        console.log(process.env.JWT_SECRET);
         const decode = jwt.verify(token, `${process.env.JWT_SECRET}`)
-        
 
         // @ts-ignore
         if (!decode.isAdmin)
@@ -27,7 +25,9 @@ const verifyAdmin = async (req: ExtendedRequest, res: Response, next: any) => {
         req.decode = decode as ExtendedRequest['decode']
         next()
     } catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: "Sorry an error occured" })
     }
 }
 

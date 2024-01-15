@@ -10,7 +10,6 @@ import Items from './views/Items'
 import Product from './views/Product'
 import CartProvider from './context/CartContext'
 import Confirmation from './views/Confirmation'
-import Failure from './views/Failure'
 import './App.css'
 import Success from './views/Success'
 import Checkout from './views/Checkout'
@@ -36,7 +35,6 @@ function App() {
               <Route path='/categories/:category' element={<ProtectedRoute element={<Items />} />} />
               <Route path='/categories/:category/:id' element={<ProtectedRoute element={<Product />} />} />
               <Route path='/confirmation' element={<ProtectedRoute element={<Confirmation />} />} />
-              <Route path='/failure' element={<ProtectedRoute element={<Failure />} />} />
               <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
               <Route path='/checkout' element={<ProtectedRoute element={<Checkout />} />} />
               <Route path='/profile' element={<ProtectedRoute element={<Profile />} />} />

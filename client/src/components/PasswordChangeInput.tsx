@@ -74,11 +74,11 @@ const PasswordChangeInput = ({ isOpen, onClose }: PasswordChangeInputProps) => {
                     <ModalBody>
                         <FormControl isRequired isInvalid={error}>
                             <FormLabel m={2}>Old Password:</FormLabel>
-                            <Input onChange={handleOldPassWordChange} value={securityPassword} />
+                            <Input onChange={handleOldPassWordChange} value={securityPassword} type="password" />
                             <FormHelperText>This will help us verify it's you</FormHelperText>
 
                             <FormLabel m={2}>New Password:</FormLabel>
-                            <Input onChange={handleNewPassWordChange} value={newPassword} />
+                            <Input onChange={handleNewPassWordChange} value={newPassword} type="password" />
 
                             {error &&
                                 <FormErrorMessage>Please fill these fields</FormErrorMessage>

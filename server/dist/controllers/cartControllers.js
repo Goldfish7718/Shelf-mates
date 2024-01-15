@@ -36,7 +36,6 @@ const getCart = async (req, res) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
-        console.log(err);
     }
 };
 exports.getCart = getCart;
@@ -148,7 +147,6 @@ const decrementQuantity = async (req, res) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
-        console.log(err);
     }
 };
 exports.decrementQuantity = decrementQuantity;
@@ -180,7 +178,6 @@ const deleteProduct = async (req, res) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" });
-        console.log(err);
     }
 };
 exports.deleteProduct = deleteProduct;

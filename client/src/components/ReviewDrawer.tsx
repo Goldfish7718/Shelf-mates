@@ -45,8 +45,6 @@ const ReviewDrawer = ({ isOpen, onClose, _id }: ReviewDrawerProps) => {
                 status: 'error',
                 duration: 3000
             })
-
-            console.log(err);
         } finally {
             setLoading(false)
         }

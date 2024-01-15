@@ -23,7 +23,7 @@ router.get('/verifyadmin', verifyAdmin_1.default, (req, res) => {
         .status(200)
         .json({ isAuthenticated: true, decode, message: "Is Authenticated", isAdmin: true });
 });
-router.put('/update/:userId', userControllers_1.updateUser);
-router.patch('/updatepassword/:userId', userControllers_1.changePassword);
-router.delete('/delete/:userId', userControllers_1.deleteUser);
+router.put('/update/:userId', verifyToken_1.default, userControllers_1.updateUser);
+router.patch('/updatepassword/:userId', verifyToken_1.default, userControllers_1.changePassword);
+router.delete('/delete/:userId', verifyAdmin_1.default, userControllers_1.deleteUser);
 exports.default = router;

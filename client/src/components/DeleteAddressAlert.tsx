@@ -37,8 +37,12 @@ const DeleteAddressAlert = ({ isOpen, onClose, _id, onAddressChange }: DeleteAdd
 
             onClose()
             onAddressChange()
-        } catch (err) {
-            console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                duration: 3000
+            })
         }
     }
 

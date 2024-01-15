@@ -24,7 +24,7 @@ import { useAuth } from '../context/AuthContext'
 
 function Signup() {
 
-  const { decode, error, isLoading, requestSignup } = useAuth()
+  const { error, isLoading, requestSignup } = useAuth()
   
   const [showPassword, setShowPassword] = useState(false)
 

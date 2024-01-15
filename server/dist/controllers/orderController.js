@@ -60,7 +60,9 @@ const cartCheckout = async (req, res) => {
         res.status(200).json({ url });
     }
     catch (err) {
-        res.send(err);
+        return res
+            .status(500)
+            .json({ message: 'Internal Server Error' });
     }
 };
 exports.cartCheckout = cartCheckout;
@@ -123,7 +125,9 @@ const confirmOrder = async (req, res) => {
             .json({ orderObject, encodedOrderDetails, productsPurchasedNew });
     }
     catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: 'Internal Server Error' });
     }
 };
 exports.confirmOrder = confirmOrder;

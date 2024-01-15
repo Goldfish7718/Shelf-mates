@@ -254,7 +254,9 @@ export const deleteUser = async (req: Request, res: Response) => {
             .status(200)
             .json({ message: "User Deleted Successfully" })
     } catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: "Sorry an error occured" })
     }
 }
 
@@ -264,7 +266,6 @@ export const logout = async (req: Request, res: Response) => {
             .clearCookie('token')
             .json({ message: 'Logged out' })
     } catch (err) {
-        console.log(err);
         res
             .status(500)
             .json({ message: "Sorry an error occured" })

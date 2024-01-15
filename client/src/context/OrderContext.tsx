@@ -84,8 +84,12 @@ function OrderProvider({ children }: OrderContextProps) {
             paymentMethod
           })
           window.location.href = res.data.url
-        } catch (err) {
-          console.log(err);
+        } catch (err: any) {
+            toast({
+                title: err.rsponse.data.message,
+                status: 'error',
+                duration: 3000
+            })
         } finally {
           setLoading(false)
         }

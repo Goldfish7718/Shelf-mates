@@ -51,7 +51,9 @@ const deleteReview = async (req, res) => {
             .json({ message: "Review Deleted Successfully" });
     }
     catch (err) {
-        console.log(err);
+        res
+            .status(500)
+            .json({ message: "Internal server Error" });
     }
 };
 exports.deleteReview = deleteReview;
@@ -80,7 +82,7 @@ const getReviews = async (req, res) => {
             .json({ transformedReviews, end });
     }
     catch (err) {
-        return res
+        res
             .status(200)
             .json({ message: "Internal Server Error" });
     }

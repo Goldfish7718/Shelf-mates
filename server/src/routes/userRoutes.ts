@@ -23,8 +23,8 @@ router.get('/verifyadmin', verifyAdmin, (req: ExtendedRequest, res: Response) =>
         .json({ isAuthenticated: true, decode, message: "Is Authenticated", isAdmin: true })
 })
 
-router.put('/update/:userId', updateUser)
-router.patch('/updatepassword/:userId', changePassword)
-router.delete('/delete/:userId', deleteUser)
+router.put('/update/:userId', verifyToken, updateUser)
+router.patch('/updatepassword/:userId', verifyToken, changePassword)
+router.delete('/delete/:userId', verifyAdmin, deleteUser)
 
 export default router

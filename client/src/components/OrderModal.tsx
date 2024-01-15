@@ -1,4 +1,4 @@
-import { Box, Divider, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, Text } from "@chakra-ui/react";
+import { Box, Divider, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spacer, Text, useToast } from "@chakra-ui/react";
 import AddressBox, { AddressBoxProps } from "./AddressBox";
 import { useEffect, useState } from "react";
 import { Order } from "../views/Dashboard";
@@ -14,13 +14,19 @@ export interface OrderModalProps {
 const OrderModal = ({ orderId, isOpen, onClose }: OrderModalProps) => {
 
     const [order, setOrder] = useState<Order | null>(null)
+    const toast = useToast()
 
     const requestOrder = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/data/order/${orderId}`)
             setOrder(res.data.orderObject)            
         } catch (err) {
-            console.log(err);
+            toast({
+                title: 'An Error Occured',
+                description: 'Please Try again Later',
+                status: 'error',
+                duration: 3000,
+            })
         }
     }
 

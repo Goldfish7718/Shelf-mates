@@ -215,7 +215,9 @@ export const getSalesData = async (req: Request, res: Response) => {
             .json({ salesData, totalSales, totalQuantity })
         
     } catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error" })
     }
 }
 
@@ -285,7 +287,9 @@ export const getOrder = async (req: Request, res: Response) => {
             .status(200)
             .json({ orderObject })
     } catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error" })
     }
 }
 
@@ -297,6 +301,8 @@ export const getUsers = async (req: Request, res: Response) => {
             .status(200)
             .json({ users })
     } catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error" })
     }
 }

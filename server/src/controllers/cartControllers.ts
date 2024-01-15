@@ -38,8 +38,6 @@ export const getCart = async (req: Request, res: Response) => {
         res
             .status(500)
             .json({ message: "Internal Server Error" })
-            console.log(err);
-            
     }
 }
 
@@ -174,7 +172,6 @@ export const decrementQuantity = async (req: ExtendedRequest, res: Response) => 
         res
             .status(500)
             .json({ message: "Internal Server Error" })
-        console.log(err);
     }
 }
 
@@ -213,8 +210,6 @@ export const deleteProduct = async (req: ExtendedRequest, res: Response) => {
         res
         .status(500)
         .json({ message: "Internal Server Error" })
-
-        console.log(err);
     }
 }
 

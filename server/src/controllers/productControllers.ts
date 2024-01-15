@@ -67,7 +67,6 @@ export const getProducts = async (req: Request, res: Response) => {
             .status(200)
             .json({ transformedProducts });
     } catch (err) {
-        console.error(err);  
         res
             .status(500).
             json({ message: 'Internal Server Error' });
