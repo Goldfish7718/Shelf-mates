@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addProduct, getProduct, getProducts } from "../controllers/productControllers";
+import { addProduct, deleteProduct, getProduct, getProducts } from "../controllers/productControllers";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken";
 
@@ -11,5 +11,7 @@ router.post('/upload', upload.single('image'), addProduct)
 
 router.get('/getByCat/:category', getProducts)
 router.get('/getProduct/:id', verifyToken, getProduct)
+
+router.delete('/deleteProduct/:productId', deleteProduct)
 
 export default router

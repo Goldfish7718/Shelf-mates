@@ -57,10 +57,9 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
             })
 
             onAddressChange()
-        } catch (err) {
+        } catch (err: any) {
             toast({
-                title: "Sorry an error occured",
-                description: "Please try again later",
+                title: err.response.data.message,
                 status: "error",
                 duration: 3000
             })

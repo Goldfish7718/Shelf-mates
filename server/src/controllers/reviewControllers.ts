@@ -61,3 +61,39 @@ export const deleteReview = async (req: Request, res: Response) => {
         console.log(err);
     }
 }
+
+export const getReviews = async (req: Request, res: Response) => {
+    try {
+        const { productId } = req.params
+        const limit = parseInt(req.query.limit as string) || 10
+        const skip = parseInt(req.query.skip as string) || 0
+
+        const reviewSize = await Review.find({ productId }).countDocuments()
+
+        const end = skip * limit > reviewSize ? true : false
+
+        const reviews = await Review.find({ productId })
+            .sort({ stars: -1 })
+            .skip(skip)
+            .limit(limit)
+
+        const transformedReviews = await Promise.all(reviews.map(async review => {
+            const user = await User.findById(review.userId)
+
+            return {
+                ...review.toObject(),
+                fName: user?.fName,
+                lName: user?.lName,
+                userId: review.userId
+            }
+        }))
+
+        res
+            .status(200)
+            .json({ transformedReviews, end })
+    } catch (err) {
+        return res
+            .status(200)
+            .json({ message: "Internal Server Error" })
+    }
+}

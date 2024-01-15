@@ -3,10 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProduct = exports.getProducts = exports.addProduct = void 0;
+exports.deleteProduct = exports.getProduct = exports.getProducts = exports.addProduct = void 0;
 const productModel_1 = __importDefault(require("../models/productModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
+const cartModel_1 = __importDefault(require("../models/cartModel"));
+const orderModel_1 = __importDefault(require("../models/orderModel"));
 const addProduct = async (req, res) => {
     try {
         if (!req.file)
@@ -83,7 +85,7 @@ const getProduct = async (req, res) => {
                 .status(500)
                 .json({ message: 'Internal Server Error' });
         }
-        const reviews = await reviewModel_1.default.find({ productId: productObj._id });
+        const reviews = await reviewModel_1.default.find({ productId: productObj._id }).limit(6);
         const transformedReviews = await Promise.all(reviews.map(async (review) => {
             const user = await userModel_1.default.findById(review.userId);
             const { fName, lName } = user;
@@ -102,6 +104,7 @@ const getProduct = async (req, res) => {
             ...productObj,
             image: `data:${productObj.image.contentType};base64,${imageBase64}`,
             reviews: transformedReviews,
+            reviewsLength: productObj.reviews.length,
             averageStars
         };
         const isPurchased = user === null || user === void 0 ? void 0 : user.productsPurchased.includes(productObj._id);
@@ -116,3 +119,22 @@ const getProduct = async (req, res) => {
     }
 };
 exports.getProduct = getProduct;
+const deleteProduct = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        await cartModel_1.default.updateMany({ 'cartItems.productId': productId }, { $pull: { cartItems: { productId: productId } } }, { multi: true });
+        await reviewModel_1.default.deleteMany({ 'productId': productId });
+        await orderModel_1.default.updateMany({ 'items.productId': productId }, { $pull: { items: { productId: productId } } }, { multi: true });
+        await userModel_1.default.updateMany({ 'productsPurchased': productId }, { $pull: { productsPurchased: productId } }, { multi: true });
+        await productModel_1.default.findByIdAndDelete(productId);
+        return res
+            .status(200)
+            .json({ message: "Product Deleted Succesfully" });
+    }
+    catch (err) {
+        return res
+            .status(500)
+            .json({ message: 'Internal Server Error' });
+    }
+};
+exports.deleteProduct = deleteProduct;

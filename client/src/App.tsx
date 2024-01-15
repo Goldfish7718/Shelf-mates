@@ -16,6 +16,9 @@ import Success from './views/Success'
 import Checkout from './views/Checkout'
 import OrderProvider from './context/OrderContext'
 import Profile from './views/Profile'
+import AdminRoute from './utils/AdminRoute'
+import Dashboard from './views/Dashboard'
+import ProductStatistics from './views/ProductStatistics'
 
 axios.defaults.withCredentials = true
 
@@ -37,6 +40,8 @@ function App() {
               <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
               <Route path='/checkout' element={<ProtectedRoute element={<Checkout />} />} />
               <Route path='/profile' element={<ProtectedRoute element={<Profile />} />} />
+              <Route path='/admin/dashboard' element={<AdminRoute element={<Dashboard />} />} />
+              <Route path='/statistics/:productId' element={<AdminRoute element={<ProductStatistics />} />} />
             </Routes>
           </OrderProvider>
         </CartProvider>

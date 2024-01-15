@@ -16,6 +16,13 @@ export const addAddress = async (req: Request, res: Response) => {
         const potentialUser = await User.findById(userId);
         const emptyCondtion = !addressLine1 || !city || !state;
 
+        const addressCount = await Address.find({ userId }).countDocuments()
+
+        if (addressCount >= 5)
+            return res
+                .status(400)
+                .json({ message: "Cannot add more than 5 addresses" })
+
         if (!potentialUser) {
         return res
             .status(400)

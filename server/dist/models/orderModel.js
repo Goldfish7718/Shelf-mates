@@ -30,5 +30,6 @@ const orderSchema = new mongoose_1.Schema({
         default: true
     }
 });
+orderSchema.set('timestamps', true);
 const Order = (0, mongoose_1.model)('Order', orderSchema);
 exports.default = Order;

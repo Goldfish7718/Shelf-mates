@@ -30,5 +30,7 @@ const orderSchema = new Schema({
     }
 })
 
+orderSchema.set('timestamps', true)
+
 const Order = model('Order', orderSchema)
 export default Order

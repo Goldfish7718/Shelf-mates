@@ -3,6 +3,8 @@ import Product from "../models/productModel";
 import { ExtendedRequest } from "../middleware/verifyToken";
 import User from "../models/userModel";
 import Review from "../models/reviewModel";
+import Cart from "../models/cartModel";
+import Order from "../models/orderModel";
 
 export const addProduct = async (req: Request, res: Response) => {
     try {
@@ -93,7 +95,7 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
                 .json({ message: 'Internal Server Error' })
         }
 
-        const reviews = await Review.find({ productId: productObj._id })
+        const reviews = await Review.find({ productId: productObj._id }).limit(6)
 
         const transformedReviews = await Promise.all(reviews.map(async review => {
             const user = await User.findById(review.userId)
@@ -117,6 +119,7 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
             ...productObj,
             image: `data:${productObj.image.contentType};base64,${imageBase64}`,
             reviews: transformedReviews,
+            reviewsLength: productObj.reviews.length,
             averageStars
         };
 
@@ -125,6 +128,44 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
         res
             .status(200)
             .json({ transformedProduct, isPurchased })
+    } catch (err) {
+        return res
+            .status(500)
+            .json({ message: 'Internal Server Error' })
+    }
+}
+
+export const deleteProduct = async (req: Request, res: Response) => {
+    try {
+        const { productId } = req.params
+
+        await Cart.updateMany(
+            { 'cartItems.productId': productId },
+            { $pull: { cartItems: { productId: productId } } },
+            { multi: true }
+        )
+
+        await Review.deleteMany(
+            { 'productId': productId }
+        )
+
+        await Order.updateMany(
+            { 'items.productId': productId },
+            { $pull: { items: { productId: productId } } },
+            { multi: true }
+        )
+
+        await User.updateMany(
+            { 'productsPurchased': productId },
+            { $pull: { productsPurchased: productId } },
+            { multi: true }
+        )
+        
+        await Product.findByIdAndDelete(productId)
+
+        return res
+            .status(200)
+            .json({ message: "Product Deleted Succesfully" })
     } catch (err) {
         return res
             .status(500)

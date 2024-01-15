@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { Document } from "mongoose";
 
-interface CartItem {
+export interface CartItem {
     productId: mongoose.Types.ObjectId;
     quantity: number;
     price: number;
