@@ -10,22 +10,56 @@ Shelf-mates is an online E-commerce delivery platform I built on top of **MERN**
  # How to run project
 
 > Client
-  1. To run this project, first run this command:  `git clone https://github.com/Goldfish7718/Shelf-mates.git`
-  2. Now run `cd client` and create a **.env** file and pass one environment variable: `VITE_API_URL=http://<API_URL>`. **Replace `<API_UR>` with actual API URL**
-  3. After cloning this project, open terminal inside the root directory and then run 2 commands:  a. `npm install` b. `npm run dev`
+  1. To run this project, first run this command:  
+  ```bash
+  git clone https://github.com/Goldfish7718/Shelf-mates.git
+  ```
+  2. Now run `cd client` and create a **.env** file and pass one environment variable: `VITE_API_URL=http://<API_URL>`. **Replace `<API_URL>` with actual API URL**
+  3. Now run 2 commands:
+  ```bash
+  npm install
+  npm run dev
+  ```
 
 > Server
-  1. First cd into the *server* folder with the following command: `cd server`
-  2. Now create a **.env** file and pass 2 Environment variables in it as follows:
-      a. `JWT_SECRET=<ANY_STRING>`. Replace `<ANY_STRING>` with any string you wish.
-      b. `STRIPE_API_KEY=<YOUR_STRIPE_API_KEY>`. Replace `<STRIPE_API_KEY>` with your actual Stripe API Key
+  1. First *cd* into the *server* folder with the following command: `cd server`
+  2. Now create a **.env** file and pass 2 Environment variables in it as follows:<br>
+      a. `JWT_SECRET=<ANY_STRING>`. Replace `<ANY_STRING>` with any string you wish.<br>
+      b. `STRIPE_API_KEY=<YOUR_STRIPE_API_KEY>`. Replace `<STRIPE_API_KEY>` with your actual Stripe API Key.
 
       > If you don't have a Stripe API key, head over to [Official Stripe website](https://stripe.com/en-in) then Sign Up/Log in. Now go to developers tab and you should see **two**
       > API keys. A ***Publishable Key*** and a ***Secret key***. Copy the **Secret key** and paste it.
       
-  3. Now run `npm install` and wait for the dependencies to install.
-  4. Now open `indes.ts` in the server directory and change the mongoose connection string to whatever your connection string is. For eg:- `http://mongodb:27017/database-name`.
-  5. Now run `npm run dev` to start the server.
-  6. You should see the message `Server started on port 3000`. (You can change the port number if you want).
+  3. Now open `index.ts` in the **server/src** directory and change the mongoose connection string to whatever your connection string is. For eg:- `mongodb://localhost:27017/database-name`.
 
-## And that's it! That's how you run this project! 
+  ```javascript
+  app.listen(3000, () => {
+    connectDB('mongodb://localhost:27017/Shelf-mates')
+    console.log("Server started on port 3000");    
+  })
+  ```
+
+  4. Now install dependencies and start the server
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+  
+  6. You should see the following message in the terminal. (You can change the port number if you want).
+
+  ```bash
+  Server started on port 3000
+  ```
+  **Congratulations!** You've successfully started both the servers
+
+## Contact 🔗
+
+- For any questions, please contact me on my email: [tejasnanoti2@gmail.com](mailto:tejasnanoti2@gmail.com)
+- [X/Twitter](https://twitter.com/tejas_jsx)
+- [LinkedIn](https://www.linkedin.com/in/tejas-nanoti-23965823b/)
+
+## Licenses 📃
+
+- This project is licensed under the [MIT License](LICENSE).
+
