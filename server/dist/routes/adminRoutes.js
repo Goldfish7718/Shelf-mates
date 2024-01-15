@@ -8,4 +8,5 @@ router.get('/data/reviewcount/:productId', adminControllers_1.getReviewCount);
 router.get('/data/salesdata/:productId', adminControllers_1.getSalesData);
 router.get('/data/orders', adminControllers_1.getOrders);
 router.get('/data/order/:orderId', adminControllers_1.getOrder);
+router.get('/data/users', adminControllers_1.getUsers);
 exports.default = router;

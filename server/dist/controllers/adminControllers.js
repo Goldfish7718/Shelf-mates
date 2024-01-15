@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrder = exports.getOrders = exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
+exports.getUsers = exports.getOrder = exports.getOrders = exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
@@ -254,3 +254,15 @@ const getOrder = async (req, res) => {
     }
 };
 exports.getOrder = getOrder;
+const getUsers = async (req, res) => {
+    try {
+        const users = await userModel_1.default.find({}, { 'productsPurchased': 0, 'password': 0 });
+        res
+            .status(200)
+            .json({ users });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+exports.getUsers = getUsers;

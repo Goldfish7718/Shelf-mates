@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text, useBreakpointValue, Tooltip as ChakraToolTip, Spacer, Select, StatGroup, VStack, Divider, StatLabel, Stat, StatNumber, StatHelpText, StatArrow, Button, useDisclosure, Tabs, TabList, Tab, TabPanels, TabPanel, TableContainer, Table, Thead, Th, Tr, Tbody, Td } from "@chakra-ui/react"
+import { Box, Flex, Heading, Text, useBreakpointValue, Tooltip as ChakraToolTip, Spacer, Select, StatGroup, VStack, Divider, StatLabel, Stat, StatNumber, StatHelpText, StatArrow, Button, useDisclosure, Tabs, TabList, Tab, TabPanels, TabPanel, TableContainer, Table, Thead, Th, Tr, Tbody, Td, Badge } from "@chakra-ui/react"
 import Navbar from "../components/Navbar"
 import { BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell } from "recharts"
 import { useEffect, useState } from "react"
@@ -76,6 +76,7 @@ const Dashboard = () => {
     const [operation, setOperation] = useState('')
     const [orders, setOrders] = useState<Order[]>([])
     const [orderModalId, setOrderModalId] = useState('')
+    const [users, setUsers] = useState([])
 
     const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
     
@@ -140,6 +141,15 @@ const Dashboard = () => {
         }
     }
 
+    const requestUsers = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/admin/data/users`)
+            setUsers(res.data.users)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const handleOrderModal = (orderId: string) => {
         setOrderModalId(orderId)
         onOpenOrderModal()
@@ -160,8 +170,9 @@ const Dashboard = () => {
     useEffect(() => {
         requestMostSoldData()
         requestOrders()
+        requestUsers()
     }, [])
-    
+
     useEffect(() => {
         if (mostSoldData.length > 0 && !initialFetchDone) {
             requestReviewCounts(mostSoldData[0]?.productId)
@@ -176,6 +187,7 @@ const Dashboard = () => {
             <TabList>
                 <Tab>Analytics</Tab>
                 <Tab>Orders &#40;{orders.length}&#41;</Tab>
+                <Tab>Users &#40;{users.length}&#41;</Tab>
             </TabList>
 
             <TabPanels>
@@ -288,8 +300,8 @@ const Dashboard = () => {
 
                             <Tbody>
                                 {orders.length > 0 && orders.map(order => (
-                                    <Tr key={order._id}>
-                                        <Td onClick={() => handleOrderModal(order._id)} _hover={{ textDecoration: 'underline 1px solid black', cursor: 'pointer' }}>{order._id}</Td>
+                                    <Tr key={order._id} _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }} onClick={() => handleOrderModal(order._id)}>
+                                        <Td>{order._id}</Td>
                                         <Td>{order.fName} {order.lName}</Td>
                                         <Td>@{order.username}</Td>
                                         <Td>{order.paymentMethod}</Td>
@@ -297,6 +309,40 @@ const Dashboard = () => {
                                         <Td>{order.date}</Td>
                                     </Tr>
                                 ))}
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
+                </TabPanel>
+
+                <TabPanel>
+                    <TableContainer>
+                        <Table>
+                            <Thead>
+                                <Tr>
+                                    <Th>User Id:</Th>
+                                    <Th>First Name:</Th>
+                                    <Th>Last Name:</Th>
+                                    <Th>Username:</Th>
+                                </Tr>
+                            </Thead>
+
+                            <Tbody>
+                                {users.map((user: any) => (
+                                    <Tr>
+                                        <Td>
+                                            #{user._id}
+                                            {user.isAdmin &&
+                                                <Badge mx={2} colorScheme="green">
+                                                    Is Admin
+                                                </Badge>
+                                            }
+                                        </Td>
+                                        <Td>{user.fName}</Td>
+                                        <Td>{user.lName}</Td>
+                                        <Td>@{user.username}</Td>
+                                    </Tr>
+                                ))
+                                }
                             </Tbody>
                         </Table>
                     </TableContainer>

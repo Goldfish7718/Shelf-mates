@@ -288,3 +288,15 @@ export const getOrder = async (req: Request, res: Response) => {
         console.log(err);
     }
 }
+
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const users = await User.find({}, { 'productsPurchased': 0, 'password': 0 })        
+
+        res
+            .status(200)
+            .json({ users })
+    } catch (err) {
+        console.log(err);
+    }
+}

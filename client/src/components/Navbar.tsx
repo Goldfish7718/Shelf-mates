@@ -114,7 +114,7 @@ function Navbar () {
                                 <>
                                 <MenuDivider borderColor='gray.400' />
                                 <MenuGroup title="Admin">
-                                    <MenuItem>Admin Panel <Icon as={SettingsIcon} ml={2} /></MenuItem>
+                                    <MenuItem as={Link} href="/admin/dashboard">Admin Panel <Icon as={SettingsIcon} ml={2} /></MenuItem>
                                 </MenuGroup>
                                 </> : <>
                                 <MenuDivider borderColor='gray.400' />
