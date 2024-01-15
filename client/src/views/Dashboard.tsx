@@ -113,7 +113,7 @@ const Dashboard = () => {
             setpriceComparison(priceComparison)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
@@ -135,7 +135,7 @@ const Dashboard = () => {
             setCustomerFeedbackProductName(res.data.name)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
@@ -148,7 +148,7 @@ const Dashboard = () => {
             setOrders(res.data.transformedOrders)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
@@ -161,7 +161,7 @@ const Dashboard = () => {
             setUsers(res.data.users)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })

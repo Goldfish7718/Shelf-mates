@@ -118,8 +118,8 @@ export const getReviewCount = async (req: Request, res: Response) => {
         const product = await Product.findById(productId)
 
         if (product?.reviews.length === 0) {
-            res
-                .status(200)
+            return res
+                .status(400)
                 .json({ message: 'No Reviews For this product' })
         }
 

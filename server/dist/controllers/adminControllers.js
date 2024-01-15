@@ -104,8 +104,8 @@ const getReviewCount = async (req, res) => {
         const { productId } = req.params;
         const product = await productModel_1.default.findById(productId);
         if ((product === null || product === void 0 ? void 0 : product.reviews.length) === 0) {
-            res
-                .status(200)
+            return res
+                .status(400)
                 .json({ message: 'No Reviews For this product' });
         }
         // @ts-ignore

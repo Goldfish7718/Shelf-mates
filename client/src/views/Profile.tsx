@@ -55,7 +55,7 @@ const Profile = () => {
             setAddresses(res.data.addresses)   
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })

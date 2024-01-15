@@ -50,7 +50,7 @@ const ProductStatistics = () => {
             setfrequencyMap(newMap)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
@@ -68,7 +68,7 @@ const ProductStatistics = () => {
             setUnitsSold(res.data.totalQuantity)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
@@ -81,7 +81,7 @@ const ProductStatistics = () => {
             setProduct(res.data.transformedProduct)
         } catch (err: any) {
             toast({
-                title: err.rsponse.data.message,
+                title: err.response.data.message,
                 status: 'error',
                 duration: 3000
             })
