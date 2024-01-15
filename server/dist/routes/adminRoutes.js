@@ -7,4 +7,5 @@ router.get('/data/mostsold', adminControllers_1.getMostSoldData);
 router.get('/data/reviewcount/:productId', adminControllers_1.getReviewCount);
 router.get('/data/salesdata/:productId', adminControllers_1.getSalesData);
 router.get('/data/orders', adminControllers_1.getOrders);
+router.get('/data/order/:orderId', adminControllers_1.getOrder);
 exports.default = router;

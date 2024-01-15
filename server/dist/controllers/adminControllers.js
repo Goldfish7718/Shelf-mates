@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrders = exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
+exports.getOrder = exports.getOrders = exports.getSalesData = exports.getReviewCount = exports.getMostSoldData = void 0;
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
+const addressModel_1 = __importDefault(require("../models/addressModel"));
 const getMostSoldData = async (req, res) => {
     var _a, _b;
     try {
@@ -192,11 +193,13 @@ const getSalesData = async (req, res) => {
 exports.getSalesData = getSalesData;
 const getOrders = async (req, res) => {
     try {
-        const orders = await orderModel_1.default.find({});
+        const orders = await orderModel_1.default.find({}).sort({ createdAt: 'desc' });
         const transformedOrders = await Promise.all(orders.map(async (order) => {
             const user = await userModel_1.default.findById(order.userId);
+            const address = await addressModel_1.default.findById(order.addressId);
             return {
                 ...order.toObject(),
+                address: address === null || address === void 0 ? void 0 : address.toObject(),
                 fName: user === null || user === void 0 ? void 0 : user.fName,
                 lName: user === null || user === void 0 ? void 0 : user.lName,
                 username: user === null || user === void 0 ? void 0 : user.username,
@@ -209,7 +212,45 @@ const getOrders = async (req, res) => {
             .json({ transformedOrders });
     }
     catch (err) {
-        console.log(err);
+        return res
+            .status(500)
+            .json({ message: 'Internal server error' });
     }
 };
 exports.getOrders = getOrders;
+const getOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await orderModel_1.default.findById(orderId);
+        const address = await addressModel_1.default.findById(order === null || order === void 0 ? void 0 : order.addressId);
+        const user = await userModel_1.default.findById(order === null || order === void 0 ? void 0 : order.userId);
+        if (!order || !address || !user) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        const orderItems = await Promise.all(order === null || order === void 0 ? void 0 : order.items.map(async (item) => {
+            const product = await productModel_1.default.findById(item.productId);
+            return {
+                // @ts-ignore
+                ...item.toObject(),
+                name: product === null || product === void 0 ? void 0 : product.name
+            };
+        }));
+        const orderObject = {
+            ...order === null || order === void 0 ? void 0 : order.toObject(),
+            items: orderItems,
+            address,
+            fName: user === null || user === void 0 ? void 0 : user.fName,
+            lName: user === null || user === void 0 ? void 0 : user.lName,
+            username: user === null || user === void 0 ? void 0 : user.username,
+            // @ts-ignore
+            date: order.createdAt.toLocaleDateString()
+        };
+        res
+            .status(200)
+            .json({ orderObject });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+exports.getOrder = getOrder;

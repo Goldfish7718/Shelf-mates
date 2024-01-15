@@ -3,6 +3,7 @@ import Order from "../models/orderModel";
 import Product from "../models/productModel";
 import Review from "../models/reviewModel";
 import User from "../models/userModel";
+import Address from "../models/addressModel";
 
 export const getMostSoldData = async (req: Request, res: Response) => {
     try {
@@ -220,13 +221,15 @@ export const getSalesData = async (req: Request, res: Response) => {
 
 export const getOrders = async (req: Request, res: Response) => {
     try {
-        const orders = await Order.find({})
+        const orders = await Order.find({}).sort({ createdAt: 'desc' })
 
         const transformedOrders = await Promise.all(orders.map(async order => {
             const user = await User.findById(order.userId)
+            const address = await Address.findById(order.addressId)
 
             return {
                 ...order.toObject(),
+                address: address?.toObject(),
                 fName: user?.fName,
                 lName: user?.lName,
                 username: user?.username,
@@ -238,6 +241,49 @@ export const getOrders = async (req: Request, res: Response) => {
         res
             .status(200)
             .json({ transformedOrders })
+    } catch (err) {
+        return res
+            .status(500)
+            .json({ message: 'Internal server error'  })
+    }
+}
+
+export const getOrder = async (req: Request, res: Response) => {
+    try {
+        const { orderId } = req.params;
+
+        const order = await Order.findById(orderId)
+        const address = await Address.findById(order?.addressId)
+        const user = await User.findById(order?.userId)
+
+        if (!order || !address || !user) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        const orderItems = await Promise.all(order?.items.map(async item => {
+            const product = await Product.findById(item.productId)
+
+            return {
+                // @ts-ignore
+                ...item.toObject(),
+                name: product?.name
+            }
+        }))
+
+        const orderObject = {
+            ...order?.toObject(),
+            items: orderItems,
+            address,
+            fName: user?.fName,
+            lName: user?.lName,
+            username: user?.username,
+            // @ts-ignore
+            date: order.createdAt.toLocaleDateString()
+        }
+
+        res
+            .status(200)
+            .json({ orderObject })
     } catch (err) {
         console.log(err);
     }

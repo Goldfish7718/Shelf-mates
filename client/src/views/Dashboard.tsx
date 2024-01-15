@@ -8,6 +8,7 @@ import { AddIcon, DeleteIcon, RepeatIcon, TriangleUpIcon } from "@chakra-ui/icon
 import CountUp from 'react-countup'
 import ProductInputModal from "../components/ProductInputModal"
 import ProductTableModal from "../components/ProductTableModal"
+import OrderModal from "../components/OrderModal"
 
 interface MostSoldProduct {
     name: string;
@@ -27,16 +28,25 @@ interface PriceComparison {
     }
 }
 
-interface Order {
+export interface Order {
     _id: string;
     items: [
         {
             productId: string;
-            quatity: number;
+            quantity: number;
             totalPrice: number;
             _id: string;
+            name: string;
         }
     ];
+    address: {
+        _id: string;
+        addressLine1: string;
+        landmark: string;
+        city: string;
+        state: string;
+        type: string;
+    }
     userId: string;
     addressId: string;
     paymentMethod: string
@@ -65,6 +75,7 @@ const Dashboard = () => {
     const [priceComparison, setpriceComparison] = useState<PriceComparison | null>(null)
     const [operation, setOperation] = useState('')
     const [orders, setOrders] = useState<Order[]>([])
+    const [orderModalId, setOrderModalId] = useState('')
 
     const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
     
@@ -81,6 +92,12 @@ const Dashboard = () => {
         isOpen: isOpenProductTableModal,
         onOpen: onOpenProductTableModal,
         onClose: onCloseProductTableModal
+    } = useDisclosure()
+
+    const {
+        isOpen: isOpenOrderModal,
+        onOpen: onOpenOrderModal,
+        onClose: onCloseOrderModal
     } = useDisclosure()
 
     const requestMostSoldData = async () => {
@@ -121,6 +138,11 @@ const Dashboard = () => {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    const handleOrderModal = (orderId: string) => {
+        setOrderModalId(orderId)
+        onOpenOrderModal()
     }
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -266,8 +288,8 @@ const Dashboard = () => {
 
                             <Tbody>
                                 {orders.length > 0 && orders.map(order => (
-                                    <Tr>
-                                        <Td>{order._id}</Td>
+                                    <Tr key={order._id}>
+                                        <Td onClick={() => handleOrderModal(order._id)} _hover={{ textDecoration: 'underline 1px solid black', cursor: 'pointer' }}>{order._id}</Td>
                                         <Td>{order.fName} {order.lName}</Td>
                                         <Td>@{order.username}</Td>
                                         <Td>{order.paymentMethod}</Td>
@@ -283,6 +305,7 @@ const Dashboard = () => {
         </Tabs>
         <ProductInputModal isOpen={isOpenProductModal} onClose={onCloseProductModal} onAdd={onDelete} />
         <ProductTableModal isOpen={isOpenProductTableModal} onClose={onCloseProductTableModal} products={transformedProducts} onDelete={onDelete} operation={operation} />
+        <OrderModal isOpen={isOpenOrderModal} onClose={onCloseOrderModal} orderId={orderModalId} />
     </>
   )
 }
