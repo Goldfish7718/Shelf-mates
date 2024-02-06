@@ -41,7 +41,7 @@ const connectDB = async (url: string) => {
 }
 
 app.listen(3000, () => {
-    connectDB('mongodb://0.0.0.0:27017/Shelf-mates')
+    connectDB(process.env.DB_URI || 'mongodb://localhost:27017/Shelf-mates')
     console.log("Server started on port 3000");    
 })
 
