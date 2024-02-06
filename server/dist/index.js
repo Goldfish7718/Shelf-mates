@@ -17,11 +17,15 @@ const addressRoutes_1 = __importDefault(require("./routes/addressRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)({
-    credentials: true,
-    origin: process.env.ORIGIN
-}));
-// app.use(cors())
+if (process.env.ORIGIN) {
+    app.use((0, cors_1.default)({
+        credentials: true,
+        origin: process.env.ORIGIN
+    }));
+}
+else {
+    app.use((0, cors_1.default)());
+}
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -39,6 +43,6 @@ const connectDB = async (url) => {
         .catch(err => console.log(err));
 };
 app.listen(3000, () => {
-    connectDB('mongodb://0.0.0.0:27017/Shelf-mates');
+    connectDB(process.env.DB_URI || 'mongodb://localhost:27017/Shelf-mates');
     console.log("Server started on port 3000");
 });
