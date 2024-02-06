@@ -58,8 +58,8 @@ export const cartCheckout = async (req: Request, res: Response) => {
                 };
             }),
             mode: 'payment',
-            success_url: `http://localhost:5173/confirmation?orderId=${encodedOrderDetails}`,
-            cancel_url: `http://localhost:5173/failed`,
+            success_url: `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`,
+            cancel_url: `${process.env.ORIGIN}/failed`,
         });
 
         const { url } = session;
