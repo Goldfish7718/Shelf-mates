@@ -23,36 +23,34 @@ Shelf-mates is an online E-commerce delivery platform I built on top of **MERN**
 
 > Server
   1. First *cd* into the *server* folder with the following command: `cd server`
-  2. Now create a **.env** file and pass 3 Environment variables in it as follows:<br>
+  2. Now create a **.env** file and pass 4 Environment variables in it as follows:<br>
       a. `JWT_SECRET=<ANY_STRING>`. Replace `<ANY_STRING>` with any string you wish.<br>
       b. `STRIPE_API_KEY=<YOUR_STRIPE_API_KEY>`. Replace `<STRIPE_API_KEY>` with your actual Stripe API Key.
       c. `ORIGIN=<CLIENT_URL>`. Replace `<CLIENT_URL>` with actual client URL.
+      d. `DB_URI=<MONGODB_CONNECTION_STRING>` and assign it your actual MongoDB connection string. 
 
       > If you don't have a Stripe API key, head over to [Official Stripe website](https://stripe.com/en-in) then Sign Up/Log in. Now go to developers tab and you should see **two**
       > API keys. A ***Publishable Key*** and a ***Secret key***. Copy the **Secret key** and paste it.
-      
-  3. Now open `index.ts` in the **server/src** directory and change the mongoose connection string to whatever your connection string is. For eg:- `mongodb://localhost:27017/database-name`.
 
-  ```javascript
-  app.listen(3000, () => {
-    connectDB('mongodb://localhost:27017/Shelf-mates')
-    console.log("Server started on port 3000");    
-  })
-  ```
-
-  4. Now install dependencies and start the server
+      > Refer to [.env.example](server/.env.example) for exact reference.
+    
+  3. Now install dependencies and start the server
 
   ```bash
   npm install
   npm run dev
   ```
   
-  6. You should see the following message in the terminal. (You can change the port number if you want).
+  4. You should see the following message in the terminal. (You can change the port number if you want).
 
   ```bash
   Server started on port 3000
   ```
   **Congratulations!** You've successfully started both the servers
+
+## Deployment 🌐
+
+- Shelf-mates is currently available [here](https://shelfmates.vercel.app)
 
 ## Contact 🔗
 
