@@ -39,6 +39,12 @@ const cartCheckout = async (req, res) => {
         };
         const orderDetails = JSON.stringify(order);
         const encodedOrderDetails = encodeURIComponent(orderDetails);
+        if (paymentMethod === 'COD') {
+            const url = `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`;
+            return res
+                .status(200)
+                .json({ url });
+        }
         const session = await stripe.checkout.sessions.create({
             line_items: potentialCart.cartItems.map((item, index) => {
                 return {

@@ -21,7 +21,7 @@ import AddressInput from "../components/AddressInput";
 
 export const paymentMethods = [
     { method: 'Card', disabled: false, icon: <MdPayment style={{ marginRight: '8px', marginTop: '6px' }} /> },
-    { method: 'COD', disabled: true, icon: <IoMdCash style={{ marginRight: '8px', marginTop: '6px' }} /> },
+    { method: 'COD', disabled: false, icon: <IoMdCash style={{ marginRight: '8px', marginTop: '6px' }} /> },
     { method: 'UPI', disabled: true, icon: <BsQrCode style={{ marginRight: '8px', marginTop: '6px' }} /> },
     { method: 'Net Banking', disabled: true, icon: <BsBank style={{ marginRight: '8px', marginTop: '6px' }} /> },
 ]
@@ -149,7 +149,7 @@ const Checkout = () => {
                                     <Flex>{item.icon} {item.method}</Flex>      
                                 </>
                             ))}
-                            <Button size='lg' py={3} isLoading={loading} my={5} onClick={requestCheckout} width='full' colorScheme="orange">Pay and Order</Button>
+                            <Button size='lg' py={3} isLoading={loading} my={5} onClick={requestCheckout} width='full' colorScheme="orange">{paymentMethod === 'COD' ? 'Place Order' : 'Pay and Order'}</Button>
                         </Stack>
                         </>
                     }
