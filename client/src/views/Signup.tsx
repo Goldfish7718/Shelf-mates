@@ -24,7 +24,7 @@ import { useAuth } from '../context/AuthContext'
 
 function Signup() {
 
-  const { error, isLoading, requestSignup } = useAuth()
+  const { error, isAuthLoading, requestSignup } = useAuth()
   
   const [showPassword, setShowPassword] = useState(false)
 
@@ -98,7 +98,7 @@ function Signup() {
                 <Button
                   loadingText="Signing you up..."
                   size="lg"
-                  isLoading={isLoading}
+                  isLoading={isAuthLoading}
                   colorScheme='orange'
                   onClick={handleSignup}>
                   Sign up

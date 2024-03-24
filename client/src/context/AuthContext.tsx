@@ -19,6 +19,7 @@ type DecodeType = {
 type AuthContextType = {
     isLoggedIn: boolean;
     isLoading: boolean;
+    isAuthLoading: boolean;
     setIsLoggedIn: Function;
     setIsLoading: Function;
     requestLogin: Function;
@@ -43,6 +44,7 @@ export const useAuth = (): AuthContextType => {return useContext(AuthContext) as
 function AuthProvider({ children }: AuthContextProps) {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isAuthLoading, setisAuthLoading] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [decode, setDecode] = useState(null)
     const [error, setError] = useState('')
@@ -53,7 +55,7 @@ function AuthProvider({ children }: AuthContextProps) {
 
     const requestLogin = async ({ username, password }: UserCredentialsType) => {
         try {
-            setIsLoading(true)
+            setisAuthLoading(true)
             const res = await axios.post(`${API_URL}/auth/login`, {
                 username, 
                 password
@@ -70,13 +72,13 @@ function AuthProvider({ children }: AuthContextProps) {
         } catch (err: any) {
             setError(err?.response?.data?.message)
         } finally {
-            setIsLoading(false)
+            setisAuthLoading(false)
         }
     }
     
     const requestSignup = async ({ fName, lName, username, password }: UserCredentialsType) => {
         try {
-            setIsLoading(true)
+            setisAuthLoading(true)
             await axios.post(`${API_URL}/auth/signup`, {
                 username, 
                 password,
@@ -97,7 +99,7 @@ function AuthProvider({ children }: AuthContextProps) {
         } catch (err: any) {
           setError(err.response.data.message)
         } finally {
-          setIsLoading(false)
+          setisAuthLoading(false)
         }
       }
 
@@ -137,6 +139,7 @@ function AuthProvider({ children }: AuthContextProps) {
         isLoggedIn,
         setIsLoggedIn,
         isLoading,
+        isAuthLoading,
         setIsLoading,
         requestLogin,
         requestSignup,
