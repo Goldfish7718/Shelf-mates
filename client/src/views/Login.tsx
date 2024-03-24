@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext"
 
 function Login () {
 
-    const {  requestLogin, error, isLoading  } = useAuth()
+    const {  requestLogin, error, isAuthLoading  } = useAuth()
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -64,7 +64,7 @@ function Login () {
                         <Button
                         loadingText="Logging in..."
                         size="lg"
-                        isLoading={isLoading}
+                        isLoading={isAuthLoading}
                         colorScheme='orange'
                         onClick={handleLogin}>
                         Login
