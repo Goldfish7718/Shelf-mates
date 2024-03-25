@@ -45,13 +45,14 @@ function AuthProvider({ children }: AuthContextProps) {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isAuthLoading, setisAuthLoading] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
     const [decode, setDecode] = useState(null)
     const [error, setError] = useState('')
     const [verificationDone, setVerificationDone] = useState(false)
 
     const navigate = useNavigate()
     const toast = useToast()
+    const pathname = window.location.pathname
 
     const requestLogin = async ({ username, password }: UserCredentialsType) => {
         try {
@@ -105,12 +106,15 @@ function AuthProvider({ children }: AuthContextProps) {
 
     const requestVerification = async () => {
         try {
+            setIsLoading(true)
+
+            if (pathname == '/login' || pathname == '/signup') return;
+
             const res = await axios.get(`${API_URL}/auth/verify`)
             const { isAuthenticated } = res.data
             
             setIsLoggedIn(isAuthenticated)
             setDecode(res.data.decode)
-            
         } catch (err: any) {
             setIsLoggedIn(err.response.data.isAuthenticated)
         } finally {
