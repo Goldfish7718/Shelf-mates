@@ -20,7 +20,7 @@ const app = (0, express_1.default)();
 if (process.env.ORIGIN) {
     app.use((0, cors_1.default)({
         credentials: true,
-        origin: process.env.ORIGIN
+        origin: process.env.ORIGIN,
     }));
 }
 else {
@@ -29,20 +29,20 @@ else {
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use('/auth', userRoutes_1.default);
-app.use('/products', productRoutes_1.default);
-app.use('/cart', cartRoutes_1.default);
-app.use('/order', orderRoutes_1.default);
-app.use('/address', addressRoutes_1.default);
-app.use('/review', reviewRoutes_1.default);
-app.use('/admin', adminRoutes_1.default);
+app.use("/auth", userRoutes_1.default);
+app.use("/product", productRoutes_1.default);
+app.use("/cart", cartRoutes_1.default);
+app.use("/order", orderRoutes_1.default);
+app.use("/address", addressRoutes_1.default);
+app.use("/review", reviewRoutes_1.default);
+app.use("/admin", adminRoutes_1.default);
 const connectDB = async (url) => {
     await mongoose_1.default
         .connect(url)
         .then(() => console.log("Database Connected"))
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
 };
-app.listen(3000, () => {
-    connectDB(process.env.DB_URI || 'mongodb://localhost:27017/Shelf-mates');
+app.listen(3000, async () => {
+    await connectDB(process.env.DB_URI || "mongodb://localhost:27017/Shelf-mates");
     console.log("Server started on port 3000");
 });

@@ -32,7 +32,7 @@ function Items () {
     const fetchProducts = async () => {
         try {
             setLoading(true)
-            const res = await axios.get(`${API_URL}/products/getByCat/${category}`)
+            const res = await axios.get(`${API_URL}/product/category/${category}`)
 
             if (res.data.transformedProducts.length == 0) throw new Error
 

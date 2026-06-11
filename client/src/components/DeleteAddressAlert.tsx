@@ -27,7 +27,7 @@ const DeleteAddressAlert = ({ isOpen, onClose, _id, onAddressChange }: DeleteAdd
 
     const requestAddressDelete = async () => {
         try {
-            const res = await axios.delete(`${API_URL}/address/deleteaddress/${_id}`)
+            const res = await axios.delete(`${API_URL}/address/${_id}`)
             
             toast({
                 title: res.data.message,

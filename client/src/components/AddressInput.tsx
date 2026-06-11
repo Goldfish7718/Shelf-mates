@@ -1,7 +1,6 @@
 import { Button, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, RadioGroup, useToast } from "@chakra-ui/react"
 import axios from "axios";
 import { API_URL } from "../App";
-import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 
 interface AddressInput {
@@ -19,7 +18,6 @@ interface AddressInput {
 
 const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, city, state, _id, onAddressChange }: AddressInput) => {
 
-    const { decode } = useAuth()
     const toast = useToast()
 
     const [addressLine1New, setAddressLine1New] = useState("")
@@ -42,7 +40,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
     const requestAddAddress = async () => {
         try {
             setLoading(true)
-            await axios.post(`${API_URL}/address/addaddress/${decode?._id}`, {
+            await axios.post(`${API_URL}/address`, {
                 addressLine1: addressLine1New,
                 type: typeNew,
                 landmark: landmarkNew,
@@ -71,7 +69,7 @@ const AddressInput = ({ isOpen, onClose, edit, addressLine1, type, landmark, cit
 
     const requestUpdateAddress = async () => {
         try {
-            await axios.put(`${API_URL}/address/updateaddress`, {
+            await axios.put(`${API_URL}/address`, {
                 address: {
                     addressLine1: addressLine1New,
                     type: typeNew,

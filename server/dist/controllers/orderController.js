@@ -11,11 +11,17 @@ const orderModel_1 = __importDefault(require("../models/orderModel"));
 const addressModel_1 = __importDefault(require("../models/addressModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const stripe = new stripe_1.default(process.env.STRIPE_API_KEY, {
-    apiVersion: '2023-10-16'
+    apiVersion: "2023-10-16",
 });
 const cartCheckout = async (req, res) => {
     try {
-        const { userId } = req.params;
+        if (!req.decode) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        const { _id: userId } = req.decode;
         const { paymentMethod, address } = req.body;
         const potentialCart = await cartModel_1.default.findOne({ userId });
         if (!potentialCart) {
@@ -26,39 +32,37 @@ const cartCheckout = async (req, res) => {
             return product === null || product === void 0 ? void 0 : product.price;
         }));
         const order = {
-            items: potentialCart.cartItems.map(item => ({
+            items: potentialCart.cartItems.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
-                totalPrice: item.price
+                totalPrice: item.price,
             })),
             userId,
             addressId: address,
             paymentMethod,
             subtotal: potentialCart.subtotal,
-            confirmed: false
+            confirmed: false,
         };
         const orderDetails = JSON.stringify(order);
         const encodedOrderDetails = encodeURIComponent(orderDetails);
-        if (paymentMethod === 'COD') {
+        if (paymentMethod === "COD") {
             const url = `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`;
-            return res
-                .status(200)
-                .json({ url });
+            return res.status(200).json({ url });
         }
         const session = await stripe.checkout.sessions.create({
             line_items: potentialCart.cartItems.map((item, index) => {
                 return {
                     price_data: {
-                        currency: 'inr',
+                        currency: "inr",
                         product_data: {
-                            name: item.name
+                            name: item.name,
                         },
-                        unit_amount: prices[index] * 100
+                        unit_amount: prices[index] * 100,
                     },
-                    quantity: item.quantity
+                    quantity: item.quantity,
                 };
             }),
-            mode: 'payment',
+            mode: "payment",
             success_url: `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`,
             cancel_url: `${process.env.ORIGIN}/failed`,
         });
@@ -66,9 +70,8 @@ const cartCheckout = async (req, res) => {
         res.status(200).json({ url });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: 'Internal Server Error' });
+        console.log(err);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.cartCheckout = cartCheckout;
@@ -86,14 +89,14 @@ const confirmOrder = async (req, res) => {
             await cartModel_1.default.findOneAndUpdate({ userId: order.userId }, {
                 $set: {
                     cartItems: [],
-                    subtotal: 0
-                }
+                    subtotal: 0,
+                },
             });
             order.items.map(async (item) => {
                 await productModel_1.default.findByIdAndUpdate(item.productId, {
                     $inc: {
-                        stock: -item.quantity
-                    }
+                        stock: -item.quantity,
+                    },
                 });
             });
             const potentialUser = await userModel_1.default.findById(orderObject.userId);
@@ -109,12 +112,12 @@ const confirmOrder = async (req, res) => {
         orderObject.items = await Promise.all(orderObject.items.map(async (item) => {
             const product = await productModel_1.default.findById(item.productId);
             const productObj = product.toObject();
-            const imageBase64 = productObj.image.data.toString('base64');
+            const imageBase64 = productObj.image.data.toString("base64");
             const { quantity } = item;
             return {
                 ...productObj,
                 image: `data:${productObj.image.contentType};base64,${imageBase64}`,
-                quantity
+                quantity,
             };
         }));
         const address = await addressModel_1.default.findById(orderObject.addressId);
@@ -126,14 +129,16 @@ const confirmOrder = async (req, res) => {
         else {
             encodedOrderDetails = null;
         }
-        res
-            .status(200)
-            .json({ orderObject, encodedOrderDetails, productsPurchasedNew });
+        res.status(200).json({
+            orderObject,
+            encodedOrderDetails,
+            productsPurchasedNew,
+            message: "Order placed Succesfully",
+        });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: 'Internal Server Error' });
+        console.log(err);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.confirmOrder = confirmOrder;

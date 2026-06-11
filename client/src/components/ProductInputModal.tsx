@@ -35,7 +35,7 @@ const ProductInputModal = ({ isOpen, onClose, onAdd }: ProductInputModalProps) =
             formData.append('category', category);
             formData.append('image', image!); 
 
-            await axios.post(`${API_URL}/products/upload`, formData, {
+            await axios.post(`${API_URL}/product`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

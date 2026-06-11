@@ -18,7 +18,7 @@ const getMostSoldData = async (req, res) => {
             createdAt: {
                 $gte: todayStart,
                 $lt: todayEnd,
-            }
+            },
         });
         let transformedData = [];
         let priceComparison;
@@ -29,7 +29,7 @@ const getMostSoldData = async (req, res) => {
                     soldProducts.push({
                         productId: item.productId,
                         quantity: item.quantity,
-                        price: item.totalPrice / item.quantity
+                        price: item.totalPrice / item.quantity,
                     });
                 });
             });
@@ -40,7 +40,7 @@ const getMostSoldData = async (req, res) => {
                     mostSold[productId] = {
                         productId: productId,
                         quantity: product.quantity,
-                        price: product.price
+                        price: product.price,
                     };
                 }
                 else {
@@ -53,7 +53,7 @@ const getMostSoldData = async (req, res) => {
                 return {
                     ...product,
                     name: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.name,
-                    stock: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.stock
+                    stock: originalProduct === null || originalProduct === void 0 ? void 0 : originalProduct.stock,
                 };
             }));
             for (let i = 0; i < transformedData.length; i++) {
@@ -69,12 +69,12 @@ const getMostSoldData = async (req, res) => {
             priceComparison = {
                 product1: {
                     name: transformedData[0].name,
-                    totalSale: transformedData[0].price * transformedData[0].quantity
+                    totalSale: transformedData[0].price * transformedData[0].quantity,
                 },
                 product2: {
                     name: transformedData[1].name,
-                    totalSale: transformedData[1].price * transformedData[1].quantity
-                }
+                    totalSale: transformedData[1].price * transformedData[1].quantity,
+                },
             };
             if (priceComparison.product1.totalSale < priceComparison.product2.totalSale) {
                 const temp = priceComparison.product1;
@@ -83,19 +83,20 @@ const getMostSoldData = async (req, res) => {
             }
         }
         const products = await productModel_1.default.find({});
-        const transformedProducts = products.map(product => {
+        const transformedProducts = products.map((product) => {
             return {
                 name: product.name,
                 productId: product._id,
-                category: product.category
+                category: product.category,
             };
         });
-        res.status(200).json({ transformedData, transformedProducts, priceComparison });
+        res
+            .status(200)
+            .json({ transformedData, transformedProducts, priceComparison });
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: 'Internal Server Error' });
+        console.log(err);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.getMostSoldData = getMostSoldData;
@@ -104,9 +105,7 @@ const getReviewCount = async (req, res) => {
         const { productId } = req.params;
         const product = await productModel_1.default.findById(productId);
         if ((product === null || product === void 0 ? void 0 : product.reviews.length) === 0) {
-            return res
-                .status(400)
-                .json({ message: 'No Reviews For this product' });
+            return res.status(400).json({ message: "No Reviews For this product" });
         }
         // @ts-ignore
         const reviews = await Promise.all(product === null || product === void 0 ? void 0 : product.reviews.map(async (reviewId) => {
@@ -116,23 +115,23 @@ const getReviewCount = async (req, res) => {
         const frequencyMap = [
             {
                 stars: 5,
-                count: 0
+                count: 0,
             },
             {
                 stars: 4,
-                count: 0
+                count: 0,
             },
             {
                 stars: 3,
-                count: 0
+                count: 0,
             },
             {
                 stars: 2,
-                count: 0
+                count: 0,
             },
             {
                 stars: 1,
-                count: 0
+                count: 0,
             },
         ];
         reviews.map((review) => {
@@ -141,29 +140,25 @@ const getReviewCount = async (req, res) => {
                 item.count++;
         });
         const { name } = product;
-        res
-            .status(200)
-            .json({ frequencyMap, name });
+        res.status(200).json({ frequencyMap, name });
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.getReviewCount = getReviewCount;
 const getSalesData = async (req, res) => {
     try {
         const { productId } = req.params;
-        const orders = await orderModel_1.default.find({ 'items.productId': productId });
-        let salesData = orders.flatMap(order => {
+        const orders = await orderModel_1.default.find({ "items.productId": productId });
+        let salesData = orders.flatMap((order) => {
             return order.items
-                .filter(item => { var _a; return ((_a = item.productId) === null || _a === void 0 ? void 0 : _a.toString()) === productId; })
-                .map(item => ({
+                .filter((item) => { var _a; return ((_a = item.productId) === null || _a === void 0 ? void 0 : _a.toString()) === productId; })
+                .map((item) => ({
                 // @ts-ignore
                 ...item.toObject(),
                 // @ts-ignore
-                date: order.createdAt.toLocaleDateString()
+                date: order.createdAt.toLocaleDateString(),
             }));
         });
         salesData = salesData.reduce((result, item) => {
@@ -182,20 +177,16 @@ const getSalesData = async (req, res) => {
         const totalQuantity = salesData.reduce((acc, current) => {
             return acc + current.quantity;
         }, 0);
-        res
-            .status(200)
-            .json({ salesData, totalSales, totalQuantity });
+        res.status(200).json({ salesData, totalSales, totalQuantity });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.getSalesData = getSalesData;
 const getOrders = async (req, res) => {
     try {
-        const orders = await orderModel_1.default.find({}).sort({ createdAt: 'desc' });
+        const orders = await orderModel_1.default.find({}).sort({ createdAt: "desc" });
         const transformedOrders = await Promise.all(orders.map(async (order) => {
             const user = await userModel_1.default.findById(order.userId);
             const address = await addressModel_1.default.findById(order.addressId);
@@ -206,17 +197,13 @@ const getOrders = async (req, res) => {
                 lName: user === null || user === void 0 ? void 0 : user.lName,
                 username: user === null || user === void 0 ? void 0 : user.username,
                 // @ts-ignore
-                date: order.createdAt.toLocaleDateString()
+                date: order.createdAt.toLocaleDateString(),
             };
         }));
-        res
-            .status(200)
-            .json({ transformedOrders });
+        res.status(200).json({ transformedOrders });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: 'Internal server error' });
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
 exports.getOrders = getOrders;
@@ -227,14 +214,14 @@ const getOrder = async (req, res) => {
         const address = await addressModel_1.default.findById(order === null || order === void 0 ? void 0 : order.addressId);
         const user = await userModel_1.default.findById(order === null || order === void 0 ? void 0 : order.userId);
         if (!order || !address || !user) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(404).json({ error: "Order not found" });
         }
         const orderItems = await Promise.all(order === null || order === void 0 ? void 0 : order.items.map(async (item) => {
             const product = await productModel_1.default.findById(item.productId);
             return {
                 // @ts-ignore
                 ...item.toObject(),
-                name: product === null || product === void 0 ? void 0 : product.name
+                name: product === null || product === void 0 ? void 0 : product.name,
             };
         }));
         const orderObject = {
@@ -245,30 +232,22 @@ const getOrder = async (req, res) => {
             lName: user === null || user === void 0 ? void 0 : user.lName,
             username: user === null || user === void 0 ? void 0 : user.username,
             // @ts-ignore
-            date: order.createdAt.toLocaleDateString()
+            date: order.createdAt.toLocaleDateString(),
         };
-        res
-            .status(200)
-            .json({ orderObject });
+        res.status(200).json({ orderObject });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.getOrder = getOrder;
 const getUsers = async (req, res) => {
     try {
-        const users = await userModel_1.default.find({}, { 'productsPurchased': 0, 'password': 0 });
-        res
-            .status(200)
-            .json({ users });
+        const users = await userModel_1.default.find({}, { productsPurchased: 0, password: 0 });
+        res.status(200).json({ users });
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 exports.getUsers = getUsers;

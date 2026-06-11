@@ -1,18 +1,25 @@
 import { Router } from "express";
-import { addProduct, deleteProduct, getProduct, getProducts } from "../controllers/productControllers";
+import {
+  addProduct,
+  deleteProduct,
+  getProduct,
+  getProducts,
+  getAllProducts,
+} from "../controllers/productControllers";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken";
 import verifyAdmin from "../middleware/verifyAdmin";
 
 const router = Router();
-const storage = multer.memoryStorage()
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/upload', verifyAdmin, upload.single('image'), addProduct)
+router.post("/", verifyAdmin, upload.single("image"), addProduct);
 
-router.get('/getByCat/:category', verifyToken, getProducts)
-router.get('/getProduct/:id', verifyToken, getProduct)
+router.get("/:id", verifyToken, getProduct);
+router.get("/category/:category", verifyToken, getProducts);
+router.get("/all", verifyToken, getAllProducts);
 
-router.delete('/deleteProduct/:productId', verifyAdmin, deleteProduct)
+router.delete("/:productId", verifyAdmin, deleteProduct);
 
-export default router
+export default router;

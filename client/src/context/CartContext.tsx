@@ -51,7 +51,7 @@ function CartProvider({ children }: CartContextProps) {
 
     const getCart = async () => {
         try {
-            const res = await axios.get(`${API_URL}/cart/getCart/${decode?._id}`)
+            const res = await axios.get(`${API_URL}/cart`)
             setCartItems(res.data.transformedCart)
             setSubtotal(res.data.subtotal)
         } catch (err: any) {
@@ -80,7 +80,7 @@ function CartProvider({ children }: CartContextProps) {
 
     const addToCart = async (productId: string) => {
         try {
-            const res = await axios.post(`${API_URL}/cart/add/${decode?._id}/${productId}`)
+            const res = await axios.patch(`${API_URL}/cart/increment/${productId}`)
             
             if (res.data.productExists.quantity == 1) 
             toast({
@@ -104,7 +104,7 @@ function CartProvider({ children }: CartContextProps) {
 
     const decrement = async (productId: string) => {
         try {
-            const res = await axios.post(`${API_URL}/cart/decrement/${decode?._id}/${productId}`, {
+            const res = await axios.patch(`${API_URL}/cart/decrement/${productId}`, {
                 operation: 'decrement'
             })
 
@@ -123,7 +123,7 @@ function CartProvider({ children }: CartContextProps) {
 
     const deleteProduct = async (productId: string) => {
         try {
-            const res = await axios.post(`${API_URL}/cart/delete/${decode?._id}/${productId}`)
+            const res = await axios.delete(`${API_URL}/cart/${productId}`)
             toast({
                 status: 'success',
                 description: res.data.message,

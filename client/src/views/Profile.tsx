@@ -51,7 +51,7 @@ const Profile = () => {
 
     const fetchAddresses = async () => {
         try {
-            const res = await axios.get(`${API_URL}/address/getaddresses/${decode?._id}`) 
+            const res = await axios.get(`${API_URL}/address`) 
             setAddresses(res.data.addresses)   
         } catch (err: any) {
             toast({

@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../App";
-import { useAuth } from "./AuthContext";
 import { useSteps, useToast } from "@chakra-ui/react";
 
 type OrderContextProps = {
@@ -30,7 +29,6 @@ export const useOrder = (): OrderContextType => {return useContext(OrderContext)
 
 function OrderProvider({ children }: OrderContextProps) {
 
-    const { decode } = useAuth();
     const toast = useToast();
     
     const [loading, setLoading] = useState(false)
@@ -79,7 +77,7 @@ function OrderProvider({ children }: OrderContextProps) {
 
           if (error) return;
 
-          const res = await axios.post(`${API_URL}/order/checkout/${decode?._id}`, {
+          const res = await axios.post(`${API_URL}/order/checkout`, {
             address,
             paymentMethod
           })

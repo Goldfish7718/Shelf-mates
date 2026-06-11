@@ -112,7 +112,7 @@ function Product () {
     const fetchProduct = async () => {
         try {
             setLoading(true)
-            const res = await axios.get(`${API_URL}/products/getProduct/${id}`)
+            const res = await axios.get(`${API_URL}/product/${id}`)
             setProduct(res.data.transformedProduct)
             setIsPurchased(res.data.isPurchased)
         } catch (err: any) {

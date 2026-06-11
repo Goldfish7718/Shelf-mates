@@ -17,26 +17,22 @@ const addReview = async (req, res) => {
         if (!productPurchased)
             return res
                 .status(403)
-                .json({ message: 'Product is not purchased' });
+                .json({ message: "You have purchased this product" });
         const userReview = await reviewModel_1.default.create({
             productId,
             userId,
             stars,
-            review
+            review,
         });
         await productModel_1.default.findByIdAndUpdate(productId, {
             $push: {
-                reviews: userReview._id
-            }
+                reviews: userReview._id,
+            },
         });
-        res
-            .status(200)
-            .json({ message: "Review Posted Successfully" });
+        res.status(200).json({ message: "Review Posted Successfully" });
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: "Internal server Error" });
+        res.status(500).json({ message: "Internal server Error" });
     }
 };
 exports.addReview = addReview;
@@ -45,15 +41,13 @@ const deleteReview = async (req, res) => {
         const { reviewId } = req.params;
         const review = await reviewModel_1.default.findByIdAndDelete(reviewId);
         const { _id } = review;
-        await productModel_1.default.findByIdAndUpdate(review === null || review === void 0 ? void 0 : review.productId, { $pull: { reviews: _id } });
-        res
-            .status(200)
-            .json({ message: "Review Deleted Successfully" });
+        await productModel_1.default.findByIdAndUpdate(review === null || review === void 0 ? void 0 : review.productId, {
+            $pull: { reviews: _id },
+        });
+        res.status(200).json({ message: "Review Deleted Successfully" });
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: "Internal server Error" });
+        res.status(500).json({ message: "Internal server Error" });
     }
 };
 exports.deleteReview = deleteReview;
@@ -74,17 +68,13 @@ const getReviews = async (req, res) => {
                 ...review.toObject(),
                 fName: user === null || user === void 0 ? void 0 : user.fName,
                 lName: user === null || user === void 0 ? void 0 : user.lName,
-                userId: review.userId
+                userId: review.userId,
             };
         }));
-        res
-            .status(200)
-            .json({ transformedReviews, end });
+        res.status(200).json({ transformedReviews, end });
     }
     catch (err) {
-        res
-            .status(200)
-            .json({ message: "Internal Server Error" });
+        res.status(200).json({ message: "Internal Server Error" });
     }
 };
 exports.getReviews = getReviews;

@@ -38,7 +38,7 @@ const ProductTableModal = ({ isOpen, onClose, products, onDelete, operation }: P
     const requestDelete = async (productId: string) => {
         try {
             setLoading(true)
-            const res = await axios.delete(`${API_URL}/products/deleteProduct/${productId}`)
+            const res = await axios.delete(`${API_URL}/product/${productId}`)
             
             toast({
                 title: res.data.message,

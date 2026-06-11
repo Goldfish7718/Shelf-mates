@@ -8,22 +8,19 @@ const verifyToken = async (req, res, next) => {
     try {
         const { token } = req.cookies;
         if (!token)
-            return res
-                .status(401)
-                .json({
-                message: "No Token",
-                isAuthenticated: false
+            return res.status(401).json({
+                message: "User not authentiated",
+                isAuthenticated: false,
             });
         const decode = jsonwebtoken_1.default.verify(token, `${process.env.JWT_SECRET}`);
         req.decode = decode;
         next();
     }
     catch (err) {
-        return res
-            .status(500)
-            .json({
+        console.log(err);
+        return res.status(500).json({
             message: "Internal Server Error",
-            isAuthenticated: false
+            isAuthenticated: false,
         });
     }
 };

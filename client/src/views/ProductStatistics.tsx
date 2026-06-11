@@ -77,7 +77,7 @@ const ProductStatistics = () => {
 
     const fetchProduct = async () => {
         try {
-            const res = await axios.get(`${API_URL}/products/getProduct/${productId}`)
+            const res = await axios.get(`${API_URL}/product/${productId}`)
             setProduct(res.data.transformedProduct)
         } catch (err: any) {
             toast({

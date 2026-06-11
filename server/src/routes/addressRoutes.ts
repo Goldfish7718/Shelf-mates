@@ -1,12 +1,17 @@
 import { Router } from "express";
-import { addAddress, deleteAddress, getAddresses, updateAddress } from "../controllers/addressControllers";
+import {
+  addAddress,
+  deleteAddress,
+  getAddresses,
+  updateAddress,
+} from "../controllers/addressControllers";
 import verifyToken from "../middleware/verifyToken";
 
 const router = Router();
 
-router.post('/addaddress/:userId', verifyToken, addAddress);
-router.get('/getaddresses/:userId', verifyToken, getAddresses)
-router.put('/updateaddress', verifyToken, updateAddress)
-router.delete('/deleteaddress/:addressId', verifyToken, deleteAddress)
+router.post("/", verifyToken, addAddress);
+router.get("/", verifyToken, getAddresses);
+router.put("/", verifyToken, updateAddress);
+router.delete("/:addressId", verifyToken, deleteAddress);
 
 export default router;

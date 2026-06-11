@@ -5,7 +5,6 @@ import { MdPayment } from "react-icons/md";
 import { FaTruckFast } from "react-icons/fa6";
 import AddressBox, { AddressBoxProps } from "../components/AddressBox";
 import { useOrder } from "../context/OrderContext";
-import { useAuth } from "../context/AuthContext";
 import { API_URL } from "../App";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -30,7 +29,6 @@ const Checkout = () => {
 
     const { address, setPaymentMethod, paymentMethod, requestCheckout, loading, activeStep, setActiveStep, steps } = useOrder()
     const { cartItems,subtotal } = useCart()
-    const { decode } = useAuth()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const navigate = useNavigate()
     const toast = useToast()
@@ -54,7 +52,7 @@ const Checkout = () => {
 
     const fetchAddresses = async () => {
         try {
-            const res = await axios.get(`${API_URL}/address/getaddresses/${decode?._id}`) 
+            const res = await axios.get(`${API_URL}/address`) 
             setAddresses(res.data.addresses)   
         } catch (err: any) {
             toast({
