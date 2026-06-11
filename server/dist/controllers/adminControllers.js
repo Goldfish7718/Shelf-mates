@@ -104,13 +104,15 @@ const getReviewCount = async (req, res) => {
     try {
         const { productId } = req.params;
         const product = await productModel_1.default.findById(productId);
-        if ((product === null || product === void 0 ? void 0 : product.reviews.length) === 0) {
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        if (product.reviews.length === 0) {
             return res.status(400).json({ message: "No Reviews For this product" });
         }
-        // @ts-ignore
-        const reviews = await Promise.all(product === null || product === void 0 ? void 0 : product.reviews.map(async (reviewId) => {
-            const review = await reviewModel_1.default.findById(reviewId);
-            return review;
+        const reviews = await Promise.all(product.reviews.map(async (review) => {
+            const reviewData = await reviewModel_1.default.findById(review);
+            return reviewData;
         }));
         const frequencyMap = [
             {
@@ -134,10 +136,12 @@ const getReviewCount = async (req, res) => {
                 count: 0,
             },
         ];
-        reviews.map((review) => {
-            const item = frequencyMap.find((item) => item.stars === review.stars);
-            if (item)
-                item.count++;
+        reviews.forEach((review) => {
+            if (review) {
+                const item = frequencyMap.find((item) => item.stars === review.stars);
+                if (item)
+                    item.count++;
+            }
         });
         const { name } = product;
         res.status(200).json({ frequencyMap, name });
