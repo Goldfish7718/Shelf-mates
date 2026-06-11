@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = exports.deleteUser = exports.changePassword = exports.updateUser = exports.login = exports.signup = void 0;
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const generateToken_1 = __importDefault(require("../middleware/generateToken"));
 const cartModel_1 = __importDefault(require("../models/cartModel"));
@@ -21,7 +21,7 @@ const signup = async (req, res) => {
         if (potentialUser) {
             return res.status(400).json({ message: "User Already Exists" });
         }
-        const hashedPassword = await bcryptjs_1.default.hash(password, 10);
+        const hashedPassword = await bcrypt_1.default.hash(password, 10);
         const user = await userModel_1.default.create({
             username,
             password: hashedPassword,
@@ -64,7 +64,7 @@ const login = async (req, res) => {
         const user = await userModel_1.default.findOne({ username });
         if (!user)
             return res.status(400).json({ message: "User Does not exist" });
-        const match = await bcryptjs_1.default.compare(password, user.password);
+        const match = await bcrypt_1.default.compare(password, user.password);
         if (!match)
             return res.status(400).json({ message: "Incorrect Credentials" });
         const { fName, lName, isAdmin, _id } = user;
@@ -146,12 +146,12 @@ const changePassword = async (req, res) => {
             return res.status(400).json({ message: "Please fill all the fields" });
         }
         const potentialUser = await userModel_1.default.findById(userId);
-        const match = await bcryptjs_1.default.compare(securityPassword, potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.password);
+        const match = await bcrypt_1.default.compare(securityPassword, potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.password);
         if (!match)
             return res.status(400).json({
                 message: "The Entered password does not match with your current password",
             });
-        const updatedPassword = await bcryptjs_1.default.hash(newPassword, 10);
+        const updatedPassword = await bcrypt_1.default.hash(newPassword, 10);
         potentialUser.password = updatedPassword;
         await (potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.save());
         res.status(200).json({ message: "Password changed successfully" });
@@ -166,7 +166,7 @@ const deleteUser = async (req, res) => {
         const { userId } = req.params;
         const { securityPassword } = req.body;
         const potentialUser = await userModel_1.default.findById(userId);
-        const match = await bcryptjs_1.default.compare(securityPassword, potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.password);
+        const match = await bcrypt_1.default.compare(securityPassword, potentialUser === null || potentialUser === void 0 ? void 0 : potentialUser.password);
         if (!match)
             return res.status(400).json({
                 message: "The Entered password does not match with your current password",
