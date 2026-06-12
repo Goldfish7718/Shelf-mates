@@ -36,6 +36,9 @@ app.use("/order", orderRoutes_1.default);
 app.use("/address", addressRoutes_1.default);
 app.use("/review", reviewRoutes_1.default);
 app.use("/admin", adminRoutes_1.default);
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
 const connectDB = async (url) => {
     await mongoose_1.default
         .connect(url)

@@ -38,6 +38,10 @@ app.use("/address", addressRoutes);
 app.use("/review", reviewRoutes);
 app.use("/admin", adminRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 const connectDB = async (url: string) => {
   await mongoose
     .connect(url)
