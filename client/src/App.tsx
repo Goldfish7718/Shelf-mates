@@ -18,6 +18,7 @@ import Profile from './views/Profile'
 import AdminRoute from './utils/AdminRoute'
 import Dashboard from './views/Dashboard'
 import ProductStatistics from './views/ProductStatistics'
+import ShelfMatesAI from './views/ShelfMatesAI'
 
 axios.defaults.withCredentials = true
 
@@ -38,6 +39,7 @@ function App() {
               <Route path='/success' element={<ProtectedRoute element={<Success />} />} />
               <Route path='/checkout' element={<ProtectedRoute element={<Checkout />} />} />
               <Route path='/profile' element={<ProtectedRoute element={<Profile />} />} />
+              <Route path='/shelf-mates-ai' element={<ProtectedRoute element={<ShelfMatesAI />} />} />
               <Route path='/admin/dashboard' element={<AdminRoute element={<Dashboard />} />} />
               <Route path='/statistics/:productId' element={<AdminRoute element={<ProductStatistics />} />} />
             </Routes>

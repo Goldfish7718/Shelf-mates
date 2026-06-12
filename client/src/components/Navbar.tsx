@@ -15,7 +15,7 @@ import {
     Link,
     Icon
 } from "@chakra-ui/react"
-import { BsBoxArrowRight, BsCart2, BsDiscord } from 'react-icons/bs'
+import { BsBoxArrowRight, BsCart2, BsDiscord, BsRobot } from 'react-icons/bs'
 import { FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { AiOutlineHome, AiOutlineUser } from 'react-icons/ai'
@@ -66,12 +66,14 @@ function Navbar () {
                     <>
                         <MenuGroup title="Navigation">
                             <MenuItem as={Link} href="/">Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                            <MenuItem as={Link} href="/shelf-mates-ai">AI Assistant <BsRobot size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                             <MenuItem as={Link} href="/about">About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                             <MenuItem as={Link} href="/contact">Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         </MenuGroup>
                         <MenuDivider borderColor="gray.400" />
                     </> : <>
                         <MenuItem as={Link} href="/">Home <AiOutlineHome size={18} style={{ marginLeft: "8px" }} /></MenuItem>
+                        <MenuItem as={Link} href="/shelf-mates-ai">AI Assistant <BsRobot size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         <MenuItem as={Link} href="/about">About <AiOutlineInfoCircle size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         <MenuItem as={Link} href="/contact">Contact <AiOutlineMail size={18} style={{ marginLeft: "8px" }} /></MenuItem>
                         <MenuDivider borderColor="gray.400" />
