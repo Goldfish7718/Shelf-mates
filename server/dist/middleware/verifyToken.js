@@ -17,7 +17,13 @@ const verifyToken = async (req, res, next) => {
         next();
     }
     catch (err) {
-        console.log(err);
+        if (err instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            return res.status(401).json({
+                message: err.message,
+                isAuthenticated: false,
+            });
+        }
+        console.error(err);
         return res.status(500).json({
             message: "Internal Server Error",
             isAuthenticated: false,

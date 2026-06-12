@@ -24,9 +24,17 @@ const verifyAdmin = async (req, res, next) => {
         next();
     }
     catch (err) {
+        if (err instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            return res
+                .status(401)
+                .json({
+                message: err.message,
+                isAuthenticated: false
+            });
+        }
         return res
             .status(500)
-            .json({ message: "Sorry an error occured" });
+            .json({ message: "Internal server error" });
     }
 };
 exports.default = verifyAdmin;

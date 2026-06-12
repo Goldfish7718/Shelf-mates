@@ -25,9 +25,17 @@ const verifyAdmin = async (req: ExtendedRequest, res: Response, next: any) => {
         req.decode = decode as ExtendedRequest['decode']
         next()
     } catch (err) {
+        if (err instanceof jwt.JsonWebTokenError) {
+            return res
+                .status(401)
+                .json({
+                    message: err.message,
+                    isAuthenticated: false
+                })
+        }
         return res
             .status(500)
-            .json({ message: "Sorry an error occured" })
+            .json({ message: "Internal server error" })
     }
 }
 

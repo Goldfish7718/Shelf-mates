@@ -27,7 +27,13 @@ const verifyToken = async (req: ExtendedRequest, res: Response, next: any) => {
     req.decode = decode as ExtendedRequest["decode"];
     next();
   } catch (err) {
-    console.log(err);
+    if (err instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: err.message,
+        isAuthenticated: false,
+      });
+    }
+    console.error(err);
     return res.status(500).json({
       message: "Internal Server Error",
       isAuthenticated: false,
