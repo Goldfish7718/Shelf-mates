@@ -83,6 +83,8 @@ export default function ShelfMatesAI() {
 
     try {
       const token = getCookie("token");
+      console.log("COOKIE EXTRACTED: ", token);
+      
 
       const response = await fetch(`${AGENT_API_URL}/chat/stream`, {
         method: "POST",

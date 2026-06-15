@@ -43,7 +43,7 @@ const signup = async (req, res) => {
         res
             .status(200)
             .cookie("token", token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: true,
             sameSite: "none",
         })
@@ -81,7 +81,7 @@ const login = async (req, res) => {
             .cookie("token", token, {
             sameSite: "none",
             secure: true,
-            httpOnly: true,
+            httpOnly: false,
         })
             .json({ message: "Succesfully logged in", fName });
     }
@@ -129,7 +129,7 @@ const updateUser = async (req, res) => {
             .cookie("token", token, {
             sameSite: "none",
             secure: true,
-            httpOnly: true,
+            httpOnly: false,
         })
             .json({ message: "Saved Changes", updatedUser });
     }
