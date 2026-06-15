@@ -14,14 +14,14 @@ export interface ExtendedRequest extends Request {
 
 const verifyToken = async (req: ExtendedRequest, res: Response, next: any) => {
   try {
-    const token = req.cookies.token || req.headers["x-auth-header"]
+    const token = req.cookies.token || req.headers["x-auth-header"] || req.body.token
 
-    console.log(req.headers);
-        
     if (req.cookies.token) {
         console.log("Token extracted from cookies");
     } else if (req.headers["x-auth-header"]) {
         console.log("Token extracted from header");
+    } else if (req.body.token){
+        console.log("Token extracted from body")
     } else {
         console.log("No token found");
     } 
