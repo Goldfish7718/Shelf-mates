@@ -6,7 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyToken = async (req, res, next) => {
     try {
-        const { token } = req.cookies;
+        const token = req.cookies.token || req.headers["x-auth-header"];
+        console.log(req.headers);
+        if (req.cookies.token) {
+            console.log("Token extracted from cookies");
+        }
+        else if (req.headers["x-auth-header"]) {
+            console.log("Token extracted from header");
+        }
+        else {
+            console.log("No token found");
+        }
         if (!token)
             return res.status(401).json({
                 message: "User not authentiated",

@@ -4,7 +4,17 @@ import jwt from 'jsonwebtoken';
 
 const verifyAdmin = async (req: ExtendedRequest, res: Response, next: any) => {
     try {
-        const { token } = req.cookies
+        const token = req.cookies.token || req.headers["X-Auth-Header"]
+
+        console.log(req.headers);
+        
+        if (req.cookies.token) {
+            console.log("Token extracted from cookies");
+        } else if (req.headers["X-Auth-Header"]) {
+            console.log("Token extracted from header");
+        } else {
+            console.log("No token found");
+        }        
 
         if (!token)
             return res

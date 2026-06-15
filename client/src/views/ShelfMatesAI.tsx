@@ -22,6 +22,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const MotionBox = motion(Box);
 
+const getCookie = (name: string): string | null => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+};
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -30,10 +37,10 @@ interface Message {
 const AGENT_API_URL = import.meta.env.VITE_AGENT_API_URL || "http://localhost:8000";
 
 const QUICK_PROMPTS = [
-  { label: "Show my cart 🛒", text: "Show my cart" },
-  { label: "What addresses do I have? 🏠", text: "What addresses do I have?" },
-  { label: "Clear/View my cart items 🍎", text: "What is currently in my cart?" },
-  { label: "Find fresh products 🥦", text: "Show products from the fresh food category" },
+  { label: "Add 1 pineapple to my cart", text: "Add 1 pineapple to my cart" },
+  { label: "What addresses do I have?", text: "What addresses do I have?" },
+  { label: "View my cart items", text: "What is currently in my cart?" },
+  { label: "Tell me more about red chilli powder", text: "Tell me more about red chilli powder" },
 ];
 
 export default function ShelfMatesAI() {
@@ -75,6 +82,8 @@ export default function ShelfMatesAI() {
     setIsStreaming(true);
 
     try {
+      const token = getCookie("token");
+
       const response = await fetch(`${AGENT_API_URL}/chat/stream`, {
         method: "POST",
         headers: {
@@ -83,6 +92,7 @@ export default function ShelfMatesAI() {
         body: JSON.stringify({
           message: userMessage,
           history: history.length > 0 ? history : null,
+          token: token,
         }),
         credentials: "include", // Essential to send the 'token' cookie
       });
