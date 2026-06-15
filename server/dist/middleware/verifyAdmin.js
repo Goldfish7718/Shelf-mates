@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyAdmin = async (req, res, next) => {
     try {
+        console.log("COOKIE TOKEN: ", req.cookies.token);
+        console.log("HEADER TOKEN: ", req.headers["x-auth-header"]);
+        console.log("BODY TOKEN: ", req.body.token);
         const token = req.cookies.token || req.headers["X-Auth-Header"];
         if (req.cookies.token) {
             console.log("Token extracted from cookies");

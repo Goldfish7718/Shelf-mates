@@ -14,6 +14,10 @@ export interface ExtendedRequest extends Request {
 
 const verifyToken = async (req: ExtendedRequest, res: Response, next: any) => {
   try {
+    console.log("COOKIE TOKEN: ", req.cookies.token);
+    console.log("HEADER TOKEN: ", req.headers["x-auth-header"]);
+    console.log("BODY TOKEN: ", req.body.token);
+    
     const token = req.cookies.token || req.headers["x-auth-header"] || req.body.token
 
     if (req.cookies.token) {
