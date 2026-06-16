@@ -6,16 +6,13 @@ const verifyAdmin = async (req: ExtendedRequest, res: Response, next: any) => {
     try {
         console.log("COOKIE TOKEN: ", req.cookies.token);
         console.log("HEADER TOKEN: ", req.headers["x-auth-header"]);
-        console.log("BODY TOKEN: ", req.body.token);
         
-        const token = req.cookies.token || req.headers["X-Auth-Header"]
+        const token = req.cookies.token || req.headers["x-auth-header"]
 
         if (req.cookies.token) {
         console.log("Token extracted from cookies");
         } else if (req.headers["x-auth-header"]) {
             console.log("Token extracted from header");
-        } else if (req.body.token){
-            console.log("Token extracted from body")
         } else {
             console.log("No token found");
         }    

@@ -34,7 +34,7 @@ interface Message {
   content: string;
 }
 
-const AGENT_API_URL = import.meta.env.VITE_AGENT_API_URL || "http://localhost:8000";
+const AGENT_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const QUICK_PROMPTS = [
   { label: "Add 1 pineapple to my cart", text: "Add 1 pineapple to my cart" },
