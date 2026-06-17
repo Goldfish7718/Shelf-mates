@@ -30,7 +30,6 @@ app.use(
   createProxyMiddleware({
     target: AGENT_API_URL,
     changeOrigin: true,
-    ws: true,
   })
 );
 

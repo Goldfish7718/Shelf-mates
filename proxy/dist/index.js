@@ -26,7 +26,6 @@ app.use((0, cookie_parser_1.default)());
 app.use("/chat", (0, http_proxy_middleware_1.createProxyMiddleware)({
     target: AGENT_API_URL,
     changeOrigin: true,
-    ws: true,
 }));
 app.use(["/auth", "/product", "/cart", "/order", "/address", "/review", "/admin"], (0, http_proxy_middleware_1.createProxyMiddleware)({
     target: MAIN_API_URL,
