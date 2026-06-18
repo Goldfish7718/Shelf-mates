@@ -112,11 +112,9 @@ const confirmOrder = async (req, res) => {
         orderObject.items = await Promise.all(orderObject.items.map(async (item) => {
             const product = await productModel_1.default.findById(item.productId);
             const productObj = product.toObject();
-            const imageBase64 = productObj.image.data.toString("base64");
             const { quantity } = item;
             return {
                 ...productObj,
-                image: `data:${productObj.image.contentType};base64,${imageBase64}`,
                 quantity,
             };
         }));

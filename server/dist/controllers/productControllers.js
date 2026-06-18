@@ -9,27 +9,40 @@ const userModel_1 = __importDefault(require("../models/userModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
 const cartModel_1 = __importDefault(require("../models/cartModel"));
 const orderModel_1 = __importDefault(require("../models/orderModel"));
+const cloudinary_1 = require("cloudinary");
+const stream_1 = require("stream");
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const addProduct = async (req, res) => {
     try {
         if (!req.file)
             return res.status(400).json({ message: "All Fields are required" });
         const { name, description, price, stock, category } = req.body;
-        const { buffer, mimetype } = req.file;
+        const { buffer } = req.file;
+        const imageUrl = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary_1.v2.uploader.upload_stream({ folder: "shelf-mates" }, (error, result) => {
+                if (error)
+                    return reject(error);
+                resolve(result.secure_url);
+            });
+            stream_1.Readable.from(buffer).pipe(uploadStream);
+        });
         const newProduct = new productModel_1.default({
             name,
             description,
             price,
             stock,
             category,
-            image: {
-                data: buffer,
-                contentType: mimetype,
-            },
+            image: imageUrl,
         });
         await newProduct.save();
         res.status(200).json({ message: "Product Added Succesfully" });
     }
     catch (error) {
+        console.error("Add product error:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
@@ -38,18 +51,7 @@ const getProducts = async (req, res) => {
     try {
         const { category } = req.params;
         const products = await productModel_1.default.find({ category });
-        let transformedProducts = products.map((product) => {
-            const productObj = product.toObject();
-            if (!productObj.image || !productObj.image.data) {
-                return res.status(500).json({ message: "Internal Server Error" });
-            }
-            const imageBase64 = productObj.image.data.toString("base64");
-            return {
-                ...productObj,
-                image: `data:${productObj.image.contentType};base64,${imageBase64}`,
-            };
-        });
-        res.status(200).json({ transformedProducts });
+        res.status(200).json({ transformedProducts: products });
     }
     catch (err) {
         res.status(500).json({ message: "Internal Server Error" });
@@ -65,9 +67,6 @@ const getProduct = async (req, res) => {
         if (!product)
             return res.status(404).json({ message: "This page does not exist" });
         const productObj = product.toObject();
-        if (!productObj.image || !productObj.image.data) {
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
         const reviews = await reviewModel_1.default.find({ productId: productObj._id }).limit(6);
         const transformedReviews = await Promise.all(reviews.map(async (review) => {
             const user = await userModel_1.default.findById(review.userId);
@@ -82,10 +81,8 @@ const getProduct = async (req, res) => {
             return acc + currentValue.stars;
         }, 0);
         const averageStars = Math.min(5, Math.floor((sumStars / reviews.length) * 100) / 100);
-        const imageBase64 = productObj.image.data.toString("base64");
         const transformedProduct = {
             ...productObj,
-            image: `data:${productObj.image.contentType};base64,${imageBase64}`,
             reviews: transformedReviews,
             reviewsLength: productObj.reviews.length,
             averageStars,

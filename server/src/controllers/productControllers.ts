@@ -5,6 +5,14 @@ import User from "../models/userModel";
 import Review from "../models/reviewModel";
 import Cart from "../models/cartModel";
 import Order from "../models/orderModel";
+import { v2 as cloudinary } from "cloudinary";
+import { Readable } from "stream";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const addProduct = async (req: Request, res: Response) => {
   try {
@@ -12,7 +20,18 @@ export const addProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "All Fields are required" });
 
     const { name, description, price, stock, category } = req.body;
-    const { buffer, mimetype } = req.file;
+    const { buffer } = req.file;
+
+    const imageUrl = await new Promise<string>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "shelf-mates" },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result!.secure_url);
+        }
+      );
+      Readable.from(buffer).pipe(uploadStream);
+    });
 
     const newProduct = new Product({
       name,
@@ -20,16 +39,14 @@ export const addProduct = async (req: Request, res: Response) => {
       price,
       stock,
       category,
-      image: {
-        data: buffer,
-        contentType: mimetype,
-      },
+      image: imageUrl,
     });
 
     await newProduct.save();
 
     res.status(200).json({ message: "Product Added Succesfully" });
   } catch (error: any) {
+    console.error("Add product error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -40,21 +57,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
     const products = await Product.find({ category });
 
-    let transformedProducts = products.map((product) => {
-      const productObj = product.toObject();
-
-      if (!productObj.image || !productObj.image.data) {
-        return res.status(500).json({ message: "Internal Server Error" });
-      }
-
-      const imageBase64 = productObj.image.data.toString("base64");
-      return {
-        ...productObj,
-        image: `data:${productObj.image.contentType};base64,${imageBase64}`,
-      };
-    });
-
-    res.status(200).json({ transformedProducts });
+    res.status(200).json({ transformedProducts: products });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -72,10 +75,6 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
       return res.status(404).json({ message: "This page does not exist" });
 
     const productObj = product.toObject();
-
-    if (!productObj.image || !productObj.image.data) {
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
 
     const reviews = await Review.find({ productId: productObj._id }).limit(6);
 
@@ -101,10 +100,8 @@ export const getProduct = async (req: ExtendedRequest, res: Response) => {
       Math.floor((sumStars / reviews.length) * 100) / 100,
     );
 
-    const imageBase64 = productObj.image.data.toString("base64");
     const transformedProduct = {
       ...productObj,
-      image: `data:${productObj.image.contentType};base64,${imageBase64}`,
       reviews: transformedReviews,
       reviewsLength: productObj.reviews.length,
       averageStars,

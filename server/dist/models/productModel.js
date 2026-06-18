@@ -21,8 +21,8 @@ const productSchema = new mongoose_1.default.Schema({
         max: 5
     },
     image: {
-        data: Buffer,
-        contentType: String
+        type: String,
+        required: true
     },
     reviews: [
         {

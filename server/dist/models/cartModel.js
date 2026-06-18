@@ -34,10 +34,7 @@ const cartSchema = new mongoose_1.default.Schema({
             quantity: Number,
             price: Number,
             name: String,
-            image: {
-                data: Buffer,
-                contentType: String
-            }
+            image: String
         }
     ],
     userId: {

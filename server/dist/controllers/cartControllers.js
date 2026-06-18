@@ -22,15 +22,7 @@ const getCart = async (req, res) => {
             return res.status(400).json({ message: "This Cart does not exist" });
         const { cartItems } = potentialCart;
         const { subtotal } = potentialCart;
-        const transformedCart = cartItems.map((item) => {
-            const plainItem = item.toObject();
-            const imageBase64 = plainItem.image.data.toString("base64");
-            return {
-                ...plainItem,
-                image: `data:${plainItem.image.contentType};base64,${imageBase64}`,
-            };
-        });
-        res.status(200).json({ transformedCart, subtotal });
+        res.status(200).json({ transformedCart: cartItems, subtotal });
     }
     catch (err) {
         res.status(500).json({ message: "Internal Server Error" });

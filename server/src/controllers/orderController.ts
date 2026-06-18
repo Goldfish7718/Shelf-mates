@@ -137,13 +137,10 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
       orderObject.items.map(async (item: any) => {
         const product = await Product.findById(item.productId);
         const productObj = product!.toObject();
-
-        const imageBase64 = productObj.image.data.toString("base64");
         const { quantity } = item;
 
         return {
           ...productObj,
-          image: `data:${productObj.image.contentType};base64,${imageBase64}`,
           quantity,
         };
       }),

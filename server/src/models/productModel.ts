@@ -12,10 +12,7 @@ export interface ProductDocument extends Document {
     stock: number;
     category: string;
     stars: number;
-    image: {
-        data: Buffer;
-        contentType: string;
-    };
+    image: string;
     reviews: Review[];
 }
 
@@ -37,8 +34,8 @@ const productSchema = new mongoose.Schema<ProductDocument>({
         max: 5
     },
     image: {
-        data: Buffer,
-        contentType: String
+        type: String,
+        required: true
     },
     reviews: [
         { 
