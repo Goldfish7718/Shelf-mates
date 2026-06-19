@@ -19,6 +19,7 @@ import { BsRobot, BsPersonFill } from "react-icons/bs";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 const MotionBox = motion(Box);
 
@@ -32,6 +33,7 @@ const getCookie = (name: string): string | null => {
 interface Message {
   role: "user" | "assistant";
   content: string;
+  steps?: string[];
 }
 
 const AGENT_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -54,6 +56,7 @@ export default function ShelfMatesAI() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [currentStep, setCurrentStep] = useState<string>("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
@@ -71,12 +74,13 @@ export default function ShelfMatesAI() {
 
     const userMessage = textToSend.trim();
     setInput("");
+    setCurrentStep("");
     
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     
     setMessages((prev) => [
       ...prev,
-      { role: "assistant", content: "" },
+      { role: "assistant", content: "", steps: [] },
     ]);
     
     setIsStreaming(true);
@@ -132,30 +136,50 @@ export default function ShelfMatesAI() {
           try {
             const event = JSON.parse(dataStr);
 
-            setMessages((prev) => {
-              const updated = [...prev];
-              const activeMsg = { ...updated[updated.length - 1] };
-
-              if (event.type === "content") {
-                activeMsg.content += event.delta;
-              } else if (event.type === "error") {
-                toast({
-                  title: "Agent Error",
-                  description: event.content,
-                  status: "error",
-                  duration: 5000,
-                  isClosable: true,
-                });
-              } else if (event.type === "done") {
-                if (event.history) {
-                  setHistory(event.history);
+            if (event.type === "tool_execute_start") {
+              const stepMsg = event.step || "Thinking...";
+              setCurrentStep(stepMsg);
+              setMessages((prev) => {
+                const updated = [...prev];
+                const activeMsg = { ...updated[updated.length - 1] };
+                const currentSteps = activeMsg.steps ? [...activeMsg.steps] : [];
+                if (!currentSteps.includes(stepMsg)) {
+                  activeMsg.steps = [...currentSteps, stepMsg];
                 }
-                activeMsg.content = event.response;
+                updated[updated.length - 1] = activeMsg;
+                return updated;
+              });
+            } else if (event.type === "tool_execute_end") {
+              setCurrentStep("");
+            } else {
+              if (event.type === "content" || event.type === "error" || event.type === "done") {
+                setCurrentStep("");
               }
+              setMessages((prev) => {
+                const updated = [...prev];
+                const activeMsg = { ...updated[updated.length - 1] };
 
-              updated[updated.length - 1] = activeMsg;
-              return updated;
-            });
+                if (event.type === "content") {
+                  activeMsg.content += event.delta;
+                } else if (event.type === "error") {
+                  toast({
+                    title: "Agent Error",
+                    description: event.content,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                } else if (event.type === "done") {
+                  if (event.history) {
+                    setHistory(event.history);
+                  }
+                  activeMsg.content = event.response;
+                }
+
+                updated[updated.length - 1] = activeMsg;
+                return updated;
+              });
+            }
           } catch (e) {
             console.error("SSE parse error", e);
           }
@@ -187,6 +211,7 @@ export default function ShelfMatesAI() {
       });
     } finally {
       setIsStreaming(false);
+      setCurrentStep("");
     }
   };
 
@@ -248,16 +273,64 @@ export default function ShelfMatesAI() {
                         whiteSpace="pre-wrap"
                         fontSize="sm"
                       >
-                        {msg.content ? (
-                          msg.content
+                        {/* Render tool loading phrases/steps at the top of the message bubble */}
+                        {msg.role === "assistant" && msg.steps && msg.steps.length > 0 && (
+                          <VStack align="start" spacing={1.5} mb={msg.content ? 3 : 0} borderBottom={msg.content ? "1px" : "none"} borderColor="gray.200" pb={msg.content ? 2 : 0} w="100%">
+                            {msg.steps.map((step, sIdx) => {
+                              const isActive = isStreaming && idx === messages.length - 1 && sIdx === msg.steps!.length - 1 && currentStep;
+                              return (
+                                <HStack key={sIdx} spacing={2} align="center">
+                                  {isActive ? (
+                                    <Spinner size="xs" color="teal.500" />
+                                  ) : (
+                                    <Text color="green.500" fontSize="xs" fontWeight="bold">✓</Text>
+                                  )}
+                                  <Text fontSize="xs" color={isActive ? "teal.600" : "gray.500"} fontStyle={isActive ? "normal" : "italic"} fontWeight={isActive ? "medium" : "normal"}>
+                                    {step}
+                                  </Text>
+                                </HStack>
+                              );
+                            })}
+                          </VStack>
+                        )}
+
+                        {msg.role === "assistant" ? (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <Text mb={1} _last={{ mb: 0 }} fontSize="sm" lineHeight="tall">{children}</Text>,
+                              ul: ({ children }) => <Box as="ul" pl={3} mb={1}>{children}</Box>,
+                              ol: ({ children }) => <Box as="ol" pl={3} mb={1}>{children}</Box>,
+                              li: ({ children }) => <Box as="li" mb={0.5} fontSize="sm">{children}</Box>,
+                              strong: ({ children }) => <Text as="strong" fontWeight="bold" color="teal.700">{children}</Text>,
+                              a: ({ href, children }) => <Button as="a" href={href} variant="link" colorScheme="orange" target="_blank" size="sm">{children}</Button>,
+                              table: ({ children }) => (
+                                <Box overflowX="auto" my={1.5} border="1px" borderColor="gray.200" borderRadius="lg">
+                                  <Box as="table" w="100%" style={{ borderCollapse: "collapse" }}>{children}</Box>
+                                </Box>
+                              ),
+                              thead: ({ children }) => <Box as="thead" bg="gray.50" borderBottom="1px" borderColor="gray.200">{children}</Box>,
+                              tbody: ({ children }) => <Box as="tbody">{children}</Box>,
+                              tr: ({ children }) => <Box as="tr" borderBottom="1px" borderColor="gray.100" _last={{ borderBottom: "none" }}>{children}</Box>,
+                              th: ({ children }) => <Box as="th" py={1} px={2} textAlign="left" fontSize="xs" fontWeight="bold" color="gray.600">{children}</Box>,
+                              td: ({ children }) => <Box as="td" py={1} px={2} fontSize="xs" color="gray.700">{children}</Box>,
+                              code: ({ children }) => <Box as="code" bg="gray.100" px={1.5} py={0.5} borderRadius="md" fontSize="xs" fontFamily="mono" color="red.500">{children}</Box>,
+                              pre: ({ children }) => <Box as="pre" bg="gray.100" p={2} my={1.5} borderRadius="lg" overflowX="auto" fontSize="xs" fontFamily="mono">{children}</Box>
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
                         ) : (
-                          isStreaming &&
-                          idx === messages.length - 1 && (
+                          msg.content
+                        )}
+                        
+                        {/* Show initial connection spinner if content and steps are both empty */}
+                        {isStreaming && idx === messages.length - 1 && !msg.content && (!msg.steps || msg.steps.length === 0) && (
+                          <Box>
                             <HStack spacing={2} py={1}>
                               <Spinner size="xs" color="teal.500" />
                               <Text fontSize="xs" color="gray.500">Connecting to agent...</Text>
                             </HStack>
-                          )
+                          </Box>
                         )}
                       </Box>
                     </VStack>
