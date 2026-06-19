@@ -29,7 +29,8 @@
     "react-icons": "^4.11.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.16.0",
-    "recharts": "^2.10.4"
+    "recharts": "^2.10.4",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

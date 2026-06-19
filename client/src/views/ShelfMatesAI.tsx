@@ -20,6 +20,7 @@ import Navbar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const MotionBox = motion(Box);
 
@@ -296,6 +297,7 @@ export default function ShelfMatesAI() {
 
                         {msg.role === "assistant" ? (
                           <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
                             components={{
                               p: ({ children }) => <Text mb={1} _last={{ mb: 0 }} fontSize="sm" lineHeight="tall">{children}</Text>,
                               ul: ({ children }) => <Box as="ul" pl={3} mb={1}>{children}</Box>,
@@ -304,15 +306,15 @@ export default function ShelfMatesAI() {
                               strong: ({ children }) => <Text as="strong" fontWeight="bold" color="teal.700">{children}</Text>,
                               a: ({ href, children }) => <Button as="a" href={href} variant="link" colorScheme="orange" target="_blank" size="sm">{children}</Button>,
                               table: ({ children }) => (
-                                <Box overflowX="auto" my={1.5} border="1px" borderColor="gray.200" borderRadius="lg">
+                                <Box overflowX="auto" my={3} border="1px solid" borderColor="gray.200" borderRadius="lg" boxShadow="sm">
                                   <Box as="table" w="100%" style={{ borderCollapse: "collapse" }}>{children}</Box>
                                 </Box>
                               ),
-                              thead: ({ children }) => <Box as="thead" bg="gray.50" borderBottom="1px" borderColor="gray.200">{children}</Box>,
+                              thead: ({ children }) => <Box as="thead" bg="teal.50" borderBottom="2px solid" borderColor="teal.200">{children}</Box>,
                               tbody: ({ children }) => <Box as="tbody">{children}</Box>,
-                              tr: ({ children }) => <Box as="tr" borderBottom="1px" borderColor="gray.100" _last={{ borderBottom: "none" }}>{children}</Box>,
-                              th: ({ children }) => <Box as="th" py={1} px={2} textAlign="left" fontSize="xs" fontWeight="bold" color="gray.600">{children}</Box>,
-                              td: ({ children }) => <Box as="td" py={1} px={2} fontSize="xs" color="gray.700">{children}</Box>,
+                              tr: ({ children }) => <Box as="tr" borderBottom="1px solid" borderColor="gray.100" _hover={{ bg: "gray.50" }} _last={{ borderBottom: "none" }}>{children}</Box>,
+                              th: ({ children }) => <Box as="th" py={2} px={4} textAlign="left" fontSize="xs" fontWeight="bold" color="teal.800" textTransform="uppercase" letterSpacing="wider">{children}</Box>,
+                              td: ({ children }) => <Box as="td" py={2} px={4} fontSize="sm" color="gray.700">{children}</Box>,
                               code: ({ children }) => <Box as="code" bg="gray.100" px={1.5} py={0.5} borderRadius="md" fontSize="xs" fontFamily="mono" color="red.500">{children}</Box>,
                               pre: ({ children }) => <Box as="pre" bg="gray.100" p={2} my={1.5} borderRadius="lg" overflowX="auto" fontSize="xs" fontFamily="mono">{children}</Box>
                             }}
