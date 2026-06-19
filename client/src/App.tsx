@@ -51,4 +51,7 @@ function App() {
 }
 
 export const API_URL = import.meta.env.VITE_API_URL
+export const MAIN_SERVER_URL = import.meta.env.VITE_MAIN_SERVER_URL
+export const AGENT_URL = import.meta.env.VITE_AGENT_SERVER_URL
+
 export default App

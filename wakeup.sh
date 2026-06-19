@@ -2,9 +2,9 @@
 
 # Array of URLs to ping
 URLS=(
-  "https://shelf-mates-proxy.onrender.com/health"
   "https://shelf-mates-server.onrender.com/health"
   "https://shelf-mates-agent-api.onrender.com"
+  "https://shelf-mates-proxy.onrender.com/health"
 )
 
 echo "Starting service wake-up (cold restart triggers)..."

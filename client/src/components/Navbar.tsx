@@ -13,7 +13,8 @@ import {
     IconButton,
     useBreakpointValue,
     Link,
-    Icon
+    Icon,
+    useToast
 } from "@chakra-ui/react"
 import { BsBoxArrowRight, BsCart2, BsDiscord, BsRobot } from 'react-icons/bs'
 import { FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6'
@@ -26,16 +27,67 @@ import { AiOutlineUserAdd } from 'react-icons/ai'
 import { useAuth } from "../context/AuthContext"
 import { useCart } from "../context/CartContext"
 import { SettingsIcon } from "@chakra-ui/icons"
+import axios from "axios"
+import { MdOutlinePowerSettingsNew } from "react-icons/md"
+import { MAIN_SERVER_URL, AGENT_URL, API_URL } from "../App"
 
 function Navbar () {
 
     const isBelowMd = useBreakpointValue({ base: true, md: false })
     const { requestLogout, decode } = useAuth()
+    const toast = useToast()
 
     const { btnRef, onOpen  } = useCart()
 
     const handleLogOut = () => {
         requestLogout()
+    }
+
+    const handleStartBackend = () => {
+        const wakeUpServices = async () => {
+            await axios.get(MAIN_SERVER_URL + "/health")
+            toast({
+                title: "Main server awake!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+            
+            await axios.get(AGENT_URL)
+            toast({
+                title: "Agent server awake!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+            
+            await axios.get(API_URL + "/health")
+            toast({
+                title: "Proxy server awake!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+        }
+
+        toast.promise(wakeUpServices(), {
+            loading: {
+                title: "Starting backend...",
+                description: "Waking up servers...",
+            },
+            success: {
+                title: "Success!",
+                description: "All backend services successfully woke up.",
+                duration: 5000,
+                isClosable: true,
+            },
+            error: {
+                title: "Status Check",
+                description: "Wakeup requests sent. Deployed servers may take a minute to fully boot.",
+                duration: 5000,
+                isClosable: true,
+            },
+        })
     }
 
     return (
@@ -51,6 +103,8 @@ function Navbar () {
             <Menu>
                 <MenuButton variant="solid" colorScheme="orange.100" p={{base: 2, md: 4 }} _hover={{ bgColor: "whiteAlpha.300" }} _active={{ bgColor:"orange.400" }} as={IconButton} icon={<GiHamburgerMenu color="white" size={18} />} />
                 <MenuList>
+                    <MenuItem onClick={handleStartBackend} fontWeight="semibold">Start Backend <MdOutlinePowerSettingsNew size={18} style={{ marginLeft: "8px" }}/></MenuItem>
+                    <MenuDivider borderColor="gray.400" />
                     {isBelowMd ?  
                     <>
                         <MenuGroup title="Social">
