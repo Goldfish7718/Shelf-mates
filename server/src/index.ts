@@ -27,6 +27,9 @@ if (process.env.ORIGIN) {
   app.use(cors());
 }
 app.use(cookieParser());
+import { stripeWebhook } from "./controllers/orderController";
+app.post("/order/webhook", express.raw({ type: "application/json" }), stripeWebhook);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

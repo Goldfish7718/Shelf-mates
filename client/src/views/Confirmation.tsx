@@ -17,10 +17,18 @@ function Confirmation () {
     const requestOrderConfirmation = async () => {
         try {
             const res = await axios.post(`${API_URL}/order/confirmorder/${orderId}`)
-            navigate(`/success?orderId=${res.data.encodedOrderDetails}`)
+            
+            if (!res.data.orderObject.confirmed) {
+                // Order is still pending confirmation (webhook hasn't fired yet). Check again in 2 seconds.
+                setTimeout(requestOrderConfirmation, 2000);
+                return;
+            }
+
+            // Once confirmed, navigate to the success page with the order ID
+            navigate(`/success?orderId=${orderId}`)
         } catch (err: any) {
             toast({
-                title: err.response.data.message,
+                title: err.response?.data?.message || "Error confirming order",
                 status: 'error',
                 duration: 3000
             })
@@ -28,8 +36,10 @@ function Confirmation () {
     };
 
     useEffect(() => {
-        requestOrderConfirmation();
-    }, [])
+        if (orderId) {
+            requestOrderConfirmation();
+        }
+    }, [orderId])
 
     return (
         <>

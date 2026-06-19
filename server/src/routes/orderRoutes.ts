@@ -5,6 +5,6 @@ import verifyToken from "../middleware/verifyToken";
 const router = Router();
 
 router.post("/checkout", verifyToken, cartCheckout);
-router.post("/confirmorder/:encode", verifyToken, confirmOrder);
+router.post("/confirmorder/:orderId", verifyToken, confirmOrder);
 
 export default router;

@@ -27,6 +27,8 @@ else {
     app.use((0, cors_1.default)());
 }
 app.use((0, cookie_parser_1.default)());
+const orderController_1 = require("./controllers/orderController");
+app.post("/order/webhook", express_1.default.raw({ type: "application/json" }), orderController_1.stripeWebhook);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/auth", userRoutes_1.default);

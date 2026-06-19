@@ -25,18 +25,81 @@ export const cartCheckout = async (req: ExtendedRequest, res: Response) => {
 
     const potentialCart = await Cart.findOne({ userId });
 
-    if (!potentialCart) {
-      return res.status(403).json({ message: "This User Does Not Exist" });
+    if (!potentialCart || potentialCart.cartItems.length === 0) {
+      return res.status(400).json({ message: "Cart is empty or does not exist" });
+    }
+
+    // 1. Stock Validation
+    for (const item of potentialCart.cartItems) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        return res.status(404).json({ message: `Product not found` });
+      }
+      if (product.stock < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for product: ${product.name}. Only ${product.stock} units available.`,
+        });
+      }
     }
 
     const prices = await Promise.all(
-      potentialCart?.cartItems.map(async (item) => {
+      potentialCart.cartItems.map(async (item) => {
         const product = await Product.findById(item.productId);
         return product?.price;
       }),
     );
 
-    const order = {
+    // 2. COD flow
+    if (paymentMethod === "COD") {
+      const order = await Order.create({
+        items: potentialCart.cartItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          totalPrice: item.price,
+        })),
+        userId,
+        addressId: address,
+        paymentMethod,
+        subtotal: potentialCart.subtotal,
+        confirmed: true,
+      });
+
+      // Decrement stock
+      await Promise.all(
+        order.items.map(async (item) => {
+          await Product.findByIdAndUpdate(item.productId, {
+            $inc: { stock: -item.quantity! },
+          });
+        })
+      );
+
+      // Clear Cart
+      await Cart.findOneAndUpdate(
+        { userId },
+        { $set: { cartItems: [], subtotal: 0 } }
+      );
+
+      // Update User products purchased
+      const user = await User.findById(userId);
+      if (user) {
+        order.items.forEach((item) => {
+          if (item.productId) {
+            const prodIdStr = item.productId.toString();
+            const purchasedStrings = user.productsPurchased.map((id: any) => id.toString());
+            if (!purchasedStrings.includes(prodIdStr)) {
+              user.productsPurchased.push(item.productId as any);
+            }
+          }
+        });
+        await user.save();
+      }
+
+      const url = `${process.env.ORIGIN}/confirmation?orderId=${order._id}`;
+      return res.status(200).json({ url });
+    }
+
+    // 3. Card (Stripe) flow
+    const order = await Order.create({
       items: potentialCart.cartItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -47,18 +110,10 @@ export const cartCheckout = async (req: ExtendedRequest, res: Response) => {
       paymentMethod,
       subtotal: potentialCart.subtotal,
       confirmed: false,
-    };
-
-    const orderDetails = JSON.stringify(order);
-    const encodedOrderDetails = encodeURIComponent(orderDetails);
-
-    if (paymentMethod === "COD") {
-      const url = `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`;
-
-      return res.status(200).json({ url });
-    }
+    });
 
     const session = await stripe.checkout.sessions.create({
+      client_reference_id: order._id.toString(),
       line_items: potentialCart.cartItems.map((item, index) => {
         return {
           price_data: {
@@ -72,69 +127,37 @@ export const cartCheckout = async (req: ExtendedRequest, res: Response) => {
         };
       }),
       mode: "payment",
-      success_url: `${process.env.ORIGIN}/confirmation?orderId=${encodedOrderDetails}`,
+      success_url: `${process.env.ORIGIN}/confirmation?orderId=${order._id}`,
       cancel_url: `${process.env.ORIGIN}/failed`,
     });
 
-    const { url } = session;
-    res.status(200).json({ url });
+    res.status(200).json({ url: session.url });
   } catch (err) {
-    console.log(err);
+    console.error("Checkout error:", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { encode } = req.params;
+    const { orderId } = req.params;
 
-    const decodedOrderDetails = decodeURIComponent(encode as string);
-    const orderObject = JSON.parse(decodedOrderDetails);
-
-    let orderToEncode;
-    let encodedOrderDetails;
-
-    if (orderObject.confirmed != true) {
-      orderObject.confirmed = true;
-      const order = await Order.create(orderObject);
-      orderToEncode = order;
-
-      await Cart.findOneAndUpdate(
-        { userId: order.userId },
-        {
-          $set: {
-            cartItems: [],
-            subtotal: 0,
-          },
-        },
-      );
-
-      order.items.map(async (item: any) => {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: {
-            stock: -item.quantity!,
-          },
-        });
-      });
-
-      const potentialUser = await User.findById(orderObject.userId);
-
-      await Promise.all(
-        order.items.map(async (item: any) => {
-          if (!potentialUser?.productsPurchased.includes(item.productId)) {
-            potentialUser?.productsPurchased.push(item.productId);
-          }
-        }),
-      );
-      await potentialUser?.save();
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    const potentialUser = await User.findById(orderObject.userId);
+    // Security check: ensure order belongs to requesting user
+    if (!order.userId || order.userId.toString() !== req.decode?._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized access to order" });
+    }
 
+    const potentialUser = await User.findById(order.userId);
     const productsPurchasedNew = potentialUser?.productsPurchased;
 
-    orderObject.items = await Promise.all(
-      orderObject.items.map(async (item: any) => {
+    const address = await Address.findById(order.addressId);
+    const itemsWithDetails = await Promise.all(
+      order.items.map(async (item: any) => {
         const product = await Product.findById(item.productId);
         const productObj = product!.toObject();
         const { quantity } = item;
@@ -146,24 +169,97 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
       }),
     );
 
-    const address = await Address.findById(orderObject.addressId);
-    orderObject.address = address;
+    const orderObject = {
+      ...order.toObject(),
+      items: itemsWithDetails,
+      address,
+    };
 
-    if (orderToEncode) {
-      const orderDetails = JSON.stringify(orderToEncode);
-      encodedOrderDetails = encodeURIComponent(orderDetails);
+    if (order.confirmed) {
+      return res.status(200).json({
+        orderObject,
+        productsPurchasedNew,
+        message: "Order placed Succesfully",
+      });
     } else {
-      encodedOrderDetails = null;
+      // Return 200 but indicating it is not confirmed yet so client can poll
+      return res.status(200).json({
+        orderObject,
+        productsPurchasedNew,
+        message: "Order payment is pending verification.",
+      });
     }
-
-    res.status(200).json({
-      orderObject,
-      encodedOrderDetails,
-      productsPurchasedNew,
-      message: "Order placed Succesfully",
-    });
   } catch (err) {
-    console.log(err);
+    console.error("Confirm order error:", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+};
+
+export const stripeWebhook = async (req: Request, res: Response) => {
+  const sig = req.headers["stripe-signature"] as string;
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+  } catch (err: any) {
+    console.error("Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle checkout.session.completed event
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.client_reference_id;
+
+    if (orderId) {
+      try {
+        const order = await Order.findById(orderId);
+        if (order && !order.confirmed) {
+          order.confirmed = true;
+          await order.save();
+
+          // Decrement stock
+          await Promise.all(
+            order.items.map(async (item) => {
+              await Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: -item.quantity! },
+              });
+            })
+          );
+
+          // Clear user's cart
+          await Cart.findOneAndUpdate(
+            { userId: order.userId },
+            { $set: { cartItems: [], subtotal: 0 } }
+          );
+
+          // Update user's purchased products list
+          const user = await User.findById(order.userId);
+          if (user) {
+            order.items.forEach((item) => {
+              if (item.productId) {
+                const prodIdStr = item.productId.toString();
+                const purchasedStrings = user.productsPurchased.map((id: any) => id.toString());
+                if (!purchasedStrings.includes(prodIdStr)) {
+                  user.productsPurchased.push(item.productId as any);
+                }
+              }
+            });
+            await user.save();
+          }
+
+          console.log(`Order ${orderId} successfully confirmed via webhook.`);
+        }
+      } catch (err) {
+        console.error(`Error processing webhook fulfillment for order ${orderId}:`, err);
+        return res.status(500).send("Internal Server Error during fulfillment");
+      }
+    }
+  }
+
+  res.status(200).json({ received: true });
 };

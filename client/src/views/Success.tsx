@@ -46,7 +46,7 @@ const Success = () => {
       setSubtotal(subtotal)
     } catch (err: any) {
       toast({
-        title: err.response.data.message,
+        title: err.response?.data?.message || "Error loading order details",
         status: 'error',
         duration: 3000
       })
@@ -54,8 +54,10 @@ const Success = () => {
   }
 
   useEffect(() => {
-    requestOrderConfirmation()
-  }, [])
+    if (orderId) {
+      requestOrderConfirmation();
+    }
+  }, [orderId])
 
   return (
     <>
