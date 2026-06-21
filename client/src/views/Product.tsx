@@ -125,7 +125,7 @@ function Product () {
     const requestAddReview = async () => {
         try {
             setReviewLoading(true)
-            await axios.post(`${API_URL}/review/post/${decode?._id}/${product?._id}`, {
+            await axios.post(`${API_URL}/review/post/${product?._id}`, {
                 review,
                 stars: rating
             })
