@@ -10,7 +10,10 @@ const userModel_1 = __importDefault(require("../models/userModel"));
 const mongoose_1 = require("mongoose");
 const addReview = async (req, res) => {
     try {
-        const { productId, userId } = req.params;
+        if (!req.decode)
+            return res.status(401).json({ message: "User not authenticated" });
+        const { productId } = req.params;
+        const { _id: userId } = req.decode;
         const { review, stars } = req.body;
         const user = await userModel_1.default.findById(userId);
         const productPurchased = user === null || user === void 0 ? void 0 : user.productsPurchased.includes(new mongoose_1.Types.ObjectId(productId));

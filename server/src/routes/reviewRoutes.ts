@@ -4,7 +4,7 @@ import verifyToken from "../middleware/verifyToken";
 
 const router = Router()
 
-router.post('/post/:userId/:productId', verifyToken, addReview)
+router.post('/post/:productId', verifyToken, addReview)
 router.get('/:productId', verifyToken, getReviews)
 
 router.delete('/delete/:reviewId', verifyToken, deleteReview)

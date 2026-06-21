@@ -1,12 +1,17 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import Product from "../models/productModel";
 import Review from "../models/reviewModel";
 import User from "../models/userModel";
 import { Types } from "mongoose";
+import { ExtendedRequest } from "../middleware/verifyToken";
 
-export const addReview = async (req: Request, res: Response) => {
+export const addReview = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { productId, userId } = req.params;
+    if(!req.decode)
+      return res.status(401).json({ message: "User not authenticated" })
+
+    const { productId } = req.params;
+    const { _id: userId } = req.decode;
     const { review, stars } = req.body;
 
     const user = await User.findById(userId);
@@ -39,7 +44,7 @@ export const addReview = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteReview = async (req: Request, res: Response) => {
+export const deleteReview = async (req: ExtendedRequest, res: Response) => {
   try {
     const { reviewId } = req.params;
 
@@ -56,7 +61,7 @@ export const deleteReview = async (req: Request, res: Response) => {
   }
 };
 
-export const getReviews = async (req: Request, res: Response) => {
+export const getReviews = async (req: ExtendedRequest, res: Response) => {
   try {
     const { productId } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
